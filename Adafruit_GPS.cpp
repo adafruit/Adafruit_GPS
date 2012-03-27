@@ -13,9 +13,6 @@ All text above must be included in any redistribution
 #include <Adafruit_GPS.h>
 
 
-
-Adafruit_GPS GPS;
-
 // we double buffer: read one line in and leave one for the main program
 volatile char line1[MAXLINELENGTH];
 volatile char line2[MAXLINELENGTH];
@@ -26,19 +23,6 @@ volatile char *currentline;
 volatile char *lastline;
 volatile boolean recvdflag;
 
-
-// a ticker to divide out 1ms rate to 10ms period instead
-static volatile uint8_t compA_Ticker = 0;
-#define compA_MAX 1
-
-SIGNAL(TIMER0_COMPA_vect) {
-   compA_Ticker++;
-  if (compA_Ticker < compA_MAX)
-    return;
-  compA_Ticker = 0;
-
-  GPS.read();
-}
 
 boolean Adafruit_GPS::parse(char *nmea) {
 
@@ -218,18 +202,13 @@ Adafruit_GPS::Adafruit_GPS(void) {
   lineidx = 0;
   currentline = line1;
   lastline = line2;
-  interrupt = false; // do not use interrupt!
-}
-
-void Adafruit_GPS::interruptReads(boolean r) {
-  interrupt = r;
-  if (interrupt) {
-    OCR0A = 0x10;
-    TIMSK0 |= _BV(OCIE0A);
-  } else {
-    TIMSK0 &= ~_BV(OCIE0A);
-  }
-  compA_Ticker = 0;
+  
+  hour = minute = seconds = year = month = day = milliseconds = 0;
+  latitude = longitude = geoidheight = altitude = 0;
+  speed = angle = magvariation = HDOP = 0;
+  lat = lon = mag = 0;
+  fix = false;
+  fixquality = satellites = 0;
 }
 
 // Constructor when using SoftwareSerial or NewSoftSerial

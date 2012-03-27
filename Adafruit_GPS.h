@@ -77,7 +77,6 @@ class Adafruit_GPS {
 
  private:
   boolean paused;
-  boolean interrupt;
   
   uint8_t parseResponse(char *response);
 #if ARDUINO >= 100
@@ -88,9 +87,5 @@ class Adafruit_GPS {
   HardwareSerial *gpsHwSerial;
 };
 
-
-
-
-extern Adafruit_GPS GPS;
 
 #endif
