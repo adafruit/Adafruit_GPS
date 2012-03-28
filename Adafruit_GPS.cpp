@@ -12,6 +12,8 @@ All text above must be included in any redistribution
 
 #include <Adafruit_GPS.h>
 
+// how long are max NMEA lines to parse?
+#define MAXLINELENGTH 120
 
 // we double buffer: read one line in and leave one for the main program
 volatile char line1[MAXLINELENGTH];
@@ -25,13 +27,27 @@ volatile boolean recvdflag;
 
 
 boolean Adafruit_GPS::parse(char *nmea) {
+  // do checksum check
+
+  // first look if we even have one
+  if (nmea[strlen(nmea)-4] == '*') {
+    uint16_t sum = parseHex(nmea[strlen(nmea)-3]) * 16;
+    sum += parseHex(nmea[strlen(nmea)-2]);
+    
+    // check checksum 
+    for (uint8_t i=1; i < (strlen(nmea)-4); i++) {
+      sum ^= nmea[i];
+    }
+    if (sum != 0) {
+      // bad checksum :(
+      //return false;
+    }
+  }
 
   // look for a few common sentences
-
   if (strstr(nmea, "$GPGGA")) {
     // found GGA
     char *p = nmea;
-
     // get time
     p = strchr(p, ',')+1;
     float timef = atof(p);
@@ -41,7 +57,6 @@ boolean Adafruit_GPS::parse(char *nmea) {
     seconds = (time % 100);
 
     milliseconds = fmod(timef, 1.0) * 1000;
-    p = strchr(p, ',')+1;
 
     // parse out latitude
     p = strchr(p, ',')+1;
@@ -80,7 +95,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     return true;
   }
   if (strstr(nmea, "$GPRMC")) {
-    // found RMC
+   // found RMC
     char *p = nmea;
 
     // get time
@@ -94,6 +109,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     milliseconds = fmod(timef, 1.0) * 1000;
 
     p = strchr(p, ',')+1;
+    // Serial.println(p);
     if (p[0] == 'A') 
       fix = true;
     else if (p[0] == 'V')
@@ -142,13 +158,15 @@ boolean Adafruit_GPS::parse(char *nmea) {
   return false;
 }
 
-void Adafruit_GPS::read(void) {
+char Adafruit_GPS::read(void) {
+  char c = 0;
+  
   if (paused)
-    return;
+    return c;
 
 
   if (gpsSwSerial->available()) {
-    char c = gpsSwSerial->read();
+    c = gpsSwSerial->read();
 
     //Serial.print(c);
 
@@ -166,37 +184,32 @@ void Adafruit_GPS::read(void) {
         currentline = line1;
         lastline = line2;
       }
-      /*
-      Serial.println("----");
-      Serial.println((char *)lastline);
-      Serial.println("----");
-      */
-      // do checksum check
+      
 
-      // first look if we even have one
-      if (lastline[lineidx-4] == '*') {
-	uint16_t sum = parseHex(lastline[lineidx-3]) * 16;
-	sum += parseHex(lastline[lineidx-2]);
-	
-	// check checksum 
-	for (uint8_t i=1; i < (lineidx-4); i++) {
-	  sum ^= lastline[i];
-	}
-	if (sum == 0) {
-	  recvdflag = true;
-	}
-      }
+      //Serial.println("----");
+      //Serial.println((char *)lastline);
+      //Serial.println("----");
       lineidx = 0;
- 
+      recvdflag = true;
     }
+    
     currentline[lineidx++] = c;
     if (lineidx >= MAXLINELENGTH)
       lineidx = MAXLINELENGTH-1;
   }
+  return c;
 }
 
-Adafruit_GPS::Adafruit_GPS(void) {
+// Constructor when using SoftwareSerial or NewSoftSerial
+#if ARDUINO >= 100
+Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser) {
+#else
+  Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser) {
+#endif
+
   common_init();  // Set everything to common state, then...
+  gpsSwSerial = ser; // ...override swSerial with value passed.
+
   recvdflag = false;
   paused = false;
   lineidx = 0;
@@ -211,17 +224,9 @@ Adafruit_GPS::Adafruit_GPS(void) {
   fixquality = satellites = 0;
 }
 
-// Constructor when using SoftwareSerial or NewSoftSerial
-#if ARDUINO >= 100
-void Adafruit_GPS::begin(SoftwareSerial *ser, uint16_t baud) 
-#else
-void Adafruit_GPS::begin(NewSoftSerial *ser, uint16_t baud) 
-#endif
+
+void Adafruit_GPS::begin(uint16_t baud) 
 {
-  gpsSwSerial = ser; // ...override swSerial with value passed.
-
-
-  // 9600 NMEA is the default baud rate
   gpsSwSerial->begin(baud);
 }
 

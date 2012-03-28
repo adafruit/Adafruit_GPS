@@ -40,19 +40,17 @@ All text above must be included in any redistribution
  #include "NewSoftSerial.h"
 #endif
 
-// how long are max NMEA lines to parse?
-#define MAXLINELENGTH 100
 
 class Adafruit_GPS {
  public:
-  Adafruit_GPS(void); // Constructor when using SoftwareSerial
+  void begin(uint16_t baud); 
 
 #if ARDUINO >= 100
-  void begin(SoftwareSerial *ser, uint16_t baud); // Constructor when using SoftwareSerial
+  Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
 #else
-  void begin(NewSoftSerial  *ser, uint16_t baud); // Constructor when using NewSoftSerial
+  Adafruit_GPS(NewSoftSerial  *ser); // Constructor when using NewSoftSerial
 #endif
-  void begin(HardwareSerial *ser, uint16_t baud); // Constructor when using HardwareSerial
+  Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
 
   char *lastNMEA(void);
   boolean newNMEAreceived();
@@ -63,7 +61,7 @@ class Adafruit_GPS {
   boolean parseNMEA(char *response);
   uint8_t parseHex(char c);
 
-  void read(void);
+  char read(void);
   boolean parse(char *);
   void interruptReads(boolean r);
 
