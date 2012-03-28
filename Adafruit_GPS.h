@@ -1,5 +1,12 @@
 /***********************************
-This is a our GPS library
+This is the Adafruit GPS library - the ultimate GPS library
+for the ultimate GPS module!
+
+Tested and works great with the Adafruit Ultimate GPS module
+using MTK33x9 chipset
+    ------> http://www.adafruit.com/products/746
+Pick one up today at the Adafruit electronics shop 
+and help support open source hardware & software! -ada
 
 Adafruit invests time and resources providing this open source code, 
 please support Adafruit and open-source hardware by purchasing 
