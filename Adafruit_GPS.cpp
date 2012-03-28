@@ -202,11 +202,11 @@ char Adafruit_GPS::read(void) {
 
 // Constructor when using SoftwareSerial or NewSoftSerial
 #if ARDUINO >= 100
-Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser) {
+Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
 #else
-  Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser) {
+  Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser) 
 #endif
-
+{
   common_init();  // Set everything to common state, then...
   gpsSwSerial = ser; // ...override swSerial with value passed.
 
@@ -228,38 +228,6 @@ Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser) {
 void Adafruit_GPS::begin(uint16_t baud) 
 {
   gpsSwSerial->begin(baud);
-}
-
-static uint16_t parsed[25];
-
-uint8_t Adafruit_GPS::parseResponse(char *response) {
-  uint8_t i;
-  
-  for (i=0; i<25; i++) parsed[i] = -1;
-
-  response = strstr(response, ",");
-
-  for (i=0; i<25; i++) {
-    if (!response || (response[0] == 0) || (response[0] == '*')) 
-      return i;
-    
-    response++;
-    parsed[i]=0;
-    while ((response[0] != ',') && (response[0] != '*') && (response[0] != 0)) {
-      parsed[i] *= 10;
-      char c = response[0];
-      //Serial.print("("); Serial.write(c); Serial.print(")");
-      if (isDigit(c))
-        parsed[i] += c - '0';
-      else
-        parsed[i] = c;
-      response++;
-    }
-    //Serial.print(i); Serial.print("   ");
-    //Serial.println(parsed[i]);
-    //Serial.println(response);
-  }
-  return i;
 }
 
 // Initialization code used by all constructor types
@@ -300,4 +268,77 @@ uint8_t Adafruit_GPS::parseHex(char c) {
        return 0;
     if (c <= 'F')
        return (c - 'A')+10;
+}
+
+
+boolean Adafruit_GPS::waitForSentence(char *wait4me, uint8_t max) {
+  char str[20];
+
+  uint8_t i=0;
+  while (i < max) {
+    if (newNMEAreceived()) { 
+      char *nmea = lastNMEA();
+      strncpy(str, nmea, 20);
+      str[19] = 0;
+      i++;
+
+      if (strstr(str, wait4me))
+	return true;
+    }
+  }
+
+  return false;
+}
+
+boolean Adafruit_GPS::LOCUS_StartLogger(void) {
+  sendCommand(PMTK_LOCUS_STARTLOG);
+  recvdflag = false;
+  return waitForSentence(PMTK_LOCUS_LOGSTARTED);
+}
+
+
+boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
+  sendCommand(PMTK_LOCUS_QUERY_STATUS);
+  
+  if (! waitForSentence("$PMTKLOG"))
+    return false;
+
+  char *response = lastNMEA();
+  uint16_t parsed[10];
+  uint8_t i;
+  
+  for (i=0; i<10; i++) parsed[i] = -1;
+  
+  response = strchr(response, ',');
+  for (i=0; i<10; i++) {
+    if (!response || (response[0] == 0) || (response[0] == '*')) 
+      break;
+    response++;
+    parsed[i]=0;
+    while ((response[0] != ',') && 
+	   (response[0] != '*') && (response[0] != 0)) {
+      parsed[i] *= 10;
+      char c = response[0];
+      if (isDigit(c))
+        parsed[i] += c - '0';
+      else
+        parsed[i] = c;
+      response++;
+    }
+  }
+  LOCUS_serial = parsed[0];
+  LOCUS_type = parsed[1];
+  if (isAlpha(parsed[2])) {
+    parsed[2] = parsed[2] - 'a' + 10; 
+  }
+  LOCUS_mode = parsed[2];
+  LOCUS_config = parsed[3];
+  LOCUS_interval = parsed[4];
+  LOCUS_distance = parsed[5];
+  LOCUS_speed = parsed[6];
+  LOCUS_status = !parsed[7];
+  LOCUS_records = parsed[8];
+  LOCUS_percent = parsed[9];
+
+  return true;
 }
