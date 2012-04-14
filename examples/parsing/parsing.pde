@@ -94,7 +94,7 @@ void useInterrupt(boolean v) {
   }
 }
 
-uint16_t timer = millis();
+unsigned long timer = millis();
 void loop()                     // run over and over again
 {
   // in case you are not using the interrupt above, you'll
