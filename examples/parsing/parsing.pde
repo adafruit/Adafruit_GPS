@@ -94,7 +94,7 @@ void useInterrupt(boolean v) {
   }
 }
 
-uint16_t timer = millis();
+uint32_t timer = millis();
 void loop()                     // run over and over again
 {
   // in case you are not using the interrupt above, you'll
@@ -119,7 +119,10 @@ void loop()                     // run over and over again
     if (!GPS.parse(GPS.lastNMEA()))   // this also sets the newNMEAreceived() flag to false
       return;  // we can fail to parse a sentence in which case we should just wait for another
   }
-  
+
+  // if millis() or timer wraps around, we'll just reset it
+  if (timer > millis())  timer = millis();
+
   // approximately every 2 seconds or so, print out the current stats
   if (millis() - timer > 2000) { 
     timer = millis(); // reset the timer
