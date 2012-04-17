@@ -56,8 +56,8 @@ void setup()
   // every 1 millisecond, and read data from the GPS for you. that makes the
   // loop code a heck of a lot easier!
   useInterrupt(true);
-
-  Serial.print("STARTING LOGGING....");
+  delay(500);
+  Serial.print("\nSTARTING LOGGING....");
   if (GPS.LOCUS_StartLogger())
     Serial.println(" STARTED!");
   else
@@ -96,6 +96,5 @@ void useInterrupt(boolean v) {
     usingInterrupt = false;
   }
 }
-
 
 
