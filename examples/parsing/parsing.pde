@@ -12,31 +12,45 @@
 // and help support open source hardware & software! -ada
 
 #include <Adafruit_GPS.h>
+#if ARDUINO >= 100
+ #include <SoftwareSerial.h>
+#else
+  // Older Arduino IDE requires NewSoftSerial, download from:
+  // http://arduiniana.org/libraries/newsoftserial/
+ #include <NewSoftSerial.h>
+ // DO NOT install NewSoftSerial if using Arduino 1.0 or later!
+#endif
 
-// these are for Arduino 1.0
-#include <SoftwareSerial.h>
-SoftwareSerial mySerial(3, 2);
+// Connect the GPS Power pin to 5V
+// Connect the GPS Ground pin to ground
+// If using software serial (sketch example default):
+//   Connect the GPS TX (transmit) pin to Digital 3
+//   Connect the GPS RX (receive) pin to Digital 2
+// If using hardware serial (e.g. Arduino Mega):
+//   Connect the GPS TX (transmit) pin to Arduino RX1, RX2 or RX3
+//   Connect the GPS RX (receive) pin to matching TX1, TX2 or TX3
 
-// if using Arduino v23 or earlier, uncomment these
-// two lines and comment out the above. You will
-// need to install NewSoftSerial
-//  #include <NewSoftSerial.h>
-//  NewSoftSerial mySerial(3, 2);
+// If using software serial, keep these lines enabled
+// (you can change the pin numbers to match your wiring):
+#if ARDUINO >= 100
+  SoftwareSerial mySerial(3, 2);
+#else
+  NewSoftSerial mySerial(3, 2);
+#endif
+Adafruit_GPS GPS(&mySerial);
+// If using hardware serial (e.g. Arduino Mega), comment
+// out the above six lines and enable this line instead:
+//Adafruit_GPS GPS(&Serial1);
+
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
 #define GPSECHO  true
 
-// Connect the GPS Power pin to 5V
-// Connect the GPS Ground pin to ground
-// Connect the GPS TX (transmit) pin to Digital 3
-// Connect the GPS RX (receive) pin to Digital 2
-Adafruit_GPS GPS(&mySerial);
-
-
 // this keeps track of whether we're using the interrupt
 // off by default!
 boolean usingInterrupt = false;
+void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
 void setup()  
 {
@@ -136,8 +150,8 @@ void loop()                     // run over and over again
     Serial.print(GPS.day, DEC); Serial.print('/');
     Serial.print(GPS.month, DEC); Serial.print("/20");
     Serial.println(GPS.year, DEC);
-    Serial.print("Fix: "); Serial.print(GPS.fix);
-    Serial.print(" quality: "); Serial.println(GPS.fixquality); 
+    Serial.print("Fix: "); Serial.print((int)GPS.fix);
+    Serial.print(" quality: "); Serial.println((int)GPS.fixquality); 
     if (GPS.fix) {
       Serial.print("Location: ");
       Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
@@ -147,7 +161,7 @@ void loop()                     // run over and over again
       Serial.print("Speed (knots): "); Serial.println(GPS.speed);
       Serial.print("Angle: "); Serial.println(GPS.angle);
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
-      Serial.print("Satellites: "); Serial.println(GPS.satellites);
+      Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     }
   }
 }

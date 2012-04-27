@@ -1,11 +1,11 @@
 /***********************************
-This is a our GPS library
+This is our GPS library
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
@@ -161,42 +161,44 @@ boolean Adafruit_GPS::parse(char *nmea) {
 char Adafruit_GPS::read(void) {
   char c = 0;
   
-  if (paused)
-    return c;
+  if (paused) return c;
 
-
-  if (gpsSwSerial->available()) {
+  if(gpsSwSerial) {
+    if(!gpsSwSerial->available()) return c;
     c = gpsSwSerial->read();
-
-    //Serial.print(c);
-
-    if (c == '$') {
-      currentline[lineidx] = 0;
-      lineidx = 0;
-    }
-    if (c == '\n') {
-      currentline[lineidx] = 0;
-
-      if (currentline == line1) {
-        currentline = line2;
-        lastline = line1;
-      } else {
-        currentline = line1;
-        lastline = line2;
-      }
-      
-
-      //Serial.println("----");
-      //Serial.println((char *)lastline);
-      //Serial.println("----");
-      lineidx = 0;
-      recvdflag = true;
-    }
-    
-    currentline[lineidx++] = c;
-    if (lineidx >= MAXLINELENGTH)
-      lineidx = MAXLINELENGTH-1;
+  } else {
+    if(!gpsHwSerial->available()) return c;
+    c = gpsHwSerial->read();
   }
+
+  //Serial.print(c);
+
+  if (c == '$') {
+    currentline[lineidx] = 0;
+    lineidx = 0;
+  }
+  if (c == '\n') {
+    currentline[lineidx] = 0;
+
+    if (currentline == line1) {
+      currentline = line2;
+      lastline = line1;
+    } else {
+      currentline = line1;
+      lastline = line2;
+    }
+
+    //Serial.println("----");
+    //Serial.println((char *)lastline);
+    //Serial.println("----");
+    lineidx = 0;
+    recvdflag = true;
+  }
+
+  currentline[lineidx++] = c;
+  if (lineidx >= MAXLINELENGTH)
+    lineidx = MAXLINELENGTH-1;
+
   return c;
 }
 
@@ -204,49 +206,52 @@ char Adafruit_GPS::read(void) {
 #if ARDUINO >= 100
 Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
 #else
-  Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser) 
+Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser) 
 #endif
 {
-  common_init();  // Set everything to common state, then...
-  gpsSwSerial = ser; // ...override swSerial with value passed.
-
-  recvdflag = false;
-  paused = false;
-  lineidx = 0;
-  currentline = line1;
-  lastline = line2;
-  
-  hour = minute = seconds = year = month = day = milliseconds = 0;
-  latitude = longitude = geoidheight = altitude = 0;
-  speed = angle = magvariation = HDOP = 0;
-  lat = lon = mag = 0;
-  fix = false;
-  fixquality = satellites = 0;
+  common_init();     // Set everything to common state, then...
+  gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
 }
 
-
-void Adafruit_GPS::begin(uint16_t baud) 
-{
-  gpsSwSerial->begin(baud);
+// Constructor when using HardwareSerial
+Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
+  common_init();  // Set everything to common state, then...
+  gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
 }
 
 // Initialization code used by all constructor types
 void Adafruit_GPS::common_init(void) {
-  gpsSwSerial  = NULL;
-  gpsHwSerial  = NULL;
+  gpsSwSerial = NULL; // Set both to NULL, then override correct
+  gpsHwSerial = NULL; // port pointer in corresponding constructor
+  recvdflag   = false;
+  paused      = false;
+  lineidx     = 0;
+  currentline = line1;
+  lastline    = line2;
+
+  hour = minute = seconds = year = month = day =
+    fixquality = satellites = 0; // uint8_t
+  lat = lon = mag = 0; // char
+  fix = false; // boolean
+  milliseconds = 0; // uint16_t
+  latitude = longitude = geoidheight = altitude =
+    speed = angle = magvariation = HDOP = 0.0; // float
 }
 
+void Adafruit_GPS::begin(uint16_t baud)
+{
+  if(gpsSwSerial) gpsSwSerial->begin(baud);
+  else            gpsHwSerial->begin(baud);
+}
 
 void Adafruit_GPS::sendCommand(char *str) {
-  gpsSwSerial->println(str);
+  if(gpsSwSerial) gpsSwSerial->println(str);
+  else            gpsHwSerial->println(str);
 }
-
-
 
 boolean Adafruit_GPS::newNMEAreceived(void) {
   return recvdflag;
 }
-
 
 void Adafruit_GPS::pause(boolean p) {
   paused = p;
@@ -256,7 +261,6 @@ char *Adafruit_GPS::lastNMEA(void) {
   recvdflag = false;
   return (char *)lastline;
 }
-
 
 // read a Hex value and return the decimal equivalent
 uint8_t Adafruit_GPS::parseHex(char c) {
@@ -269,7 +273,6 @@ uint8_t Adafruit_GPS::parseHex(char c) {
     if (c <= 'F')
        return (c - 'A')+10;
 }
-
 
 boolean Adafruit_GPS::waitForSentence(char *wait4me, uint8_t max) {
   char str[20];
@@ -295,7 +298,6 @@ boolean Adafruit_GPS::LOCUS_StartLogger(void) {
   recvdflag = false;
   return waitForSentence(PMTK_LOCUS_LOGSTARTED);
 }
-
 
 boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
   sendCommand(PMTK_LOCUS_QUERY_STATUS);
