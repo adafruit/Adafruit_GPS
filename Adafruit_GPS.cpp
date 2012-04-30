@@ -24,6 +24,7 @@ volatile uint8_t lineidx=0;
 volatile char *currentline;
 volatile char *lastline;
 volatile boolean recvdflag;
+volatile boolean inStandbyMode;
 
 
 boolean Adafruit_GPS::parse(char *nmea) {
@@ -343,4 +344,28 @@ boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
   LOCUS_percent = parsed[9];
 
   return true;
+}
+
+// Standby Mode Switches
+boolean Adafruit_GPS::standby(void) {
+  if (inStandbyMode) {
+    return false;  // Returns false if already in standby mode, so that you do not wake it up by sending commands to GPS
+  }
+  else {
+    inStandbyMode = true;
+    sendCommand(PMTK_STANDBY);
+    //return waitForSentence(PMTK_STANDBY_SUCCESS);  // don't seem to be fast enough to catch the message, or something else just is not working
+    return true;
+  }
+}
+
+boolean Adafruit_GPS::wakeup(void) {
+  if (inStandbyMode) {
+   inStandbyMode = false;
+    sendCommand("");  // send byte to wake it up
+    return waitForSentence(PMTK_AWAKE);
+  }
+  else {
+      return false;  // Returns false if not in standby mode, nothing to wakeup
+  }
 }
