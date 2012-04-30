@@ -57,7 +57,7 @@ void setup()
     
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
-  Serial.begin(115200);
+  Serial.begin(57600);
   Serial.println("Adafruit GPS library basic test!");
 
   // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
@@ -109,6 +109,7 @@ void useInterrupt(boolean v) {
 }
 
 uint32_t timer = millis();
+uint32_t timer2 = millis();
 void loop()                     // run over and over again
 {
   // in case you are not using the interrupt above, you'll
@@ -139,7 +140,7 @@ void loop()                     // run over and over again
 
   // approximately every 2 seconds or so, print out the current stats
   if (millis() - timer > 2000) { 
-    timer = millis(); // reset the timer
+    static boolean inStandby = false;
     
     Serial.print("\nTime: ");
     Serial.print(GPS.hour, DEC); Serial.print(':');
@@ -162,6 +163,25 @@ void loop()                     // run over and over again
       Serial.print("Angle: "); Serial.println(GPS.angle);
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+      
+      if (!inStandby)
+      {
+        Serial.println("--------------------");
+         Serial.println("Have GPS Lock, going to sleep GPS");
+        inStandby = GPS.standby();
+        Serial.print("Sent Standby Command: ");
+        Serial.println(inStandby);
+      }
     }
+    
+    if (inStandby && millis() - timer2 > 10000)
+    {
+      timer2 = millis(); // reset the timer
+      Serial.println("--------------------");
+      Serial.print("Waking GPS Up Now: ");
+      Serial.println(GPS.wakeup());
+      inStandby = false;
+    }
+  
   }
 }
