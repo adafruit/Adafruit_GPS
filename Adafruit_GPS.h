@@ -37,11 +37,16 @@ All text above must be included in any redistribution
 // to generate your own sentences, check out the MTK command datasheet and use a checksum calculator
 // such as the awesome http://www.hhhh.org/wiml/proj/nmeaxor.html
 
-#define PMTK_LOCUS_STARTLOG  "$PMTK185,0*22"
+#define PMTK_LOCUS_STARTLOG "$PMTK185,0*22"
 #define PMTK_LOCUS_LOGSTARTED "$PMTK001,185,3*3C"
 #define PMTK_LOCUS_QUERY_STATUS "$PMTK183*38"
 #define LOCUS_OVERLAP 0
 #define LOCUS_FULLSTOP 1
+
+// standby command & boot successful message
+#define PMTK_STANDBY "$PMTK161,0*28"
+#define PMTK_STANDBY_SUCCESS "$PMTK001,161,3*3"  // Not needed currently
+#define PMTK_AWAKE "$PMTK010,002*2D"
 
 
 // how long to wait when we're looking for a response
@@ -91,6 +96,9 @@ class Adafruit_GPS {
   boolean waitForSentence(char *wait, uint8_t max = MAXWAITSENTENCE);
   boolean LOCUS_StartLogger(void);
   boolean LOCUS_ReadStatus(void);
+  
+  boolean standby(void);
+  boolean wakeup(void);
 
   uint16_t LOCUS_serial, LOCUS_records;
   uint8_t LOCUS_type, LOCUS_mode, LOCUS_config, LOCUS_interval, LOCUS_distance, LOCUS_speed, LOCUS_status, LOCUS_percent;
