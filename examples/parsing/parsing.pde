@@ -67,6 +67,8 @@ void setup()
   useInterrupt(true);
 
   delay(1000);
+  // Ask for firmware version
+  mySerial.println(PMTK_Q_RELEASE);
 }
 
 

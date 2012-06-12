@@ -43,6 +43,8 @@ All text above must be included in any redistribution
 #define LOCUS_OVERLAP 0
 #define LOCUS_FULLSTOP 1
 
+// ask for the release and version
+#define PMTK_Q_RELEASE "$PMTK605*31"
 
 // how long to wait when we're looking for a response
 #define MAXWAITSENTENCE 5
