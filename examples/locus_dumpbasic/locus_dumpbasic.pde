@@ -11,22 +11,35 @@
 // and help support open source hardware & software! -ada
 
 #include <Adafruit_GPS.h>
-
-// these are for Arduino 1.0
-#include <SoftwareSerial.h>
-SoftwareSerial mySerial(3, 2);
-
-// if using Arduino v23 or earlier, uncomment these
-// two lines and comment out the above. You will
-// need to install NewSoftSerial
-//  #include <NewSoftSerial.h>
-//  NewSoftSerial mySerial(3, 2);
+#if ARDUINO >= 100
+ #include <SoftwareSerial.h>
+#else
+  // Older Arduino IDE requires NewSoftSerial, download from:
+  // http://arduiniana.org/libraries/newsoftserial/
+ #include <NewSoftSerial.h>
+ // DO NOT install NewSoftSerial if using Arduino 1.0 or later!
+#endif
 
 // Connect the GPS Power pin to 5V
 // Connect the GPS Ground pin to ground
-// Connect the GPS TX (transmit) pin to Digital 3
-// Connect the GPS RX (receive) pin to Digital 2
+// If using software serial (sketch example default):
+//   Connect the GPS TX (transmit) pin to Digital 3
+//   Connect the GPS RX (receive) pin to Digital 2
+// If using hardware serial (e.g. Arduino Mega):
+//   Connect the GPS TX (transmit) pin to Arduino RX1, RX2 or RX3
+//   Connect the GPS RX (receive) pin to matching TX1, TX2 or TX3
+
+// If using software serial, keep these lines enabled
+// (you can change the pin numbers to match your wiring):
+#if ARDUINO >= 100
+  SoftwareSerial mySerial(3, 2);
+#else
+  NewSoftSerial mySerial(3, 2);
+#endif
 Adafruit_GPS GPS(&mySerial);
+// If using hardware serial (e.g. Arduino Mega), comment
+// out the above six lines and enable this line instead:
+//Adafruit_GPS GPS(&Serial1);
 
 void setup()  
 {    
@@ -39,7 +52,8 @@ void setup()
   GPS.begin(9600);
   
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_OFF);
-  
+
+  // If using hardware serial (e.g. Arduino Mega), change this to Serial1, etc.
   while (mySerial.available())
      mySerial.read();
 
@@ -51,10 +65,10 @@ void setup()
 
 void loop()                     // run over and over again
 {  
+  // If using hardware serial (e.g. Arduino Mega), change this to Serial1, etc.
   if (mySerial.available()) {
     char c = mySerial.read();
       if (c) UDR0 = c;  
   }
 }
-
 

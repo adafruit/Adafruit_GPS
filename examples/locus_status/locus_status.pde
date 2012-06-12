@@ -11,22 +11,36 @@
 // and help support open source hardware & software! -ada
 
 #include <Adafruit_GPS.h>
-
-// these are for Arduino 1.0
-#include <SoftwareSerial.h>
-SoftwareSerial mySerial(3, 2);
-
-// if using Arduino v23 or earlier, uncomment these
-// two lines and comment out the above. You will
-// need to install NewSoftSerial
-//  #include <NewSoftSerial.h>
-//  NewSoftSerial mySerial(3, 2);
+#if ARDUINO >= 100
+ #include <SoftwareSerial.h>
+#else
+  // Older Arduino IDE requires NewSoftSerial, download from:
+  // http://arduiniana.org/libraries/newsoftserial/
+ #include <NewSoftSerial.h>
+ // DO NOT install NewSoftSerial if using Arduino 1.0 or later!
+#endif
 
 // Connect the GPS Power pin to 5V
 // Connect the GPS Ground pin to ground
-// Connect the GPS TX (transmit) pin to Digital 3
-// Connect the GPS RX (receive) pin to Digital 2
+// If using software serial (sketch example default):
+//   Connect the GPS TX (transmit) pin to Digital 3
+//   Connect the GPS RX (receive) pin to Digital 2
+// If using hardware serial (e.g. Arduino Mega):
+//   Connect the GPS TX (transmit) pin to Arduino RX1, RX2 or RX3
+//   Connect the GPS RX (receive) pin to matching TX1, TX2 or TX3
+
+// If using software serial, keep these lines enabled
+// (you can change the pin numbers to match your wiring):
+#if ARDUINO >= 100
+  SoftwareSerial mySerial(3, 2);
+#else
+  NewSoftSerial mySerial(3, 2);
+#endif
 Adafruit_GPS GPS(&mySerial);
+// If using hardware serial (e.g. Arduino Mega), comment
+// out the above six lines and enable this line instead:
+//Adafruit_GPS GPS(&Serial1);
+
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
@@ -35,6 +49,7 @@ Adafruit_GPS GPS(&mySerial);
 // this keeps track of whether we're using the interrupt
 // off by default!
 boolean usingInterrupt = false;
+void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
 void setup()  
 {    
@@ -89,17 +104,17 @@ void loop()                     // run over and over again
     if (GPS.LOCUS_mode & 0x10) Serial.print(" Distance");
     if (GPS.LOCUS_mode & 0x20) Serial.print(" Speed");
     
-    Serial.print(", Content "); Serial.print(GPS.LOCUS_config);
-    Serial.print(", Interval "); Serial.print(GPS.LOCUS_interval);
-    Serial.print(" sec, Distance "); Serial.print(GPS.LOCUS_distance);
-    Serial.print(" m, Speed "); Serial.print(GPS.LOCUS_speed);
+    Serial.print(", Content "); Serial.print((int)GPS.LOCUS_config);
+    Serial.print(", Interval "); Serial.print((int)GPS.LOCUS_interval);
+    Serial.print(" sec, Distance "); Serial.print((int)GPS.LOCUS_distance);
+    Serial.print(" m, Speed "); Serial.print((int)GPS.LOCUS_speed);
     Serial.print(" m/s, Status "); 
     if (GPS.LOCUS_status) 
       Serial.print("LOGGING, ");
     else 
       Serial.print("OFF, ");
-    Serial.print(GPS.LOCUS_records); Serial.print(" Records, ");
-    Serial.print(GPS.LOCUS_percent); Serial.print("% Used "); 
+    Serial.print((int)GPS.LOCUS_records); Serial.print(" Records, ");
+    Serial.print((int)GPS.LOCUS_percent); Serial.print("% Used "); 
 
   }
 }
