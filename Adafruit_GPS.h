@@ -25,6 +25,10 @@ All text above must be included in any redistribution
 #define PMTK_SET_NMEA_UPDATE_5HZ  "$PMTK220,200*2C"
 #define PMTK_SET_NMEA_UPDATE_10HZ "$PMTK220,100*2F"
 
+
+#define PMTK_SET_BAUD_57600 "$PMTK250,1,0,57600*2C"
+#define PMTK_SET_BAUD_9600 "$PMTK250,1,0,9600*17"
+
 // turn on only the second sentence (GPRMC)
 #define PMTK_SET_NMEA_OUTPUT_RMCONLY "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"
 // turn on GPRMC and GGA
@@ -40,6 +44,7 @@ All text above must be included in any redistribution
 #define PMTK_LOCUS_STARTLOG  "$PMTK185,0*22"
 #define PMTK_LOCUS_LOGSTARTED "$PMTK001,185,3*3C"
 #define PMTK_LOCUS_QUERY_STATUS "$PMTK183*38"
+#define PMTK_LOCUS_ERASE_FLASH "$PMTK184,1*22"
 #define LOCUS_OVERLAP 0
 #define LOCUS_FULLSTOP 1
 
