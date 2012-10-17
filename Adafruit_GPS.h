@@ -26,8 +26,8 @@ All text above must be included in any redistribution
 #define PMTK_SET_NMEA_UPDATE_10HZ "$PMTK220,100*2F"
 
 
-#define PMTK_SET_BAUD_57600 "$PMTK250,1,0,57600*2C"
-#define PMTK_SET_BAUD_9600 "$PMTK250,1,0,9600*17"
+#define PMTK_SET_BAUD_57600 "$PMTK251,57600*2C"
+#define PMTK_SET_BAUD_9600 "$PMTK251,9600*17"
 
 // turn on only the second sentence (GPRMC)
 #define PMTK_SET_NMEA_OUTPUT_RMCONLY "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"
