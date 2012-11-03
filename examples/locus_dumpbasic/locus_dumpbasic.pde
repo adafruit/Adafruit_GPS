@@ -16,7 +16,7 @@
 #else
   // Older Arduino IDE requires NewSoftSerial, download from:
   // http://arduiniana.org/libraries/newsoftserial/
- #include <NewSoftSerial.h>
+// #include <NewSoftSerial.h>
  // DO NOT install NewSoftSerial if using Arduino 1.0 or later!
 #endif
 
