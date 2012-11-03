@@ -20,6 +20,13 @@ All text above must be included in any redistribution
 #ifndef _ADAFRUIT_GPS_H
 #define _ADAFRUIT_GPS_H
 
+#include <Adafruit_GPS.h>
+#if ARDUINO >= 100
+ #include <SoftwareSerial.h>
+#else
+ #include <NewSoftSerial.h>
+#endif
+
 // different commands to set the update rate from once a second (1 Hz) to 10 times a second (10Hz)
 #define PMTK_SET_NMEA_UPDATE_1HZ  "$PMTK220,1000*1F"
 #define PMTK_SET_NMEA_UPDATE_5HZ  "$PMTK220,200*2C"
@@ -56,7 +63,9 @@ All text above must be included in any redistribution
 
 #if ARDUINO >= 100
  #include "Arduino.h"
+#if !defined(__AVR_ATmega32U4__)
  #include "SoftwareSerial.h"
+#endif
 #else
  #include "WProgram.h"
  #include "NewSoftSerial.h"
@@ -67,7 +76,7 @@ class Adafruit_GPS {
  public:
   void begin(uint16_t baud); 
 
-#if ARDUINO >= 100
+#if ARDUINO >= 100 
   Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
 #else
   Adafruit_GPS(NewSoftSerial  *ser); // Constructor when using NewSoftSerial
