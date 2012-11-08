@@ -55,6 +55,11 @@ All text above must be included in any redistribution
 #define LOCUS_OVERLAP 0
 #define LOCUS_FULLSTOP 1
 
+// standby command
+#define PMTK_STANDBY "$PMTK161,0*28"
+// response to wakeup (GPS unit also gives "$PMTK010,002*2D")
+#define PMTK_AWAKE "*$PMTK010,001*2E"
+
 // ask for the release and version
 #define PMTK_Q_RELEASE "$PMTK605*31"
 
@@ -95,6 +100,9 @@ class Adafruit_GPS {
   char read(void);
   boolean parse(char *);
   void interruptReads(boolean r);
+
+  boolean standby(void);
+  boolean wakeup(void);
 
   uint8_t hour, minute, seconds, year, month, day;
   uint16_t milliseconds;
