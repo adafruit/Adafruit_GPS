@@ -52,6 +52,14 @@ All text above must be included in any redistribution
 #define PMTK_LOCUS_LOGSTARTED "$PMTK001,185,3*3C"
 #define PMTK_LOCUS_QUERY_STATUS "$PMTK183*38"
 #define PMTK_LOCUS_ERASE_FLASH "$PMTK184,1*22"
+
+// standby command
+#define PMTK_STANDBY "$PMTK161,0*28"
+// response to awake
+// this definition is temporary and should be replaced to correct one.
+// I do not know the correct one.
+#define PMTK_AWAKE "$PMTK011,MTKGPS*08"
+
 #define LOCUS_OVERLAP 0
 #define LOCUS_FULLSTOP 1
 
@@ -112,6 +120,8 @@ class Adafruit_GPS {
   uint8_t LOCUS_type, LOCUS_mode, LOCUS_config, LOCUS_interval, LOCUS_distance, LOCUS_speed, LOCUS_status, LOCUS_percent;
  private:
   boolean paused;
+  boolean standby();
+  boolean wakeup();
   
   uint8_t parseResponse(char *response);
 #if ARDUINO >= 100
