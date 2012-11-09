@@ -6,17 +6,17 @@
 // desired.
 //
 // Tested and works great with the Adafruit Flora GPS module
-//    ------> http://adafruit.com/products/1059
+//    ------&gt; http://adafruit.com/products/1059
 // Pick one up today at the Adafruit electronics shop 
-// and help support open source hardware & software! -ada
+// and help support open source hardware &amp; software! -ada
 
-#include <Adafruit_GPS.h>
-#include <SoftwareSerial.h>
-Adafruit_GPS GPS(&Serial1);
+#include &lt;Adafruit_GPS.h&gt;
+#include &lt;SoftwareSerial.h&gt;
+Adafruit_GPS GPS(&amp;Serial1);
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
-#define GPSECHO  true
+#define GPSECHO false
 
 // this keeps track of whether we're using the interrupt
 // off by default!
@@ -44,68 +44,38 @@ void setup()
   // For the parsing code to work nicely and have time to sort thru the data, and
   // print it out we don't suggest using anything higher than 1 Hz
 
-  // the nice thing about this code is you can have a timer0 interrupt go off
-  // every 1 millisecond, and read data from the GPS for you. that makes the
-  // loop code a heck of a lot easier!
-  useInterrupt(true);
-
   delay(1000);
   // Ask for firmware version
   Serial1.println(PMTK_Q_RELEASE);
 }
 
 
-// Interrupt is called once a millisecond, looks for any new GPS data, and stores it
-SIGNAL(TIMER0_COMPA_vect) {
-  char c = GPS.read();
-  // if you want to debug, this is a good time to do it!
-  if (GPSECHO)
-    if (c) Serial.print(c);  
-}
-
-void useInterrupt(boolean v) {
-  if (v) {
-    // Timer0 is already used for millis() - we'll just interrupt somewhere
-    // in the middle and call the "Compare A" function above
-    OCR0A = 0xAF;
-    TIMSK0 |= _BV(OCIE0A);
-    usingInterrupt = true;
-  } else {
-    // do not call the interrupt function COMPA anymore
-    TIMSK0 &= ~_BV(OCIE0A);
-    usingInterrupt = false;
-  }
-}
 
 uint32_t timer = millis();
 void loop()                     // run over and over again
 {
-  // in case you are not using the interrupt above, you'll
-  // need to 'hand query' the GPS, not suggested :(
-  if (! usingInterrupt) {
-    // read data from the GPS in the 'main loop'
-    char c = GPS.read();
-    // if you want to debug, this is a good time to do it!
-    if (GPSECHO)
+  // read data from the GPS in the 'main loop'
+  char c = GPS.read();
+  // if you want to debug, this is a good time to do it!
+  if (GPSECHO)
       if (c) Serial.print(c);
-  }
   
   // if a sentence is received, we can check the checksum, parse it...
   if (GPS.newNMEAreceived()) {
     // a tricky thing here is if we print the NMEA sentence, or data
     // we end up not listening and catching other sentences! 
     // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
-    //Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
+    Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
   
     if (!GPS.parse(GPS.lastNMEA()))   // this also sets the newNMEAreceived() flag to false
       return;  // we can fail to parse a sentence in which case we should just wait for another
   }
-
+  
   // if millis() or timer wraps around, we'll just reset it
-  if (timer > millis())  timer = millis();
+  if (timer &gt; millis())  timer = millis();
 
   // approximately every 2 seconds or so, print out the current stats
-  if (millis() - timer > 2000) { 
+  if (millis() - timer &gt; 2000) { 
     timer = millis(); // reset the timer
     
     Serial.print("\nTime: ");
