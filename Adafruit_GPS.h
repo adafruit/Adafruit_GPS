@@ -20,7 +20,6 @@ All text above must be included in any redistribution
 #ifndef _ADAFRUIT_GPS_H
 #define _ADAFRUIT_GPS_H
 
-#include <Adafruit_GPS.h>
 #if ARDUINO >= 100
  #include <SoftwareSerial.h>
 #else
@@ -54,6 +53,11 @@ All text above must be included in any redistribution
 #define PMTK_LOCUS_ERASE_FLASH "$PMTK184,1*22"
 #define LOCUS_OVERLAP 0
 #define LOCUS_FULLSTOP 1
+
+// standby command & boot successful message
+#define PMTK_STANDBY "$PMTK161,0*28"
+#define PMTK_STANDBY_SUCCESS "$PMTK001,161,3*3"  // Not needed currently
+#define PMTK_AWAKE "$PMTK010,002*2D"
 
 // ask for the release and version
 #define PMTK_Q_RELEASE "$PMTK605*31"
@@ -95,6 +99,9 @@ class Adafruit_GPS {
   char read(void);
   boolean parse(char *);
   void interruptReads(boolean r);
+
+  boolean wakeup(void);
+ boolean standby(void);
 
   uint8_t hour, minute, seconds, year, month, day;
   uint16_t milliseconds;
