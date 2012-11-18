@@ -123,6 +123,7 @@ class Adafruit_GPS {
   uint8_t parseResponse(char *response);
 #if ARDUINO >= 100
   SoftwareSerial *gpsSwSerial;
+  float parseCoordinate(const char* p);
 #else
   NewSoftSerial  *gpsSwSerial;
 #endif

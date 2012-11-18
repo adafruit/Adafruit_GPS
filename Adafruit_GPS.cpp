@@ -26,6 +26,20 @@ volatile char *lastline;
 volatile boolean recvdflag;
 volatile boolean inStandbyMode;
 
+/**
+ * Parse out and return a single floating point coordinate (either latitude or longitude) in degrees
+ * given a pointer to the beginning of its GPGGA or GPRMC sentence representation. Note that NMEA-183 
+ * represents each such coordinate as the string concatenation of decimal degrees and decimal minutes.
+ * That is, "4039.8665" means 40 degrees and 39.8665 minutes (~40.66deg), NOT 40.398665 degrees.
+ */
+float Adafruit_GPS::parseCoordinate(const char* p) {
+	unsigned int degrees = 0;
+	for (char* decimalPoint = strchr(p, '.'); decimalPoint - p > 2; p++) {
+		degrees = degrees * 10 + *p - '0';
+	}
+	// add in the decimal minutes and we're done
+    return degrees + (atof(p) / 60.0);
+}
 
 boolean Adafruit_GPS::parse(const char *nmea) {
   // do checksum check
@@ -59,10 +73,10 @@ boolean Adafruit_GPS::parse(const char *nmea) {
 
     milliseconds = fmod(timef, 1.0) * 1000;
 
-    // parse out latitude
-    p = strchr(p, ',')+1;
-    latitude = atof(p);
-
+	// parse out latitude. 
+    p = strchr(p, ',') + 1;
+	latitude = parseCoordinate(p);
+	
     p = strchr(p, ',')+1;
     if (p[0] == 'N') lat = 'N';
     else if (p[0] == 'S') lat = 'S';
@@ -71,8 +85,8 @@ boolean Adafruit_GPS::parse(const char *nmea) {
 
     // parse out longitude
     p = strchr(p, ',')+1;
-    longitude = atof(p);
-
+	longitude = parseCoordinate(p);
+	
     p = strchr(p, ',')+1;
     if (p[0] == 'W') lon = 'W';
     else if (p[0] == 'E') lon = 'E';
@@ -120,7 +134,7 @@ boolean Adafruit_GPS::parse(const char *nmea) {
 
     // parse out latitude
     p = strchr(p, ',')+1;
-    latitude = atof(p);
+    latitude = parseCoordinate(p);
 
     p = strchr(p, ',')+1;
     if (p[0] == 'N') lat = 'N';
@@ -130,7 +144,7 @@ boolean Adafruit_GPS::parse(const char *nmea) {
 
     // parse out longitude
     p = strchr(p, ',')+1;
-    longitude = atof(p);
+	longitude = parseCoordinate(p);
 
     p = strchr(p, ',')+1;
     if (p[0] == 'W') lon = 'W';
