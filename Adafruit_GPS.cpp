@@ -33,12 +33,12 @@ volatile boolean inStandbyMode;
  * That is, "4039.8665" means 40 degrees and 39.8665 minutes (~40.66deg), NOT 40.398665 degrees.
  */
 float Adafruit_GPS::parseCoordinate(const char* p) {
-	unsigned int degrees = 0;
-	for (char* decimalPoint = strchr(p, '.'); decimalPoint - p > 2; p++) {
-		degrees = degrees * 10 + *p - '0';
-	}
-	// add in the decimal minutes and we're done
-    return degrees + (atof(p) / 60.0);
+  unsigned int degrees = 0;
+  for (char* decimalPoint = strchr(p, '.'); decimalPoint - p > 2; p++) {
+    degrees = degrees * 10 + *p - '0';
+  }
+  // add in the decimal minutes and we're done
+  return degrees + (atof(p) / 60.0);
 }
 
 boolean Adafruit_GPS::parse(const char *nmea) {
@@ -75,7 +75,7 @@ boolean Adafruit_GPS::parse(const char *nmea) {
 
 	// parse out latitude. 
     p = strchr(p, ',') + 1;
-	latitude = parseCoordinate(p);
+    latitude = parseCoordinate(p);
 	
     p = strchr(p, ',')+1;
     if (p[0] == 'N') lat = 'N';
@@ -85,7 +85,7 @@ boolean Adafruit_GPS::parse(const char *nmea) {
 
     // parse out longitude
     p = strchr(p, ',')+1;
-	longitude = parseCoordinate(p);
+    longitude = parseCoordinate(p);
 	
     p = strchr(p, ',')+1;
     if (p[0] == 'W') lon = 'W';
@@ -144,7 +144,7 @@ boolean Adafruit_GPS::parse(const char *nmea) {
 
     // parse out longitude
     p = strchr(p, ',')+1;
-	longitude = parseCoordinate(p);
+    longitude = parseCoordinate(p);
 
     p = strchr(p, ',')+1;
     if (p[0] == 'W') lon = 'W';
