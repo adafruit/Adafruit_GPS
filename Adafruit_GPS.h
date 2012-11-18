@@ -90,18 +90,18 @@ class Adafruit_GPS {
   char *lastNMEA(void);
   boolean newNMEAreceived();
   void common_init(void);
-  void sendCommand(char *);
+  void sendCommand(const char *);
   void pause(boolean b);
 
-  boolean parseNMEA(char *response);
+  boolean parseNMEA(const char *response);
   uint8_t parseHex(char c);
 
   char read(void);
-  boolean parse(char *);
+  boolean parse(const char *);
   void interruptReads(boolean r);
 
   boolean wakeup(void);
- boolean standby(void);
+  boolean standby(void);
 
   uint8_t hour, minute, seconds, year, month, day;
   uint16_t milliseconds;
@@ -111,7 +111,7 @@ class Adafruit_GPS {
   boolean fix;
   uint8_t fixquality, satellites;
 
-  boolean waitForSentence(char *wait, uint8_t max = MAXWAITSENTENCE);
+  boolean waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE);
   boolean LOCUS_StartLogger(void);
   boolean LOCUS_ReadStatus(void);
 

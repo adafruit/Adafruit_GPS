@@ -27,7 +27,7 @@ volatile boolean recvdflag;
 volatile boolean inStandbyMode;
 
 
-boolean Adafruit_GPS::parse(char *nmea) {
+boolean Adafruit_GPS::parse(const char *nmea) {
   // do checksum check
 
   // first look if we even have one
@@ -48,7 +48,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
   // look for a few common sentences
   if (strstr(nmea, "$GPGGA")) {
     // found GGA
-    char *p = nmea;
+    const char *p = nmea;
     // get time
     p = strchr(p, ',')+1;
     float timef = atof(p);
@@ -97,7 +97,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
   }
   if (strstr(nmea, "$GPRMC")) {
    // found RMC
-    char *p = nmea;
+    const char *p = nmea;
 
     // get time
     p = strchr(p, ',')+1;
@@ -245,7 +245,7 @@ void Adafruit_GPS::begin(uint16_t baud)
   else            gpsHwSerial->begin(baud);
 }
 
-void Adafruit_GPS::sendCommand(char *str) {
+void Adafruit_GPS::sendCommand(const char *str) {
   if(gpsSwSerial) gpsSwSerial->println(str);
   else            gpsHwSerial->println(str);
 }
@@ -275,7 +275,7 @@ uint8_t Adafruit_GPS::parseHex(char c) {
        return (c - 'A')+10;
 }
 
-boolean Adafruit_GPS::waitForSentence(char *wait4me, uint8_t max) {
+boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
   char str[20];
 
   uint8_t i=0;
