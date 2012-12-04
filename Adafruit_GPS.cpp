@@ -243,6 +243,8 @@ void Adafruit_GPS::begin(uint16_t baud)
 {
   if(gpsSwSerial) gpsSwSerial->begin(baud);
   else            gpsHwSerial->begin(baud);
+
+  delay(10);
 }
 
 void Adafruit_GPS::sendCommand(char *str) {
