@@ -77,6 +77,9 @@ void setup()
   // 10 Hz update rate - for 9600 baud you'll have to set the output to RMC only (see above)
   //GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
 
+  // Request updates on antenna status, comment out to keep quiet
+  GPS.sendCommand(PGCMD_ANTENNA);
+
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the
   // loop code a heck of a lot easier!

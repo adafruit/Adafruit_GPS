@@ -42,6 +42,9 @@ void setup()
   // For the parsing code to work nicely and have time to sort thru the data, and
   // print it out we don't suggest using anything higher than 1 Hz
      
+  // Request updates on antenna status, comment out to keep quiet
+  GPS.sendCommand(PGCMD_ANTENNA);
+
   delay(1000);
   // Ask for firmware version
   Serial1.println(PMTK_Q_RELEASE);
