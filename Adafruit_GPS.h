@@ -62,6 +62,9 @@ All text above must be included in any redistribution
 // ask for the release and version
 #define PMTK_Q_RELEASE "$PMTK605*31"
 
+// request for updates on antenna status 
+#define PGCMD_ANTENNA "$PGCMD,33,1*6C" 
+
 // how long to wait when we're looking for a response
 #define MAXWAITSENTENCE 5
 
