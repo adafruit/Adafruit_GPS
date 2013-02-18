@@ -12,15 +12,9 @@
 // and help support open source hardware & software! -ada
 
 #include <Adafruit_GPS.h>
-#if ARDUINO >= 100
- #include <SoftwareSerial.h>
-#else
-  // Older Arduino IDE requires NewSoftSerial, download from:
-  // http://arduiniana.org/libraries/newsoftserial/
-// #include <NewSoftSerial.h>
- // DO NOT install NewSoftSerial if using Arduino 1.0 or later!
-#endif
+#include <SoftwareSerial.h>
 
+// If you're using a GPS module:
 // Connect the GPS Power pin to 5V
 // Connect the GPS Ground pin to ground
 // If using software serial (sketch example default):
@@ -30,13 +24,14 @@
 //   Connect the GPS TX (transmit) pin to Arduino RX1, RX2 or RX3
 //   Connect the GPS RX (receive) pin to matching TX1, TX2 or TX3
 
+// If you're using the Adafruit GPS shield, change 
+// SoftwareSerial mySerial(3, 2); -> SoftwareSerial mySerial(8, 7);
+// and make sure the switch is set to SoftSerial
+
 // If using software serial, keep these lines enabled
 // (you can change the pin numbers to match your wiring):
-#if ARDUINO >= 100
-  SoftwareSerial mySerial(3, 2);
-#else
-  NewSoftSerial mySerial(3, 2);
-#endif
+SoftwareSerial mySerial(3, 2);
+
 Adafruit_GPS GPS(&mySerial);
 // If using hardware serial (e.g. Arduino Mega), comment
 // out the above six lines and enable this line instead:
@@ -44,7 +39,7 @@ Adafruit_GPS GPS(&mySerial);
 
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
-// Set to 'true' if you want to debug and listen to the raw GPS sentences
+// Set to 'true' if you want to debug and listen to the raw GPS sentences. 
 #define GPSECHO  true
 
 // this keeps track of whether we're using the interrupt
@@ -93,10 +88,12 @@ void setup()
 SIGNAL(TIMER0_COMPA_vect) {
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
+#ifdef UDR0
   if (GPSECHO)
     if (c) UDR0 = c;  
     // writing direct to UDR0 is much much faster than Serial.print 
     // but only one character can be written at a time. 
+#endif
 }
 
 void useInterrupt(boolean v) {
@@ -123,9 +120,7 @@ void loop()                     // run over and over again
     char c = GPS.read();
     // if you want to debug, this is a good time to do it!
     if (GPSECHO)
-      if (c) UDR0 = c;
-      // writing direct to UDR0 is much much faster than Serial.print 
-      // but only one character can be written at a time. 
+      if (c) Serial.print(c);
   }
   
   // if a sentence is received, we can check the checksum, parse it...
