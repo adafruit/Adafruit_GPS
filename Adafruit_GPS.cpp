@@ -9,7 +9,7 @@ Written by Limor Fried/Ladyada for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
-
+#include <SoftwareSerial.h>
 #include <Adafruit_GPS.h>
 
 // how long are max NMEA lines to parse?
@@ -44,7 +44,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
       //return false;
     }
   }
-
+  char degreebuff[10];
   // look for a few common sentences
   if (strstr(nmea, "$GPGGA")) {
     // found GGA
@@ -61,7 +61,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
 
     // parse out latitude
     p = strchr(p, ',')+1;
-    latitude = atof(p);
+    strncpy(degreebuff, p, 2);
+    p += 2;
+    degreebuff[2] = '\0';
+    int32_t degree = atol(degreebuff) * 10000000;
+    strncpy(degreebuff, p, 2); // minutes
+    p += 3; // skip decimal point
+    strncpy(degreebuff + 2, p, 4);
+    degreebuff[6] = '\0';
+    long minutes = 50 * atol(degreebuff) / 3;
+    latitude = degree + minutes;
 
     p = strchr(p, ',')+1;
     if (p[0] == 'N') lat = 'N';
@@ -71,7 +80,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
 
     // parse out longitude
     p = strchr(p, ',')+1;
-    longitude = atof(p);
+    strncpy(degreebuff, p, 3);
+    p += 3;
+    degreebuff[3] = '\0';
+    degree = atol(degreebuff) * 10000000;
+    strncpy(degreebuff, p, 2); // minutes
+    p += 3; // skip decimal point
+    strncpy(degreebuff + 2, p, 4);
+    degreebuff[6] = '\0';
+    minutes = 50 * atol(degreebuff) / 3;
+    longitude = degree + minutes;
 
     p = strchr(p, ',')+1;
     if (p[0] == 'W') lon = 'W';
@@ -120,7 +138,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
 
     // parse out latitude
     p = strchr(p, ',')+1;
-    latitude = atof(p);
+    strncpy(degreebuff, p, 2);
+    p += 2;
+    degreebuff[2] = '\0';
+    long degree = atol(degreebuff) * 10000000;
+    strncpy(degreebuff, p, 2); // minutes
+    p += 3; // skip decimal point
+    strncpy(degreebuff + 2, p, 4);
+    degreebuff[6] = '\0';
+    long minutes = 50 * atol(degreebuff) / 3;
+    latitude = degree + minutes;
 
     p = strchr(p, ',')+1;
     if (p[0] == 'N') lat = 'N';
@@ -130,7 +157,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
 
     // parse out longitude
     p = strchr(p, ',')+1;
-    longitude = atof(p);
+    strncpy(degreebuff, p, 3);
+    p += 3;
+    degreebuff[3] = '\0';
+    degree = atol(degreebuff) * 10000000;
+    strncpy(degreebuff, p, 2); // minutes
+    p += 3; // skip decimal point
+    strncpy(degreebuff + 2, p, 4);
+    degreebuff[6] = '\0';
+    minutes = 50 * atol(degreebuff) / 3;
+    longitude = degree + minutes;
 
     p = strchr(p, ',')+1;
     if (p[0] == 'W') lon = 'W';
