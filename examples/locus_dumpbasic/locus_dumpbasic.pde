@@ -43,6 +43,8 @@ Adafruit_GPS GPS(&mySerial);
 
 void setup()  
 {    
+  while (!Serial);  // Leonardo will wait till serial connects
+
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
@@ -68,7 +70,13 @@ void loop()                     // run over and over again
   // If using hardware serial (e.g. Arduino Mega), change this to Serial1, etc.
   if (mySerial.available()) {
     char c = mySerial.read();
-      if (c) UDR0 = c;  
+    if (c) {
+#ifdef UDR0
+      UDR0 = c;  
+#else
+      Serial.print(c);
+#endif
+    }
   }
 }
 

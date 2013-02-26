@@ -26,52 +26,51 @@
 // If using software serial, keep these lines enabled
 // (you can change the pin numbers to match your wiring):
 //SoftwareSerial mySerial(8, 7);
-//Adafruit_GPS GPS(&mySerial);
 
 // If using hardware serial, comment
 // out the above two lines and enable these two lines instead:
-Adafruit_GPS GPS(&Serial1);
 HardwareSerial mySerial = Serial1;
 
-// Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
-// Set to 'true' if you want to debug and listen to the raw GPS sentences
-#define GPSECHO  true
+#define PMTK_SET_NMEA_UPDATE_1HZ  "$PMTK220,1000*1F"
+#define PMTK_SET_NMEA_UPDATE_5HZ  "$PMTK220,200*2C"
+#define PMTK_SET_NMEA_UPDATE_10HZ "$PMTK220,100*2F"
 
-void setup()  
-{    
-  // connect at 115200 so we can read the GPS fast enuf and
-  // also spit it out
-  Serial.begin(115200);
+// turn on only the second sentence (GPRMC)
+#define PMTK_SET_NMEA_OUTPUT_RMCONLY "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"
+// turn on GPRMC and GGA
+#define PMTK_SET_NMEA_OUTPUT_RMCGGA "$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"
+// turn on ALL THE DATA
+#define PMTK_SET_NMEA_OUTPUT_ALLDATA "$PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28"
+// turn off output
+#define PMTK_SET_NMEA_OUTPUT_OFF "$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"
+
+#define PMTK_Q_RELEASE "$PMTK605*31"
+
+void setup() {
+  while (!Serial); // wait for leo to be ready
+
+  Serial.begin(57600); // this baud rate doesn't actually matter!
+  Serial1.begin(9600);
   delay(2000);
-  Serial.println("Adafruit GPS library basic test!");
-
-  // 9600 NMEA is the default baud rate for MTK - some use 4800
-  GPS.begin(9600);
+  Serial.println("Get version!");
+  Serial1.println(PMTK_Q_RELEASE);
   
-  // You can adjust which sentences to have the module emit, below
-  
-  // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
-  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
-  // uncomment this line to turn on only the "minimum recommended" data for high update rates!
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
-  // uncomment this line to turn on all the available data - for 9600 baud you'll want 1 Hz rate
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_ALLDATA);
-  
-  // Set the update rate
-  // 1 Hz update rate
-  //GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
-  // 5 Hz update rate- for 9600 baud you'll have to set the output to RMC or RMCGGA only (see above)
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_5HZ);
-  // 10 Hz update rate - for 9600 baud you'll have to set the output to RMC only (see above)
-  //GPS.sendCommand(PMTK_SET_NMEA_UPDATE_10HZ);
+  // you can send various commands to get it started
+  //mySerial.println(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  mySerial.println(PMTK_SET_NMEA_OUTPUT_ALLDATA);
 
-  delay(1000);
-}
+  mySerial.println(PMTK_SET_NMEA_UPDATE_1HZ);
+ }
 
-void loop()                     // run over and over again
-{
-  char c = GPS.read();
-  // if you want to debug, this is a good time to do it!
-  if (GPSECHO)
-    if (c) Serial.write(c);  
+
+void loop() {
+  if (Serial.available()) {
+   char c = Serial.read();
+   Serial.write(c);
+   mySerial.write(c);
+  }
+  if (mySerial.available()) {
+    char c = mySerial.read();
+    Serial.write(c);
+  }
 }

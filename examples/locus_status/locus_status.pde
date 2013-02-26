@@ -11,14 +11,7 @@
 // and help support open source hardware & software! -ada
 
 #include <Adafruit_GPS.h>
-#if ARDUINO >= 100
- #include <SoftwareSerial.h>
-#else
-  // Older Arduino IDE requires NewSoftSerial, download from:
-  // http://arduiniana.org/libraries/newsoftserial/
-// #include <NewSoftSerial.h>
- // DO NOT install NewSoftSerial if using Arduino 1.0 or later!
-#endif
+#include <SoftwareSerial.h>
 
 // Connect the GPS Power pin to 5V
 // Connect the GPS Ground pin to ground
@@ -31,11 +24,8 @@
 
 // If using software serial, keep these lines enabled
 // (you can change the pin numbers to match your wiring):
-#if ARDUINO >= 100
-  SoftwareSerial mySerial(3, 2);
-#else
-  NewSoftSerial mySerial(3, 2);
-#endif
+SoftwareSerial mySerial(3, 2);
+
 Adafruit_GPS GPS(&mySerial);
 // If using hardware serial (e.g. Arduino Mega), comment
 // out the above six lines and enable this line instead:
@@ -53,6 +43,8 @@ void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
 void setup()  
 {    
+  while (!Serial);  // the Leonardo will 'wait' until the USB plug is connected
+
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
@@ -124,12 +116,15 @@ void loop()                     // run over and over again
 SIGNAL(TIMER0_COMPA_vect) {
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
-  if (GPSECHO)
-    if (c) UDR0 = c;  
+  if (GPSECHO && c) {
+#ifdef UDR0
+    UDR0 = c;  
     // writing direct to UDR0 is much much faster than Serial.print 
     // but only one character can be written at a time. 
-    
+#endif
+  }
 }
+
 
 void useInterrupt(boolean v) {
   if (v) {
