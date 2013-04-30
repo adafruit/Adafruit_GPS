@@ -80,7 +80,9 @@ void setup()
 
   delay(1000);
   // Ask for firmware version
-  mySerial.println(PMTK_Q_RELEASE);
+  mySerial.println(PMTK_Q_RELEASE); 
+  //for mega uncomment next line
+  //Serial1.println(PMTK_Q_RELEASE);
 }
 
 
