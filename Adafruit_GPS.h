@@ -94,7 +94,9 @@ class Adafruit_GPS {
   char *lastNMEA(void);
   boolean newNMEAreceived();
   void common_init(void);
-  void sendCommand(char *);
+
+  void sendCommand(const char *);
+  
   void pause(boolean b);
 
   boolean parseNMEA(char *response);

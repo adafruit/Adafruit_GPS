@@ -247,7 +247,7 @@ void Adafruit_GPS::begin(uint16_t baud)
   delay(10);
 }
 
-void Adafruit_GPS::sendCommand(char *str) {
+void Adafruit_GPS::sendCommand(const char *str) {
   if(gpsSwSerial) gpsSwSerial->println(str);
   else            gpsHwSerial->println(str);
 }
