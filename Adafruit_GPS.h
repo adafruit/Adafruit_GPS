@@ -56,7 +56,7 @@ All text above must be included in any redistribution
 
 // standby command & boot successful message
 #define PMTK_STANDBY "$PMTK161,0*28"
-#define PMTK_STANDBY_SUCCESS "$PMTK001,161,3*3"  // Not needed currently
+#define PMTK_STANDBY_SUCCESS "$PMTK001,161,3*36"  // Not needed currently
 #define PMTK_AWAKE "$PMTK010,002*2D"
 
 // ask for the release and version
