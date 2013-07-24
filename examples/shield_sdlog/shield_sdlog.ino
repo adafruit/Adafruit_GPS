@@ -3,7 +3,6 @@
 #include <SoftwareSerial.h>
 #include <SD.h>
 #include <avr/sleep.h>
-#include "GPSconfig.h"
 
 // Ladyada's logger modified by Bill Greiman to use the SdFat library
 //
