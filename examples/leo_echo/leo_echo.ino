@@ -25,11 +25,11 @@
 
 // If using software serial, keep these lines enabled
 // (you can change the pin numbers to match your wiring):
-//SoftwareSerial mySerial(8, 7);
+SoftwareSerial mySerial(8, 7);
 
 // If using hardware serial, comment
 // out the above two lines and enable these two lines instead:
-HardwareSerial mySerial = Serial1;
+//HardwareSerial mySerial = Serial1;
 
 #define PMTK_SET_NMEA_UPDATE_1HZ  "$PMTK220,1000*1F"
 #define PMTK_SET_NMEA_UPDATE_5HZ  "$PMTK220,200*2C"
@@ -50,10 +50,10 @@ void setup() {
   while (!Serial); // wait for leo to be ready
 
   Serial.begin(57600); // this baud rate doesn't actually matter!
-  Serial1.begin(9600);
+  mySerial.begin(9600);
   delay(2000);
   Serial.println("Get version!");
-  Serial1.println(PMTK_Q_RELEASE);
+  mySerial.println(PMTK_Q_RELEASE);
   
   // you can send various commands to get it started
   //mySerial.println(PMTK_SET_NMEA_OUTPUT_RMCGGA);
