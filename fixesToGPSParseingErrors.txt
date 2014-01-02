@@ -1,0 +1,330 @@
+I'm new to github and don't appear to have permissions to push to your project...  so here goes with a .txt file
+Github username: devappler
+email: developer@dokimay.com
+
+
+
+The issue as I see it....
+
+  Former code resulted in floating point latitudes from the parse() of 3217.1234 for example 
+  without handling the minutes as a fraction of a degree.
+  
+  New code properly separates the decimal minutes (17.1234 for ex) and turns
+  it into a fraction of a degree (divide it by 60);
+
+
+
+The following changes have been tested with actual GPS tracking.
+
+CHANGES:
+1) To Adafruit_GPS.h, add the following line in the private: area of the class definition
+
+    double   ll_nemaEndingWithCommaToDecDeg_d(char * nemaLatOrLon, char nsew);
+
+
+2) To Adafruit_GPS.cpp, add the following method and the following updated ::parse() method
+
+// This one functino will handle both latitude inputs and longitude inputs
+// Assumes the nema input string has already passed its checksum and is valid
+// Inputs:
+//   nemaLotOrLon points to a portion of the full nema string - comma separated
+//   nsew         is 'N', 'S', 'E', 'W' from the same nema string
+// nema format for lat and lon is DDMM.FFFF (lat) and DDDMM.FFFF (lon)
+//  where:
+//    DD is degrees      - base-10
+//    MM.FFFF is minutes - base-60
+//    (FFFF is a decimal fraction of a minute)
+double Adafruit_GPS::ll_nemaEndingWithCommaToDecDeg_d   (char * nemaLatOrLon, char nsew) {
+#define MAX_NEMA_DEC_LEN 4
+    
+    // convert comma terminated nemaLatOrLon to a nul-terminated string - don't mess with the original input
+    char llStr[16];
+    int  llEnd = strcspn(nemaLatOrLon, ",");
+    llEnd = min(15,llEnd);
+    strncpy(llStr, nemaLatOrLon, llEnd);
+    llStr[llEnd] = 0x00;
+
+    double   decDegrees    = 0.0;
+    uint16_t idx           = 0;
+    uint16_t nemaInputLen  = strlen(llStr);
+    
+    char     degrees[MAX_NEMA_DEC_LEN]; // deg min (before decimal point)
+    for (idx = 0; idx < MAX_NEMA_DEC_LEN; idx++) { degrees[idx] = 0x00; } // pre-fill char buf with 0x00 so line is nul terminated
+    
+    uint16_t fndDecPt = strcspn(llStr, ".");
+    
+    // nema lat is 4 chars to the '.'
+    // nema lon is 5 chars to the '.'
+    double minutes_f = atof(llStr + fndDecPt - 2) / 60.0; // devide by 60.0 to get decimal version of minutes
+    
+    strncpy(degrees, llStr, fndDecPt - 2);
+    
+    int degrees_i = atoi(degrees);
+    decDegrees = double(degrees_i) + double(minutes_f);
+    
+    switch (nsew) {
+        case 's':
+        case 'S':
+        case 'w':
+        case 'W':
+            decDegrees *= -1.0;
+            break;
+        default :
+            break;
+    }
+
+    return decDegrees;
+}
+
+boolean Adafruit_GPS::parse(char *nmea) {
+    // do checksum check
+    
+    // first look if we even have one
+    if (nmea[strlen(nmea)-4] == '*') {
+        uint16_t sum = parseHex(nmea[strlen(nmea)-3]) * 16;
+        sum += parseHex(nmea[strlen(nmea)-2]);
+        
+        // check checksum
+        for (uint8_t i=1; i < (strlen(nmea)-4); i++) {
+            sum ^= nmea[i];
+        }
+        if (sum != 0) {
+            // bad checksum :(
+            return false;
+        }
+    } else if (nmea[strlen(nmea)-3] == '*') {
+        uint16_t sum = 0 * 16;
+        sum += parseHex(nmea[strlen(nmea)-2]);
+        
+        // check checksum
+        for (uint8_t i=1; i < (strlen(nmea)-3); i++) {
+            sum ^= nmea[i];
+        }
+        if (sum != 0) {
+            // bad checksum :(
+            return false;
+        }
+    } else {
+        // missing checksum :(
+        return false;
+    }
+    
+    char * llptr = nmea; // initize to something - will change later
+    
+    // look for a few common sentences
+    if (strstr(nmea, "$GPGGA")) {
+        // GGA - essential fix data which provide 3D location and accuracy data.
+        //        
+        // $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
+        //        
+        //    Where:
+        //        GGA          Global Positioning System Fix Data
+        //        123519       Fix taken at 12:35:19 UTC
+        //        4807.038,N   Latitude 48 deg 07.038' N
+        //        01131.000,E  Longitude 11 deg 31.000' E
+        //        1  Fix quality: 0 = invalid
+        //                        1 = GPS fix (SPS)
+        //                        2 = DGPS fix
+        //                        3 = PPS fix
+        //                        4 = Real Time Kinematic
+        //                        5 = Float RTK
+        //                        6 = estimated (dead reckoning) (2.3 feature)
+        //                        7 = Manual input mode
+        //                        8 = Simulation mode
+        //        08           Number of satellites being tracked
+        //        0.9          Horizontal dilution of position
+        //        545.4,M      Altitude, Meters, above mean sea level
+        //        46.9,M       Height of geoid (mean sea level) above WGS84
+        //        ellipsoid
+        //        (empty field) time in seconds since last DGPS update
+        //        (empty field) DGPS station ID number
+        //        *47          the checksum data, always begins with *
+        // If the height of geoid is missing then the altitude should be suspect. Some non-standard implementations report altitude with respect to the ellipsoid rather than geoid altitude. Some units do not report negative altitudes at all. This is the only sentence that reports altitude.
+        
+        // found GGA
+        char *p       = nmea;
+        
+        // get time
+        p             = strchr(p, ',')+1;
+        float timef   = atof(p);
+        uint32_t time = timef;
+        hour          = time / 10000;
+        minute        = (time % 10000) / 100;
+        seconds       = (time % 100);
+        milliseconds  = fmod(timef, 1.0) * 1000;
+        
+        // parse out latitude
+        p             = strchr(p, ',')+1;
+        llptr = p;
+
+        // parse out N/S
+        p             = strchr(p, ',')+1;
+        if (p[0] == 'N')
+            lat = 'N';
+        else if (p[0] == 'S')
+            lat = 'S';
+        else if (p[0] == ',')
+            lat = 0;
+        else
+            return false; // latitude is required
+        
+        latitude = ll_nemaEndingWithCommaToDecDeg_d(llptr, lat);
+
+        // parse out longitude
+        p             = strchr(p, ',')+1;
+        llptr = p;
+        
+        // parse out E/W
+        p             = strchr(p, ',')+1;
+        if (p[0] == 'W')
+            lon = 'W';
+        else if (p[0] == 'E')
+            lon = 'E';
+        else if (p[0] == ',')
+            lon = 0;
+        else
+            return false; // longitude is required
+        
+        longitude = ll_nemaEndingWithCommaToDecDeg_d(llptr, lon);
+
+        // parse out fix quality
+        p             = strchr(p, ',')+1;
+        fixquality    = atoi(p);
+        
+        // parse out # of satelites
+        p             = strchr(p, ',')+1;
+        satellites    = atoi(p);
+        
+        // parse out horz dilution of precision
+        p             = strchr(p, ',')+1;
+        HDOP          = atof(p);
+        
+        // parse out altitude meters ASL
+        p             = strchr(p, ',')+1;
+        altitude      = atof(p);
+
+        // parse out 'M' for meters altitude
+        p             = strchr(p, ',')+1;
+
+        // parse out height of geod MSL WGS84
+        p             = strchr(p, ',')+1;
+        geoidheight   = atof(p);
+        
+        // parse out 'M' for meters altitude
+        // parse out seconds since last DGPS (empty)
+        // parse out DGPS station ID number (empty)
+        // parse out checksum
+        
+        return true;
+    }
+    
+    if (strstr(nmea, "$GPRMC")) {
+        // RMC - NMEA has its own version of essential gps pvt (position, velocity, time) data. It is called RMC, The Recommended Minimum, which will look similar to:
+        //        
+        // $GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A
+        //        
+        //    Where:
+        //        RMC          Recommended Minimum sentence C
+        //        123519       Fix taken at 12:35:19 UTC
+        //        A            Status A=active or V=Void.
+        //        4807.038,N   Latitude 48 deg 07.038' N
+        //        01131.000,E  Longitude 11 deg 31.000' E
+        //        022.4        Speed over the ground in knots
+        //        084.4        Track angle in degrees True
+        //        230394       Date - 23rd of March 1994
+        //        003.1,W      Magnetic Variation
+        //        *6A          The checksum data, always begins with *
+        // Note that, as of the 2.3 release of NMEA, there is a new field in the RMC sentence at the end just prior to the checksum. For more information on this field see here.
+
+        // found RMC
+        char *p       = nmea;
+        
+        // parse out time
+        p             = strchr(p, ',')+1;
+        float timef   = atof(p);
+        uint32_t time = timef;
+        hour          = time / 10000;
+        minute        = (time % 10000) / 100;
+        seconds       = (time % 100);
+        milliseconds  = fmod(timef, 1.0) * 1000;
+        
+        // parse out status (active/void)
+        p             = strchr(p, ',')+1;
+
+        if (p[0] == 'A')
+            fix = true;
+        else if (p[0] == 'V')
+            fix = false;
+        else
+            return false;
+        
+        // parse out latitude
+        p             = strchr(p, ',')+1;
+        llptr = p;
+        
+        // parse out N/S
+        p             = strchr(p, ',')+1;
+        if (p[0] == 'N')
+            lat = 'N';
+        else if (p[0] == 'S')
+            lat = 'S';
+        else if (p[0] == ',')
+            lat = 0;
+        else
+            return false;
+        
+        latitude = ll_nemaEndingWithCommaToDecDeg_d(llptr, lat);
+        
+        // parse out longitude
+        p             = strchr(p, ',')+1;
+        llptr = p;
+        
+        // parse out E/W
+        p             = strchr(p, ',')+1;
+        if (p[0] == 'W')
+            lon = 'W';
+        else if (p[0] == 'E')
+            lon = 'E';
+        else if (p[0] == ',')
+            lon = 0;
+        else
+            return false;
+        
+        longitude = ll_nemaEndingWithCommaToDecDeg_d(llptr, lon);
+        
+        // parse out speed - knots
+        p             = strchr(p, ',')+1;
+        speed         = atof(p);
+        
+        // parse out track angle (true N)
+        p             = strchr(p, ',')+1;
+        angle         = atof(p);
+        
+        // parse out date
+        p             = strchr(p, ',')+1;
+        uint32_t fulldate = atof(p);
+        day           = fulldate / 10000;
+        month         = (fulldate % 10000) / 100;
+        year          = (fulldate % 100);
+        
+        // parse out mag var
+        p             = strchr(p, ',')+1;
+        magvariation  = atof(p);
+
+        // parse out mag var E/W
+        if (p[0] == 'W')
+            mag = 'W';
+        else if (p[0] == 'E')
+            mag = 'E';
+        else if (p[0] == ',')
+            mag = 0;
+        else
+            mag = 0; // not required, so, continue gracefully
+
+        // parse out checksum
+        
+        return true;
+    }
+    
+    return false;
+}
