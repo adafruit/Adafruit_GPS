@@ -164,13 +164,23 @@ char Adafruit_GPS::read(void) {
   
   if (paused) return c;
 
+#ifdef __AVR__
   if(gpsSwSerial) {
     if(!gpsSwSerial->available()) return c;
     c = gpsSwSerial->read();
-  } else {
+  }
+  else
+  {
     if(!gpsHwSerial->available()) return c;
     c = gpsHwSerial->read();
   }
+#else
+     //   if(!gpsHwSerial->available()) return c;
+      //  c = gpsHwSerial->read();
+    if(!Serial1.available()) return c;
+    c = Serial1.read();
+#endif
+
 
   //Serial.print(c);
 
@@ -203,6 +213,7 @@ char Adafruit_GPS::read(void) {
   return c;
 }
 
+#ifdef __AVR__
 // Constructor when using SoftwareSerial or NewSoftSerial
 #if ARDUINO >= 100
 Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
@@ -213,8 +224,8 @@ Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser)
   common_init();     // Set everything to common state, then...
   gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
 }
+#endif
 
-// Constructor when using HardwareSerial
 Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
   common_init();  // Set everything to common state, then...
   gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
@@ -222,8 +233,6 @@ Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
 
 // Initialization code used by all constructor types
 void Adafruit_GPS::common_init(void) {
-  gpsSwSerial = NULL; // Set both to NULL, then override correct
-  gpsHwSerial = NULL; // port pointer in corresponding constructor
   recvdflag   = false;
   paused      = false;
   lineidx     = 0;
@@ -241,15 +250,30 @@ void Adafruit_GPS::common_init(void) {
 
 void Adafruit_GPS::begin(uint16_t baud)
 {
-  if(gpsSwSerial) gpsSwSerial->begin(baud);
-  else            gpsHwSerial->begin(baud);
+#ifdef __AVR__
+  if(gpsSwSerial) 
+    gpsSwSerial->begin(baud);
+  else 
+    gpsHwSerial->begin(baud);
+#else
+  //  gpsHwSerial->begin(baud);
+    Serial1.begin(baud);
+#endif
 
   delay(10);
 }
 
 void Adafruit_GPS::sendCommand(char *str) {
-  if(gpsSwSerial) gpsSwSerial->println(str);
-  else            gpsHwSerial->println(str);
+#ifdef __AVR__
+  if(gpsSwSerial) 
+    gpsSwSerial->println(str);
+  else
+    gpsHwSerial->println(str);
+#else
+  //  gpsHwSerial->println(str);
+    Serial1.println(str);
+#endif
+
 }
 
 boolean Adafruit_GPS::newNMEAreceived(void) {
