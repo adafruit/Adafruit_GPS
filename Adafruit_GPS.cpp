@@ -168,24 +168,12 @@ char Adafruit_GPS::read(void) {
   if(gpsSwSerial) {
     if(!gpsSwSerial->available()) return c;
     c = gpsSwSerial->read();
-<<<<<<< HEAD
   } else 
 #endif
-=======
-  }
-  else
->>>>>>> FETCH_HEAD
   {
     if(!gpsHwSerial->available()) return c;
     c = gpsHwSerial->read();
   }
-#else
-     //   if(!gpsHwSerial->available()) return c;
-      //  c = gpsHwSerial->read();
-    if(!Serial1.available()) return c;
-    c = Serial1.read();
-#endif
-
 
   //Serial.print(c);
 
@@ -231,6 +219,7 @@ Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser)
 }
 #endif
 
+// Constructor when using HardwareSerial
 Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
   common_init();  // Set everything to common state, then...
   gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
@@ -238,13 +227,10 @@ Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
 
 // Initialization code used by all constructor types
 void Adafruit_GPS::common_init(void) {
-<<<<<<< HEAD
 #ifdef __AVR__
   gpsSwSerial = NULL; // Set both to NULL, then override correct
 #endif
   gpsHwSerial = NULL; // port pointer in corresponding constructor
-=======
->>>>>>> FETCH_HEAD
   recvdflag   = false;
   paused      = false;
   lineidx     = 0;
@@ -267,12 +253,6 @@ void Adafruit_GPS::begin(uint16_t baud)
     gpsSwSerial->begin(baud);
   else 
     gpsHwSerial->begin(baud);
-<<<<<<< HEAD
-=======
-#else
-  //  gpsHwSerial->begin(baud);
-    Serial1.begin(baud);
->>>>>>> FETCH_HEAD
 #endif
 
   delay(10);
@@ -282,19 +262,9 @@ void Adafruit_GPS::sendCommand(char *str) {
 #ifdef __AVR__
   if(gpsSwSerial) 
     gpsSwSerial->println(str);
-<<<<<<< HEAD
   else    
 #endif
     gpsHwSerial->println(str);
-=======
-  else
-    gpsHwSerial->println(str);
-#else
-  //  gpsHwSerial->println(str);
-    Serial1.println(str);
-#endif
-
->>>>>>> FETCH_HEAD
 }
 
 boolean Adafruit_GPS::newNMEAreceived(void) {
