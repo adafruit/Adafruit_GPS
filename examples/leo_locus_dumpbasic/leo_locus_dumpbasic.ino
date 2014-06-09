@@ -36,10 +36,11 @@ HardwareSerial mySerial = Serial1;
 
 void setup()  
 {    
+//  while (!Serial);  // Leonardo will wait till serial connects
+
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
-  delay(2000);
   Serial.println("Adafruit GPS logging start test!");
 
   // 9600 NMEA is the default baud rate for MTK - some use 4800
@@ -58,8 +59,16 @@ void setup()
 
 void loop()                     // run over and over again
 {  
+  // If using hardware serial (e.g. Arduino Mega), change this to Serial1, etc.
   if (mySerial.available()) {
-    Serial.write(mySerial.read());  
+    char c = mySerial.read();
+    if (c) {
+#ifdef UDR0
+      UDR0 = c;  
+#else
+      Serial.print(c);
+#endif
+    }
   }
 }
 
