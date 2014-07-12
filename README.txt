@@ -16,6 +16,6 @@ Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 
-To download. click the DOWNLOADS button in the top right corner, rename the uncompressed folder Adafruit_GPS. Check that the Adafruit_GPS folder contains Adafruit_GPS.cpp and Adafruit_GPS.h
+To download. click the "Download ZIP" at the right side, extract the archive and rename the uncompressed folder Adafruit_GPS. Check that the Adafruit_GPS folder contains Adafruit_GPS.cpp and Adafruit_GPS.h
 
 Place the Adafruit_GPS library folder your <arduinosketchfolder>/libraries/ folder. You may need to create the libraries subfolder if its your first library. Restart the IDE.

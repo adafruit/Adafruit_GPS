@@ -1,8 +1,14 @@
-#include <SPI.h>
+
 #include <Adafruit_GPS.h>
-#include <SoftwareSerial.h>
+
+#ifdef __AVR__
+  #include <SoftwareSerial.h>
+  #include <avr/sleep.h>
+#endif
+
+#include <SPI.h>
 #include <SD.h>
-#include <avr/sleep.h>
+
 
 // Ladyada's logger modified by Bill Greiman to use the SdFat library
 //
@@ -17,7 +23,12 @@
 // Pick one up today at the Adafruit electronics shop 
 // and help support open source hardware & software! -ada
 
+#ifdef __AVR__
 SoftwareSerial mySerial(8, 7);
+#else
+#define mySerial Serial1
+#endif
+
 Adafruit_GPS GPS(&mySerial);
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
