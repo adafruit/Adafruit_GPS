@@ -50,7 +50,8 @@ All text above must be included in any redistribution
 // such as the awesome http://www.hhhh.org/wiml/proj/nmeaxor.html
 
 #define PMTK_LOCUS_STARTLOG  "$PMTK185,0*22"
-#define PMTK_LOCUS_LOGSTARTED "$PMTK001,185,3*3C"
+#define PMTK_LOCUS_STOPLOG "$PMTK185,1*23"
+#define PMTK_LOCUS_STARTSTOPACK "$PMTK001,185,3*3C"
 #define PMTK_LOCUS_QUERY_STATUS "$PMTK183*38"
 #define PMTK_LOCUS_ERASE_FLASH "$PMTK184,1*22"
 #define LOCUS_OVERLAP 0
@@ -121,6 +122,7 @@ class Adafruit_GPS {
 
   boolean waitForSentence(char *wait, uint8_t max = MAXWAITSENTENCE);
   boolean LOCUS_StartLogger(void);
+  boolean LOCUS_StopLogger(void);
   boolean LOCUS_ReadStatus(void);
 
   uint16_t LOCUS_serial, LOCUS_records;

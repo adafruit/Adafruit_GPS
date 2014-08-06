@@ -314,7 +314,13 @@ boolean Adafruit_GPS::waitForSentence(char *wait4me, uint8_t max) {
 boolean Adafruit_GPS::LOCUS_StartLogger(void) {
   sendCommand(PMTK_LOCUS_STARTLOG);
   recvdflag = false;
-  return waitForSentence(PMTK_LOCUS_LOGSTARTED);
+  return waitForSentence(PMTK_LOCUS_STARTSTOPACK);
+}
+
+boolean Adafruit_GPS::LOCUS_StopLogger(void) {
+  sendCommand(PMTK_LOCUS_STOPLOG);
+  recvdflag = false;
+  return waitForSentence(PMTK_LOCUS_STARTSTOPACK);
 }
 
 boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
