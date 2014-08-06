@@ -28,14 +28,18 @@
 // SoftwareSerial mySerial(3, 2); -> SoftwareSerial mySerial(8, 7);
 // and make sure the switch is set to SoftSerial
 
-// If using software serial, keep these lines enabled
+// If using software serial, keep this line enabled
 // (you can change the pin numbers to match your wiring):
 SoftwareSerial mySerial(3, 2);
 
+// If using hardware serial (e.g. Arduino Mega), comment out the
+// above SoftwareSerial line, and enable this line instead
+// (you can change the Serial number to match your wiring):
+
+//HardwareSerial mySerial = Serial1;
+
+
 Adafruit_GPS GPS(&mySerial);
-// If using hardware serial (e.g. Arduino Mega), comment
-// out the above six lines and enable this line instead:
-//Adafruit_GPS GPS(&Serial1);
 
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
