@@ -57,6 +57,9 @@ All text above must be included in any redistribution
 #define LOCUS_OVERLAP 0
 #define LOCUS_FULLSTOP 1
 
+#define PMTK_ENABLE_SBAS "$PMTK313,1*2E"
+#define PMTK_ENABLE_WAAS "$PMTK301,2*2E"
+
 // standby command & boot successful message
 #define PMTK_STANDBY "$PMTK161,0*28"
 #define PMTK_STANDBY_SUCCESS "$PMTK001,161,3*36"  // Not needed currently
@@ -116,7 +119,8 @@ class Adafruit_GPS {
 
   uint8_t hour, minute, seconds, year, month, day;
   uint16_t milliseconds;
-  float latitude, longitude, geoidheight, altitude;
+  int32_t latitude, longitude;
+  float geoidheight, altitude;
   float speed, angle, magvariation, HDOP;
   char lat, lon, mag;
   boolean fix;
