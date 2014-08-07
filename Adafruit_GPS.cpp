@@ -70,7 +70,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     strncpy(degreebuff + 2, p, 4);
     degreebuff[6] = '\0';
     long minutes = 50 * atol(degreebuff) / 3;
-    latitude = degree + minutes;
+    latitude_fixed = degree + minutes;
+    latitude = latitude_fixed / 100000.0F;
 
     p = strchr(p, ',')+1;
     if (p[0] == 'N') lat = 'N';
@@ -89,7 +90,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     strncpy(degreebuff + 2, p, 4);
     degreebuff[6] = '\0';
     minutes = 50 * atol(degreebuff) / 3;
-    longitude = degree + minutes;
+    longitude_fixed = degree + minutes;
+    longitude = longitude_fixed / 100000.0F;
 
     p = strchr(p, ',')+1;
     if (p[0] == 'W') lon = 'W';
@@ -147,7 +149,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     strncpy(degreebuff + 2, p, 4);
     degreebuff[6] = '\0';
     long minutes = 50 * atol(degreebuff) / 3;
-    latitude = degree + minutes;
+    latitude_fixed = degree + minutes;
+    latitude = latitude_fixed / 100000.0F;
 
     p = strchr(p, ',')+1;
     if (p[0] == 'N') lat = 'N';
@@ -166,7 +169,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     strncpy(degreebuff + 2, p, 4);
     degreebuff[6] = '\0';
     minutes = 50 * atol(degreebuff) / 3;
-    longitude = degree + minutes;
+    longitude_fixed = degree + minutes;
+    longitude = longitude_fixed / 100000.0F;
 
     p = strchr(p, ',')+1;
     if (p[0] == 'W') lon = 'W';
