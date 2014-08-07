@@ -140,18 +140,14 @@ void setup() {
 
 // Interrupt is called once a millisecond, looks for any new GPS data, and stores it
 SIGNAL(TIMER0_COMPA_vect) {
-  char c;
-  while (mySerial.available())
-  {
-    c = GPS.read();
-    // if you want to debug, this is a good time to do it!
-#ifdef UDR0
-    if (GPSECHO)
-      if (c) UDR0 = c;  
-    // writing direct to UDR0 is much much faster than Serial.print 
-    // but only one character can be written at a time. 
-#endif
-  }
+  char c = GPS.read();
+  // if you want to debug, this is a good time to do it!
+  #ifdef UDR0
+      if (GPSECHO)
+        if (c) UDR0 = c;  
+      // writing direct to UDR0 is much much faster than Serial.print 
+      // but only one character can be written at a time. 
+  #endif
 }
 
 void useInterrupt(boolean v) {
@@ -170,12 +166,12 @@ void useInterrupt(boolean v) {
 }
 
 void loop() {
-  char c;
-  while (mySerial.available())
-  {
-    c = GPS.read();
+  if (! usingInterrupt) {
+    // read data from the GPS in the 'main loop'
+    char c = GPS.read();
+    // if you want to debug, this is a good time to do it!
     if (GPSECHO)
-      if (c)   Serial.print(c);
+      if (c) Serial.print(c);
   }
   
   // if a sentence is received, we can check the checksum, parse it...
