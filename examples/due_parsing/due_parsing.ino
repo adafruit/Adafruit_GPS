@@ -13,30 +13,13 @@
 
 #include <Adafruit_GPS.h>
 
-#ifdef __AVR__
-  #include <SoftwareSerial.h>
-#endif
-
-// If you're using a GPS module:
-// Connect the GPS Power pin to 5V
-// Connect the GPS Ground pin to ground
-// If using software serial (sketch example default):
-//   Connect the GPS TX (transmit) pin to Digital 3
-//   Connect the GPS RX (receive) pin to Digital 2
-// If using hardware serial (e.g. Arduino Mega):
-//   Connect the GPS TX (transmit) pin to Arduino RX1, RX2 or RX3
-//   Connect the GPS RX (receive) pin to matching TX1, TX2 or TX3
-
-// If you're using the Adafruit GPS shield, change 
-// SoftwareSerial mySerial(3, 2); -> SoftwareSerial mySerial(8, 7);
-// and make sure the switch is set to SoftSerial
-
-// If using software serial, keep this line enabled
-// (you can change the pin numbers to match your wiring):
-//SoftwareSerial mySerial(3, 2);
-
-// If using hardware serial (e.g. Arduino Mega, Leonardo, Due), comment
-// out the above  line and enable this line instead:
+// This sketch is ONLY for the Arduino Due!
+// You should make the following connections with the Due and GPS module:
+// GPS power pin to Arduino Due 3.3V output.
+// GPS ground pin to Arduino Due ground.
+// For hardware serial 1 (recommended):
+//   GPS TX to Arduino Due Serial1 RX pin 19
+//   GPS RX to Arduino Due Serial1 TX pin 18
 #define mySerial Serial1
 
 Adafruit_GPS GPS(&mySerial);
