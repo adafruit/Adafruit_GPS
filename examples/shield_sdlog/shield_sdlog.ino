@@ -179,9 +179,13 @@ void loop() {
     // a tricky thing here is if we print the NMEA sentence, or data
     // we end up not listening and catching other sentences! 
     // so be very wary if using OUTPUT_ALLDATA and trying to print out data
-    //Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
-
-    if (!GPS.parse(GPS.lastNMEA()))   // this also sets the newNMEAreceived() flag to false
+    
+    // Don't call lastNMEA more than once between parse calls!  Calling lastNMEA 
+    // will clear the received flag and can cause very subtle race conditions if
+    // new data comes in before parse is called again.
+    char *stringptr = GPS.lastNMEA();
+    
+    if (!GPS.parse(stringptr))   // this also sets the newNMEAreceived() flag to false
       return;  // we can fail to parse a sentence in which case we should just wait for another
 
     // Sentence parsed! 
@@ -194,11 +198,10 @@ void loop() {
     // Rad. lets log it!
     Serial.println("Log");
 
-    char *stringptr = GPS.lastNMEA();
     uint8_t stringsize = strlen(stringptr);
     if (stringsize != logfile.write((uint8_t *)stringptr, stringsize))    //write the string to the SD file
         error(4);
-    if (strstr(stringptr, "RMC"))   logfile.flush();
+    if (strstr(stringptr, "RMC") || strstr(stringptr, "GGA"))   logfile.flush();
     Serial.println();
   }
 }
