@@ -72,7 +72,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     p += 3; // skip decimal point
     strncpy(degreebuff + 2, p, 4);
     degreebuff[6] = '\0';
-    long minutes = 50 * atol(degreebuff) / 3;
+    long minutes = atol(degreebuff) * 10;
     latitude_fixed = degree + minutes;
     latitude = latitude_fixed / 100000.0F;
 
@@ -92,7 +92,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     p += 3; // skip decimal point
     strncpy(degreebuff + 2, p, 4);
     degreebuff[6] = '\0';
-    minutes = 50 * atol(degreebuff) / 3;
+    minutes = atol(degreebuff) * 10;
     longitude_fixed = degree + minutes;
     longitude = longitude_fixed / 100000.0F;
 
@@ -151,7 +151,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     p += 3; // skip decimal point
     strncpy(degreebuff + 2, p, 4);
     degreebuff[6] = '\0';
-    long minutes = 50 * atol(degreebuff) / 3;
+    long minutes = atol(degreebuff) * 10;
     latitude_fixed = degree + minutes;
     latitude = latitude_fixed / 100000.0F;
 
@@ -171,7 +171,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     p += 3; // skip decimal point
     strncpy(degreebuff + 2, p, 4);
     degreebuff[6] = '\0';
-    minutes = 50 * atol(degreebuff) / 3;
+    minutes = atol(degreebuff) * 10;
     longitude_fixed = degree + minutes;
     longitude = longitude_fixed / 100000.0F;
 
