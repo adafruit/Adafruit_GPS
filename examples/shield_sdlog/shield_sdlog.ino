@@ -16,7 +16,7 @@
 //    ------> http://www.adafruit.com/products/
 // Pick one up today at the Adafruit electronics shop 
 // and help support open source hardware & software! -ada
-
+// Fllybob added 10 sec logging option
 SoftwareSerial mySerial(8, 7);
 Adafruit_GPS GPS(&mySerial);
 
