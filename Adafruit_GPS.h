@@ -127,9 +127,9 @@ class Adafruit_GPS {
   uint16_t milliseconds;
   // Floating point latitude and longitude value in degrees.
   float latitude, longitude;
-  // Fixed point latitude and longitude value in 1/100000 degrees.
-  // For example a latitude of 4,767.99916 degrees would have a value of 476799916.
-  // More precise than the floating point value, but a little more difficult to use.
+  // Fixed point latitude and longitude value with degrees stored in units of 1/100000 degrees,
+  // and minutes stored in units of 1/100000 degrees.  See pull #13 for more details:
+  //   https://github.com/adafruit/Adafruit-GPS-Library/pull/13
   int32_t latitude_fixed, longitude_fixed;
   float geoidheight, altitude;
   float speed, angle, magvariation, HDOP;
