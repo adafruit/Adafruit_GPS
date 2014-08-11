@@ -16,6 +16,7 @@ Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
+// Fllybob added lines 34,35 and 40,41 to add 100mHz update capability 
 
 #ifndef _ADAFRUIT_GPS_H
 #define _ADAFRUIT_GPS_H
@@ -31,10 +32,14 @@ All text above must be included in any redistribution
 // different commands to set the update rate from once a second (1 Hz) to 10 times a second (10Hz)
 // Note that these only control the rate at which the position is echoed, to actually speed up the
 // position fix you must also send one of the position fix rate commands below too.
+// added line below for 10 sec update
+#define PMTK_SET_NMEA_UPDATE_100mHZ  "$PMTK220,10000*2F"
 #define PMTK_SET_NMEA_UPDATE_1HZ  "$PMTK220,1000*1F"
 #define PMTK_SET_NMEA_UPDATE_5HZ  "$PMTK220,200*2C"
 #define PMTK_SET_NMEA_UPDATE_10HZ "$PMTK220,100*2F"
 // Position fix update rate commands.
+// added line below for 10 sec update
+#define PMTK_API_SET_FIX_CTL_100mHZ  "$PMTK300,10000,0,0,0,0*2C"
 #define PMTK_API_SET_FIX_CTL_1HZ  "$PMTK300,1000,0,0,0,0*1C"
 #define PMTK_API_SET_FIX_CTL_5HZ  "$PMTK300,200,0,0,0,0*2F"
 // Can't fix position faster than 5 times a second!
