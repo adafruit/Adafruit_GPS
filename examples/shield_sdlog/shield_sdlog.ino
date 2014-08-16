@@ -16,7 +16,7 @@
 //    ------> http://www.adafruit.com/products/
 // Pick one up today at the Adafruit electronics shop 
 // and help support open source hardware & software! -ada
-
+// Fllybob added 10 sec logging option
 SoftwareSerial mySerial(8, 7);
 Adafruit_GPS GPS(&mySerial);
 
@@ -124,7 +124,7 @@ void setup() {
   // For logging data, we don't suggest using anything but either RMC only or RMC+GGA
   // to keep the log files at a reasonable size
   // Set the update rate
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 1 or 5 Hz update rate
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 100mHz,1Hz or 5Hz update rate
 
   // Turn off updates on antenna status, if the firmware permits it
   GPS.sendCommand(PGCMD_NOANTENNA);
