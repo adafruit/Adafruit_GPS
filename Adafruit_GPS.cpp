@@ -220,10 +220,10 @@ char Adafruit_GPS::read(void) {
 
   //Serial.print(c);
 
-  if (c == '$') {
-    currentline[lineidx] = 0;
-    lineidx = 0;
-  }
+//  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
+//    currentline[lineidx] = 0;
+//    lineidx = 0;
+//  }
   if (c == '\n') {
     currentline[lineidx] = 0;
 
