@@ -382,9 +382,11 @@ uint8_t Adafruit_GPS::parseHex(char c) {
        return 0;
     if (c <= 'F')
        return (c - 'A')+10;
+    // if (c > 'F')
+    return 0;
 }
 
-boolean Adafruit_GPS::waitForSentence(char *wait4me, uint8_t max) {
+boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
   char str[20];
 
   uint8_t i=0;

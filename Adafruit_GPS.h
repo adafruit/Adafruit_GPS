@@ -140,7 +140,7 @@ class Adafruit_GPS {
   boolean fix;
   uint8_t fixquality, satellites;
 
-  boolean waitForSentence(char *wait, uint8_t max = MAXWAITSENTENCE);
+  boolean waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE);
   boolean LOCUS_StartLogger(void);
   boolean LOCUS_StopLogger(void);
   boolean LOCUS_ReadStatus(void);
