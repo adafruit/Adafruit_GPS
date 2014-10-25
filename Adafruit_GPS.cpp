@@ -79,11 +79,14 @@ boolean Adafruit_GPS::parse(char *nmea) {
       minutes = 50 * atol(degreebuff) / 3;
       latitude_fixed = degree + minutes;
       latitude = degree / 100000 + minutes * 0.000006F;
+      latitudeDegrees = (latitude-100*int(latitude/100))/60.0;
+      latitudeDegrees += int(latitude/100);
     }
     
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
+      if (p[0] == 'S') latitudeDegrees *= -1.0;
       if (p[0] == 'N') lat = 'N';
       else if (p[0] == 'S') lat = 'S';
       else if (p[0] == ',') lat = 0;
@@ -105,11 +108,14 @@ boolean Adafruit_GPS::parse(char *nmea) {
       minutes = 50 * atol(degreebuff) / 3;
       longitude_fixed = degree + minutes;
       longitude = degree / 100000 + minutes * 0.000006F;
+      longitudeDegrees = (longitude-100*int(longitude/100))/60.0;
+      longitudeDegrees += int(longitude/100);
     }
     
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
+      if (p[0] == 'W') longitudeDegrees *= -1.0;
       if (p[0] == 'W') lon = 'W';
       else if (p[0] == 'E') lon = 'E';
       else if (p[0] == ',') lon = 0;
@@ -186,11 +192,14 @@ boolean Adafruit_GPS::parse(char *nmea) {
       long minutes = 50 * atol(degreebuff) / 3;
       latitude_fixed = degree + minutes;
       latitude = degree / 100000 + minutes * 0.000006F;
+      latitudeDegrees = (latitude-100*int(latitude/100))/60.0;
+      latitudeDegrees += int(latitude/100);
     }
     
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
+      if (p[0] == 'S') latitudeDegrees *= -1.0;
       if (p[0] == 'N') lat = 'N';
       else if (p[0] == 'S') lat = 'S';
       else if (p[0] == ',') lat = 0;
@@ -212,11 +221,14 @@ boolean Adafruit_GPS::parse(char *nmea) {
       minutes = 50 * atol(degreebuff) / 3;
       longitude_fixed = degree + minutes;
       longitude = degree / 100000 + minutes * 0.000006F;
+      longitudeDegrees = (longitude-100*int(longitude/100))/60.0;
+      longitudeDegrees += int(longitude/100);
     }
     
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
+      if (p[0] == 'W') longitudeDegrees *= -1.0;
       if (p[0] == 'W') lon = 'W';
       else if (p[0] == 'E') lon = 'E';
       else if (p[0] == ',') lon = 0;
