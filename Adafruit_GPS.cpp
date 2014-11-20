@@ -266,7 +266,7 @@ char Adafruit_GPS::read(void) {
 
   c = *_udr;
 
-  Serial.print(c);
+  //Serial.print(c);
 
   if (c == '\n') {
     currentline[lineidx] = 0;
@@ -326,7 +326,7 @@ void Adafruit_GPS::begin(unsigned long baud)
   *_ubrrh = baud_setting >> 8;
   *_ubrrl = baud_setting;
 
-  //_written = false;
+  _written = true;
 
   //set the data bits, parity, and stop bits
   *_ucsrc = SERIAL_8N1;
@@ -339,11 +339,33 @@ void Adafruit_GPS::begin(unsigned long baud)
   delay(10);
 }
 
-void Adafruit_GPS::sendCommand(const char *str) {
+void Adafruit_GPS::sendCommand(char *str) {
+  txstr = str;
+  txindex = 0;
+  _written = false;
+  sbi(*_ucsrb, UDRIE0);    
+  while (!_written) {}
 }
 
 void Adafruit_GPS::write() {
-    Serial.println("W");
+  // If interrupts are enabled, there must be more data in the output
+  // buffer. Send the next byte
+  unsigned char c = txstr[txindex];
+  txindex++;
+  if (c == 0) {
+    // end of string, so disable interrupts
+    cbi(*_ucsrb, UDRIE0);
+    _written = true;
+  } else {
+    //Serial.write(c);
+    *_udr = c;
+  }
+
+  // clear the TXC bit -- "can be cleared by writing a one to its bit
+  // location". This makes sure flush() won't return until the bytes
+  // actually got written
+  sbi(*_ucsra, TXC0);
+
 }
 
 boolean Adafruit_GPS::newNMEAreceived(void) {
