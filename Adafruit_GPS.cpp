@@ -9,10 +9,6 @@ Written by Limor Fried/Ladyada for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
-#ifdef __AVR__
-  // Only include software serial on AVR platforms (i.e. not on Due).
-  #include <SoftwareSerial.h>
-#endif
 #include <Adafruit_GPS.h>
 
 // how long are max NMEA lines to parse?
@@ -268,23 +264,10 @@ char Adafruit_GPS::read(void) {
   
   if (paused) return c;
 
-#ifdef __AVR__
-  if(gpsSwSerial) {
-    if(!gpsSwSerial->available()) return c;
-    c = gpsSwSerial->read();
-  } else 
-#endif
-  {
-    if(!gpsHwSerial->available()) return c;
-    c = gpsHwSerial->read();
-  }
+  c = *_udr;
 
-  //Serial.print(c);
+  Serial.print(c);
 
-//  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
-//    currentline[lineidx] = 0;
-//    lineidx = 0;
-//  }
   if (c == '\n') {
     currentline[lineidx] = 0;
 
@@ -310,31 +293,15 @@ char Adafruit_GPS::read(void) {
   return c;
 }
 
-#ifdef __AVR__
-// Constructor when using SoftwareSerial or NewSoftSerial
-#if ARDUINO >= 100
-Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
-#else
-Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser) 
-#endif
-{
-  common_init();     // Set everything to common state, then...
-  gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
-}
-#endif
-
-// Constructor when using HardwareSerial
-Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
-  common_init();  // Set everything to common state, then...
-  gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
-}
-
 // Initialization code used by all constructor types
-void Adafruit_GPS::common_init(void) {
-#ifdef __AVR__
-  gpsSwSerial = NULL; // Set both to NULL, then override correct
-#endif
-  gpsHwSerial = NULL; // port pointer in corresponding constructor
+Adafruit_GPS::Adafruit_GPS(
+  volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
+  volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
+  volatile uint8_t *ucsrc, volatile uint8_t *udr) :
+    _ubrrh(ubrrh), _ubrrl(ubrrl),
+    _ucsra(ucsra), _ucsrb(ucsrb), _ucsrc(ucsrc),
+    _udr(udr)
+{
   recvdflag   = false;
   paused      = false;
   lineidx     = 0;
@@ -350,25 +317,33 @@ void Adafruit_GPS::common_init(void) {
     speed = angle = magvariation = HDOP = 0.0; // float
 }
 
-void Adafruit_GPS::begin(uint16_t baud)
+void Adafruit_GPS::begin(unsigned long baud)
 {
-#ifdef __AVR__
-  if(gpsSwSerial) 
-    gpsSwSerial->begin(baud);
-  else 
-    gpsHwSerial->begin(baud);
-#endif
+  *_ucsra = 0;
+  uint16_t baud_setting = (F_CPU / 8 / baud - 1) / 2;
+
+  // assign the baud_setting, a.k.a. ubrr (USART Baud Rate Register)
+  *_ubrrh = baud_setting >> 8;
+  *_ubrrl = baud_setting;
+
+  //_written = false;
+
+  //set the data bits, parity, and stop bits
+  *_ucsrc = SERIAL_8N1;
+  
+  sbi(*_ucsrb, RXEN0);
+  sbi(*_ucsrb, TXEN0);
+  sbi(*_ucsrb, RXCIE0);
+  cbi(*_ucsrb, UDRIE0);
 
   delay(10);
 }
 
 void Adafruit_GPS::sendCommand(const char *str) {
-#ifdef __AVR__
-  if(gpsSwSerial) 
-    gpsSwSerial->println(str);
-  else    
-#endif
-    gpsHwSerial->println(str);
+}
+
+void Adafruit_GPS::write() {
+    Serial.println("W");
 }
 
 boolean Adafruit_GPS::newNMEAreceived(void) {
