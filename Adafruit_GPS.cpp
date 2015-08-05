@@ -6,6 +6,7 @@ please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
 Written by Limor Fried/Ladyada for Adafruit Industries.
+TeensyLC support by Patrick Hieber
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
@@ -451,16 +452,17 @@ boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
 	   (response[0] != '*') && (response[0] != 0)) {
       parsed[i] *= 10;
       char c = response[0];
-      if (isDigit(c))
+      if (isdigit(c) == 1) {
         parsed[i] += c - '0';
-      else
+      } else {
         parsed[i] = c;
+      }
       response++;
     }
   }
   LOCUS_serial = parsed[0];
   LOCUS_type = parsed[1];
-  if (isAlpha(parsed[2])) {
+  if (isalpha(parsed[2]) == 1) {
     parsed[2] = parsed[2] - 'a' + 10; 
   }
   LOCUS_mode = parsed[2];
