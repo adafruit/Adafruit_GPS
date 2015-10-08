@@ -32,11 +32,11 @@
 // If using hardware serial, comment
 // out the above two lines and enable these two lines instead:
 Adafruit_GPS GPS(&Serial1);
-HardwareSerial mySerial = Serial1;
+#define mySerial  Serial1
 
 void setup()  
 {    
-//  while (!Serial);  // Leonardo will wait till serial connects
+  while (!Serial);  // Leonardo will wait till serial connects
 
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
