@@ -115,6 +115,7 @@ class Adafruit_GPS {
   void common_init(void);
 
   void sendCommand(const char *);
+  void sendCommand(const __FlashStringHelper *);
   
   void pause(boolean b);
 
