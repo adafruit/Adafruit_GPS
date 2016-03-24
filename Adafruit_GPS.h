@@ -5,18 +5,18 @@ for the ultimate GPS module!
 Tested and works great with the Adafruit Ultimate GPS module
 using MTK33x9 chipset
     ------> http://www.adafruit.com/products/746
-Pick one up today at the Adafruit electronics shop 
+Pick one up today at the Adafruit electronics shop
 and help support open source hardware & software! -ada
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
-// Fllybob added lines 34,35 and 40,41 to add 100mHz logging capability 
+// Fllybob added lines 34,35 and 40,41 to add 100mHz logging capability
 
 #ifndef _ADAFRUIT_GPS_H
 #define _ADAFRUIT_GPS_H
@@ -79,9 +79,20 @@ All text above must be included in any redistribution
 // ask for the release and version
 #define PMTK_Q_RELEASE "$PMTK605*31"
 
-// request for updates on antenna status 
-#define PGCMD_ANTENNA "$PGCMD,33,1*6C" 
-#define PGCMD_NOANTENNA "$PGCMD,33,0*6D" 
+// request for updates on antenna status
+#define PGCMD_ANTENNA "$PGCMD,33,1*6C"
+#define PGCMD_NOANTENNA "$PGCMD,33,0*6D"
+
+// definitions for EPO Packets
+#define EPO_PREAMBLE_OFFSET 0
+#define EPO_LENGTH_OFFSET 2
+#define EPO_COMMAND_OFFSET 4
+#define EPO_SEQUENCE_OFFSET 6
+#define EPO_SATELITE_OFFSET 8
+#define EPO_CHECKSUM_OFFSET 188
+#define EPO_ENDWORD_OFFSET 189
+
+
 
 // how long to wait when we're looking for a response
 #define MAXWAITSENTENCE 5
@@ -99,10 +110,10 @@ All text above must be included in any redistribution
 
 class Adafruit_GPS {
  public:
-  void begin(uint16_t baud); 
+  void begin(uint16_t baud);
 
 #ifdef __AVR__
-  #if ARDUINO >= 100 
+  #if ARDUINO >= 100
     Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
   #else
     Adafruit_GPS(NewSoftSerial  *ser); // Constructor when using NewSoftSerial
@@ -115,7 +126,7 @@ class Adafruit_GPS {
   void common_init(void);
 
   void sendCommand(const char *);
-  
+
   void pause(boolean b);
 
   boolean parseNMEA(char *response);
@@ -150,9 +161,26 @@ class Adafruit_GPS {
 
   uint16_t LOCUS_serial, LOCUS_records;
   uint8_t LOCUS_type, LOCUS_mode, LOCUS_config, LOCUS_interval, LOCUS_distance, LOCUS_speed, LOCUS_status, LOCUS_percent;
+
+  // Convenience functions for sending EPO data for Assisted GPS
+  bool startEpoUpload(void);
+  bool sendEpoSatelite(char *);
+  bool endEpoUpload(void);
+
  private:
   boolean paused;
-  
+
+  // EPO Packet send buffer
+  char epo_packet_buffer[191];
+  // EPO acknowledge packet receive buffer
+  char epo_acknowledge_buffer[12];
+
+  uint16_t epo_sequence_number;
+
+  // Private methods for EPO uploading
+  void checksum_epo(void);
+  void initialize_epo_packet(void);
+
   uint8_t parseResponse(char *response);
 #ifdef __AVR__
   #if ARDUINO >= 100
