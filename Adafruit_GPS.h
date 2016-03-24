@@ -173,13 +173,21 @@ class Adafruit_GPS {
   // EPO Packet send buffer
   char epo_packet_buffer[191];
   // EPO acknowledge packet receive buffer
-  char epo_acknowledge_buffer[12];
+  char epo_acknowledge_buffer[14];
 
   uint16_t epo_sequence_number;
+  int satelite_number;
+
+  uint16_t serial_baud;
 
   // Private methods for EPO uploading
   void checksum_epo(void);
   void initialize_epo_packet(void);
+  void initialize_final_epo_packet(void);
+  bool send_epo_packet(void);
+  bool validate_acknowledgement(void);
+  char serial_read_byte(void);
+  void serial_send_byte(void);
 
   uint8_t parseResponse(char *response);
 #ifdef __AVR__

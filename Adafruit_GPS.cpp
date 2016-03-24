@@ -352,6 +352,8 @@ void Adafruit_GPS::common_init(void) {
 
 void Adafruit_GPS::begin(uint16_t baud)
 {
+  // Need to save serial baudrate for EPO NMEA/Binary mode setting
+  serial_baud = baud;
 #ifdef __AVR__
   if(gpsSwSerial)
     gpsSwSerial->begin(baud);
@@ -497,4 +499,102 @@ boolean Adafruit_GPS::wakeup(void) {
   else {
       return false;  // Returns false if not in standby mode, nothing to wakeup
   }
+}
+
+// Sets the GPS to binary mode
+bool Adafruit_GPS::startEpoUpload(void) {
+  // TODO: clear EPO data $PMTK127*36
+  // TODO: set $PMTK253,1,serial_baud
+  return true;
+}
+
+// Adds 60 bytes of EPO data to the send buffer.
+// This method will return true for two successive calls, and then
+// initiate a packet transfer once three satelites worth of
+// data are added. At this point, it will return true if all three satelites
+// data were transfered successfully, or false if they require retransmitting.
+bool Adafruit_GPS::sendEpoSatelite(char* data) {
+  if (epo_sequence_number == 0) {
+    // TODO: Save starting time of first satelite data
+  }
+  if (satelite_number == 0) {
+    initialize_epo_packet();
+  }
+  memcpy(&epo_packet_buffer[EPO_SATELITE_OFFSET + satelite_number * 60], data, 60);
+  satelite_number++;
+  if (satelite_number == 3) {
+    // if the packet is full then write sequence number, compute checksum,send, then wait for acknowledgement
+    char sequence_lsb = (char)(epo_sequence_number & 0xFF);
+    char sequence_msb = (char)(epo_sequence_number >> 8);
+    epo_packet_buffer[EPO_SEQUENCE_OFFSET] = sequence_lsb;
+    epo_packet_buffer[EPO_SEQUENCE_OFFSET + 1] = sequence_msb;
+    checksum_epo();
+    satelite_number = 0;
+    if (!send_epo_packet()) return false;
+    if (!validate_acknowldgement()) return false;
+    epo_sequence_number++;
+  }
+  return true;
+}
+
+// Finishes EPO uploading and sets the GPS back to NMEA mode
+bool Adafruit_GPS::endEpoUpload(void) {
+  // TODO: Extract and save ending time of EPO data from last packet
+  initialize_final_epo_packet();
+  if (!send_epo_packet()) return false;
+  if (!validate_acknowldgement()) return false;
+  // TODO: Set back to NMEA mode  $PMTK253,0,serial_baud
+  // TODO: Acknowledge PMTK mode change packet (14 bytes)
+  // TODO: Query EPO data status: $PMTK607*33 crlf
+  // TODO: Process EPO data status response ($PMTK707 response), compare to uploaded data
+  return true;
+}
+
+void Adafruit_GPS::initialize_epo_packet(void) {
+  epo_packet_buffer[EPO_PREAMBLE_OFFSET] = 0x04;
+  epo_packet_buffer[EPO_PREAMBLE_OFFSET + 1] = 0x24;
+  epo_packet_buffer[EPO_LENGTH_OFFSET] = 0x00;      // send packet length is always the same
+  epo_packet_buffer[EPO_LENGTH_OFFSET + 1] = 0xBF;
+  epo_packet_buffer[EPO_COMMAND_OFFSET] = 0x02;
+  epo_packet_buffer[EPO_COMMAND_OFFSET + 1] = 0xD2;
+  epo_packet_buffer[EPO_ENDWORD_OFFSET] = 0x0D;
+  epo_packet_buffer[EPO_ENDWORD_OFFSET + 1] = 0x0A;
+  memset(&epo_packet_buffer[EPO_SEQUENCE_OFFSET], 0, 182);
+}
+
+void Adafruit_GPS::initialize_final_epo_packet(void) {
+  initialize_epo_packet();
+  epo_packet_buffer[EPO_SEQUENCE_OFFSET] = 0xFF;
+  epo_packet_buffer[EPO_SEQUENCE_OFFSET + 1] = 0xFF;
+}
+
+void Adafruit_GPS::checksum_epo(void) {
+  uint8_t checksum = 0;
+  for (int i = EPO_LENGTH_OFFSET; i < EPO_CHECKSUM_OFFSET; i++) {
+    checksum ^= epo_packet_buffer[i];
+  }
+  epo_packet_buffer[EPO_CHECKSUM_OFFSET] = checksum;
+}
+
+bool Adafruit_GPS::send_epo_packet(void) {
+  return true;
+}
+
+char Adafruit_GPS::serial_read_byte(void) {
+  char c = 0;
+  #ifdef __AVR__
+    if(gpsSwSerial) {
+      if(!gpsSwSerial->available()) return c;
+      c = gpsSwSerial->read();
+    } else
+  #endif
+    {
+      if(!gpsHwSerial->available()) return c;
+      c = gpsHwSerial->read();
+    }
+  return c;
+}
+
+void Adafruit_GPS::serial_send_byte(char c) {
+
 }
