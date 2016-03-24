@@ -531,7 +531,7 @@ bool Adafruit_GPS::startEpoUpload(void) {
 // data are added. At this point, it will return true if all three satelites
 // data were transfered successfully, or false if they require retransmitting.
 bool Adafruit_GPS::sendEpoSatelite(char* data) {
-  if (epo_sequence_number == 0) {
+  if (epo_sequence_number == 0 && satelite_number == 0) {
     // TODO: Save starting time of first satelite data
   }
   if (satelite_number == 0) {
