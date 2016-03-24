@@ -9,12 +9,15 @@ Written by Limor Fried/Ladyada for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
-#ifdef __AVR__
-  // Only include software serial on AVR platforms (i.e. not on Due).
-  #include <SoftwareSerial.h>
+#if defined(SPARK)
+  #include "math.h"
+#else
+  #ifdef __AVR__
+    // Only include software serial on AVR platforms (i.e. not on Due).
+    #include <SoftwareSerial.h>
+  #endif
 #endif
 #include <Adafruit_GPS.h>
-
 // how long are max NMEA lines to parse?
 #define MAXLINELENGTH 120
 
@@ -260,6 +263,17 @@ boolean Adafruit_GPS::parse(char *nmea) {
     return true;
   }
 
+  // Trap for PMTK command acknowledgement and save it in
+  // lastMTKAcknowledged and lastMTKStatus
+  if (strstr(nmea, "$PMTK001")) {
+    char *p = nmea;
+    p = strchr(p, ',') + 1;
+    lastMTKAcknowledged = atoi(p);
+    p = strchr(p, ',') + 1;
+    lastMTKStatus = atoi(p);
+    return true;
+  }
+
   return false;
 }
 
@@ -318,33 +332,35 @@ Adafruit_GPS::Adafruit_GPS() {
   common_init();
 }
 #else
-#ifdef __AVR__
-  // Constructor when using SoftwareSerial or NewSoftSerial
-  #if ARDUINO >= 100
-    Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
-  #else
-    Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser)
-  #endif
-  {
-    common_init();     // Set everything to common state, then...
-    gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
-  }
-  #endif
+  #ifdef __AVR__
+    // Constructor when using SoftwareSerial or NewSoftSerial
+    #if ARDUINO >= 100
+      Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
+    #else
+      Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser)
+    #endif
+    {
+      common_init();     // Set everything to common state, then...
+      gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
+    }
 
-  // Constructor when using HardwareSerial
-  Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
-    common_init();  // Set everything to common state, then...
-    gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
-  }
-#endif
+    // Constructor when using HardwareSerial
+    Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
+      common_init();  // Set everything to common state, then...
+      gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
+    }
+  #endif
 #endif
 
 // Initialization code used by all constructor types
 void Adafruit_GPS::common_init(void) {
-#ifdef __AVR__
-  gpsSwSerial = NULL; // Set both to NULL, then override correct
-#endif
-  gpsHwSerial = NULL; // port pointer in corresponding constructor
+  #if defined(SPARK)
+  #else
+    #ifdef __AVR__
+      gpsSwSerial = NULL; // Set both to NULL, then override correct
+    #endif
+    gpsHwSerial = NULL;
+  #endif
   recvdflag   = false;
   paused      = false;
   lineidx     = 0;
@@ -522,6 +538,8 @@ boolean Adafruit_GPS::wakeup(void) {
 bool Adafruit_GPS::startEpoUpload(void) {
   // TODO: clear EPO data $PMTK127*36
   // TODO: set $PMTK253,1,serial_baud,checksum
+  sendCommand("$PMTK127*36");
+
   return true;
 }
 
@@ -567,12 +585,12 @@ bool Adafruit_GPS::endEpoUpload(void) {
   return true;
 }
 
-char Adafruit_GPS::checksum(char* buffer, start, finish) {
+char Adafruit_GPS::checksum(char* buffer, int start, int finish) {
   char sum = 0;
-  for (int i = start, i < finish; i++) {
-    checksum ^= &buffer[i];
+  for (int i = start; i < finish; i++) {
+    sum ^= buffer[i];
   }
-  return checksum;
+  return sum;
 }
 
 bool Adafruit_GPS::validate_acknowledgement(void) {

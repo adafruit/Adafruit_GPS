@@ -93,6 +93,11 @@ All text above must be included in any redistribution
 #define EPO_ENDWORD_OFFSET 189
 #define EPO_PACKET_LENGTH 191
 
+// definitions for PMTK001 Acknowledgement
+#define PMTK_ACK_INVALID 0
+#define PMTK_ACK_UNSUPPORTED 1
+#define PMTK_ACK_FAILED 2
+#define PMTK_ACK_SUCCEEDED 3
 
 
 // how long to wait when we're looking for a response
@@ -177,6 +182,11 @@ class Adafruit_GPS {
   bool sendEpoSatellite(char *);
   bool endEpoUpload(void);
 
+  // During NMEA parsing, if a PMTK001 (Command acknowledgement packet)
+  // is parsed, store the status here
+  int16_t lastMTKAcknowledged;
+  int16_t lastMTKStatus;
+
  private:
   boolean paused;
 
@@ -198,17 +208,20 @@ class Adafruit_GPS {
   bool send_epo_packet(void);
   bool validate_acknowledgement(void);
   char serial_read_byte(void);
-  void serial_send_byte(void);
+  void serial_send_byte(char);
 
   uint8_t parseResponse(char *response);
-#ifdef __AVR__
-  #if ARDUINO >= 100
-    SoftwareSerial *gpsSwSerial;
-  #else
-    NewSoftSerial  *gpsSwSerial;
+  #if defined(SPARK)
+    #else
+    #ifdef __AVR__
+      #if ARDUINO >= 100
+        SoftwareSerial *gpsSwSerial;
+      #else
+        NewSoftSerial  *gpsSwSerial;
+      #endif
+    #endif
+    HardwareSerial *gpsHwSerial;
   #endif
-#endif
-  HardwareSerial *gpsHwSerial;
 };
 
 
