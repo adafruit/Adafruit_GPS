@@ -267,19 +267,16 @@ char Adafruit_GPS::read(void) {
   char c = 0;
 
   if (paused) return c;
-
+#if defined(SPARK)
+  if (!Serial1.available()) return c;
+  c = Serial1.read();
+#else
 #ifdef __AVR__
   if(gpsSwSerial) {
     if(!gpsSwSerial->available()) return c;
     c = gpsSwSerial->read();
   } else
 #endif
-#if defined(SPARK)
-  {
-    if (!Serial1.available()) return c;
-    c = Serial1.read();
-  }
-#else
   {
     if(!gpsHwSerial->available()) return c;
     c = gpsHwSerial->read();
@@ -316,29 +313,30 @@ char Adafruit_GPS::read(void) {
   return c;
 }
 
-#ifdef __AVR__
-// Constructor when using SoftwareSerial or NewSoftSerial
-#if ARDUINO >= 100
-Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
-#else
-Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser)
-#endif
-{
-  common_init();     // Set everything to common state, then...
-  gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
-}
-#endif
-
-// Constructor when using HardwareSerial
-Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
-  common_init();  // Set everything to common state, then...
-  gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
-}
-
 #if defined(SPARK)
 Adafruit_GPS::Adafruit_GPS() {
   common_init();
 }
+#else
+#ifdef __AVR__
+  // Constructor when using SoftwareSerial or NewSoftSerial
+  #if ARDUINO >= 100
+    Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
+  #else
+    Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser)
+  #endif
+  {
+    common_init();     // Set everything to common state, then...
+    gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
+  }
+  #endif
+
+  // Constructor when using HardwareSerial
+  Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
+    common_init();  // Set everything to common state, then...
+    gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
+  }
+#endif
 #endif
 
 // Initialization code used by all constructor types
@@ -366,28 +364,28 @@ void Adafruit_GPS::begin(uint16_t baud)
 {
   // Need to save serial baudrate for EPO NMEA/Binary mode setting
   serial_baud = baud;
-#ifdef __AVR__
-  if(gpsSwSerial)
-    gpsSwSerial->begin(baud);
-  else
-    gpsHwSerial->begin(baud);
-#endif
 #if defined(SPARK)
   Serial1.begin(baud);
+#else
+  #ifdef __AVR__
+    if(gpsSwSerial)
+      gpsSwSerial->begin(baud);
+    else
+      gpsHwSerial->begin(baud);
+  #endif
 #endif
-
   delay(10);
 }
 
 void Adafruit_GPS::sendCommand(const char *str) {
-#ifdef __AVR__
-  if(gpsSwSerial)
-    gpsSwSerial->println(str);
-  else
-#endif
 #if defined(SPARK)
   Serial1.println(str);
 #else
+  #ifdef __AVR__
+    if(gpsSwSerial)
+      gpsSwSerial->println(str);
+    else
+  #endif
     gpsHwSerial->println(str);
 #endif
 }
@@ -622,16 +620,16 @@ bool Adafruit_GPS::send_epo_packet(void) {
 
 char Adafruit_GPS::serial_read_byte(void) {
   char c = 0;
-  #ifdef __AVR__
-    if(gpsSwSerial) {
-      if(!gpsSwSerial->available()) return c;
-      c = gpsSwSerial->read();
-    } else
-  #endif
   #if defined(SPARK)
     if (!Serial1.available()) return c;
     c = Serial1.read();
   #else
+    #ifdef __AVR__
+      if(gpsSwSerial) {
+        if(!gpsSwSerial->available()) return c;
+        c = gpsSwSerial->read();
+      } else
+    #endif
     {
       if(!gpsHwSerial->available()) return c;
       c = gpsHwSerial->read();
@@ -641,14 +639,14 @@ char Adafruit_GPS::serial_read_byte(void) {
 }
 
 void Adafruit_GPS::serial_send_byte(char c) {
-  #ifdef __AVR__
-    if(gpsSwSerial)
-      gpsSwSerial->write(c);
-    else
-  #endif
   #if defined(SPARK)
     Serial1.write(c);
   #else
-      gpsHwSerial->write(c);
+    #ifdef __AVR__
+      if(gpsSwSerial)
+        gpsSwSerial->write(c);
+      else
+    #endif
+    gpsHwSerial->write(c);
   #endif
 }

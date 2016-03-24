@@ -98,19 +98,19 @@ All text above must be included in any redistribution
 // how long to wait when we're looking for a response
 #define MAXWAITSENTENCE 5
 
-#if ARDUINO >= 100
- #include "Arduino.h"
-#if defined (__AVR__) && !defined(__AVR_ATmega32U4__)
- #include "SoftwareSerial.h"
-#endif
-#else
- #include "WProgram.h"
- #include "NewSoftSerial.h"
-#endif
-
 // Support for Particle.io builds
 #if defined (SPARK)
   #include "application.h"
+#else
+  #if ARDUINO >= 100
+   #include "Arduino.h"
+  #if defined (__AVR__) && !defined(__AVR_ATmega32U4__)
+   #include "SoftwareSerial.h"
+  #endif
+  #else
+   #include "WProgram.h"
+   #include "NewSoftSerial.h"
+  #endif
 #endif
 
 
@@ -118,17 +118,19 @@ class Adafruit_GPS {
  public:
   void begin(uint16_t baud);
 
-#ifdef __AVR__
-  #if ARDUINO >= 100
-    Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
-  #else
-    Adafruit_GPS(NewSoftSerial  *ser); // Constructor when using NewSoftSerial
+#if defined(SPARK)
+  Adafruit_GPS(); // Constructor on Particle.io devices
+#else
+  #ifdef __AVR__
+    #if ARDUINO >= 100
+      Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
+    #else
+      Adafruit_GPS(NewSoftSerial  *ser); // Constructor when using NewSoftSerial
+    #endif
   #endif
+    Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
 #endif
-  Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
-  #if defined(SPARK)
-    Adafruit_GPS(); // Constructor on Particle.io devices
-  #endif
+
   char *lastNMEA(void);
   boolean newNMEAreceived();
   void common_init(void);
