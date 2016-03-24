@@ -527,26 +527,26 @@ bool Adafruit_GPS::startEpoUpload(void) {
 
 // Adds 60 bytes of EPO data to the send buffer.
 // This method will return true for two successive calls, and then
-// initiate a packet transfer once three satelites worth of
-// data are added. At this point, it will return true if all three satelites
+// initiate a packet transfer once three satellites worth of
+// data are added. At this point, it will return true if all three satellites
 // data were transfered successfully, or false if they require retransmitting.
-bool Adafruit_GPS::sendEpoSatelite(char* data) {
-  if (epo_sequence_number == 0 && satelite_number == 0) {
-    // TODO: Save starting time of first satelite data
+bool Adafruit_GPS::sendEpoSatellite(char* data) {
+  if (epo_sequence_number == 0 && satellite_number == 0) {
+    // TODO: Save starting time of first satellite data
   }
-  if (satelite_number == 0) {
+  if (satellite_number == 0) {
     initialize_epo_packet();
   }
-  memcpy(&epo_packet_buffer[EPO_SATELITE_OFFSET + satelite_number * 60], data, 60);
-  satelite_number++;
-  if (satelite_number == 3) {
+  memcpy(&epo_packet_buffer[EPO_SATELLITE_OFFSET + satellite_number * 60], data, 60);
+  satellite_number++;
+  if (satellite_number == 3) {
     // if the packet is full then write sequence number, compute checksum,send, then wait for acknowledgement
     char sequence_lsb = (char)(epo_sequence_number & 0xFF);
     char sequence_msb = (char)(epo_sequence_number >> 8);
     epo_packet_buffer[EPO_SEQUENCE_OFFSET] = sequence_lsb;
     epo_packet_buffer[EPO_SEQUENCE_OFFSET + 1] = sequence_msb;
     checksum_epo();
-    satelite_number = 0;
+    satellite_number = 0;
     if (!send_epo_packet()) return false;
     if (!validate_acknowledgement()) return false;
     epo_sequence_number++;

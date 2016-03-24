@@ -88,7 +88,7 @@ All text above must be included in any redistribution
 #define EPO_LENGTH_OFFSET 2
 #define EPO_COMMAND_OFFSET 4
 #define EPO_SEQUENCE_OFFSET 6
-#define EPO_SATELITE_OFFSET 8
+#define EPO_SATELLITE_OFFSET 8
 #define EPO_CHECKSUM_OFFSET 188
 #define EPO_ENDWORD_OFFSET 189
 #define EPO_PACKET_LENGTH 191
@@ -174,7 +174,7 @@ class Adafruit_GPS {
 
   // Convenience functions for sending EPO data for Assisted GPS
   bool startEpoUpload(void);
-  bool sendEpoSatelite(char *);
+  bool sendEpoSatellite(char *);
   bool endEpoUpload(void);
 
  private:
@@ -186,7 +186,7 @@ class Adafruit_GPS {
   char epo_acknowledge_buffer[16];
 
   uint16_t epo_sequence_number;
-  int satelite_number;
+  int satellite_number;
 
   uint16_t serial_baud;
 
