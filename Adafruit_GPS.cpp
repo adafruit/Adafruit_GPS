@@ -521,7 +521,7 @@ boolean Adafruit_GPS::wakeup(void) {
 // Sets the GPS to binary mode
 bool Adafruit_GPS::startEpoUpload(void) {
   // TODO: clear EPO data $PMTK127*36
-  // TODO: set $PMTK253,1,serial_baud
+  // TODO: set $PMTK253,1,serial_baud,checksum
   return true;
 }
 
@@ -560,9 +560,9 @@ bool Adafruit_GPS::endEpoUpload(void) {
   initialize_final_epo_packet();
   if (!send_epo_packet()) return false;
   if (!validate_acknowledgement()) return false;
-  // TODO: Set back to NMEA mode  $PMTK253,0,serial_baud
+  // TODO: Set back to NMEA mode  $PMTK253,0,serial_baud*checksum
   // TODO: Acknowledge PMTK mode change packet (14 bytes)
-  // TODO: Query EPO data status: $PMTK607*33 crlf
+  // TODO: Query EPO data status: $PMTK607*33
   // TODO: Process EPO data status response ($PMTK707 response), compare to uploaded data
   return true;
 }
