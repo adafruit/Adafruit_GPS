@@ -274,11 +274,17 @@ char Adafruit_GPS::read(void) {
     c = gpsSwSerial->read();
   } else
 #endif
+#if defined(SPARK)
+  {
+    if (!Serial1.available()) return c;
+    c = Serial1.read();
+  }
+#else
   {
     if(!gpsHwSerial->available()) return c;
     c = gpsHwSerial->read();
   }
-
+#endif
   //Serial.print(c);
 
 //  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
@@ -329,6 +335,12 @@ Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
   gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
 }
 
+#if defined(SPARK)
+Adafruit_GPS::Adafruit_GPS() {
+  common_init();
+}
+#endif
+
 // Initialization code used by all constructor types
 void Adafruit_GPS::common_init(void) {
 #ifdef __AVR__
@@ -360,6 +372,9 @@ void Adafruit_GPS::begin(uint16_t baud)
   else
     gpsHwSerial->begin(baud);
 #endif
+#if defined(SPARK)
+  Serial1.begin(baud);
+#endif
 
   delay(10);
 }
@@ -370,7 +385,11 @@ void Adafruit_GPS::sendCommand(const char *str) {
     gpsSwSerial->println(str);
   else
 #endif
+#if defined(SPARK)
+  Serial1.println(str);
+#else
     gpsHwSerial->println(str);
+#endif
 }
 
 boolean Adafruit_GPS::newNMEAreceived(void) {
@@ -531,7 +550,7 @@ bool Adafruit_GPS::sendEpoSatelite(char* data) {
     checksum_epo();
     satelite_number = 0;
     if (!send_epo_packet()) return false;
-    if (!validate_acknowldgement()) return false;
+    if (!validate_acknowledgement()) return false;
     epo_sequence_number++;
   }
   return true;
@@ -542,12 +561,34 @@ bool Adafruit_GPS::endEpoUpload(void) {
   // TODO: Extract and save ending time of EPO data from last packet
   initialize_final_epo_packet();
   if (!send_epo_packet()) return false;
-  if (!validate_acknowldgement()) return false;
+  if (!validate_acknowledgement()) return false;
   // TODO: Set back to NMEA mode  $PMTK253,0,serial_baud
   // TODO: Acknowledge PMTK mode change packet (14 bytes)
   // TODO: Query EPO data status: $PMTK607*33 crlf
   // TODO: Process EPO data status response ($PMTK707 response), compare to uploaded data
   return true;
+}
+
+char Adafruit_GPS::checksum(char* buffer, start, finish) {
+  char sum = 0;
+  for (int i = start, i < finish; i++) {
+    checksum ^= &buffer[i];
+  }
+  return checksum;
+}
+
+bool Adafruit_GPS::validate_acknowledgement(void) {
+  memset(epo_acknowledge_buffer, 0, 16);
+  for (int i = 0; i < 12; i++) {
+    epo_acknowledge_buffer[i] = serial_read_byte();
+  }
+  char expected[12] = { 0x04, 0x24, 0x0C, 0x00, 0x02, 0x00, 0xFF, 0xFF, 0x01, 0xFF, 0x0D, 0x0A };
+  char sequence_lsb = (char)(epo_sequence_number & 0xFF);
+  char sequence_msb = (char)(epo_sequence_number >> 8);
+  expected[6] = sequence_lsb;
+  expected[7] = sequence_msb;
+  expected[9] = checksum(expected, 2, 9);
+  return strncmp(epo_acknowledge_buffer, expected, 12) == 0;
 }
 
 void Adafruit_GPS::initialize_epo_packet(void) {
@@ -569,14 +610,13 @@ void Adafruit_GPS::initialize_final_epo_packet(void) {
 }
 
 void Adafruit_GPS::checksum_epo(void) {
-  uint8_t checksum = 0;
-  for (int i = EPO_LENGTH_OFFSET; i < EPO_CHECKSUM_OFFSET; i++) {
-    checksum ^= epo_packet_buffer[i];
-  }
-  epo_packet_buffer[EPO_CHECKSUM_OFFSET] = checksum;
+  epo_packet_buffer[EPO_CHECKSUM_OFFSET] = checksum(epo_packet_buffer, EPO_LENGTH_OFFSET, EPO_CHECKSUM_OFFSET);
 }
 
 bool Adafruit_GPS::send_epo_packet(void) {
+  for (int i = 0; i < EPO_PACKET_LENGTH; i++) {
+    serial_send_byte(epo_packet_buffer[i]);
+  }
   return true;
 }
 
@@ -588,13 +628,27 @@ char Adafruit_GPS::serial_read_byte(void) {
       c = gpsSwSerial->read();
     } else
   #endif
+  #if defined(SPARK)
+    if (!Serial1.available()) return c;
+    c = Serial1.read();
+  #else
     {
       if(!gpsHwSerial->available()) return c;
       c = gpsHwSerial->read();
     }
+  #endif
   return c;
 }
 
 void Adafruit_GPS::serial_send_byte(char c) {
-
+  #ifdef __AVR__
+    if(gpsSwSerial)
+      gpsSwSerial->write(c);
+    else
+  #endif
+  #if defined(SPARK)
+    Serial1.write(c);
+  #else
+      gpsHwSerial->write(c);
+  #endif
 }

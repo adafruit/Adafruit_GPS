@@ -91,6 +91,7 @@ All text above must be included in any redistribution
 #define EPO_SATELITE_OFFSET 8
 #define EPO_CHECKSUM_OFFSET 188
 #define EPO_ENDWORD_OFFSET 189
+#define EPO_PACKET_LENGTH 191
 
 
 
@@ -107,6 +108,11 @@ All text above must be included in any redistribution
  #include "NewSoftSerial.h"
 #endif
 
+// Support for Particle.io builds
+#if defined (SPARK)
+  #include "application.h"
+#endif
+
 
 class Adafruit_GPS {
  public:
@@ -120,7 +126,9 @@ class Adafruit_GPS {
   #endif
 #endif
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
-
+  #if defined(SPARK)
+    Adafruit_GPS(); // Constructor on Particle.io devices
+  #endif
   char *lastNMEA(void);
   boolean newNMEAreceived();
   void common_init(void);
@@ -171,9 +179,9 @@ class Adafruit_GPS {
   boolean paused;
 
   // EPO Packet send buffer
-  char epo_packet_buffer[191];
+  char epo_packet_buffer[EPO_PACKET_LENGTH];
   // EPO acknowledge packet receive buffer
-  char epo_acknowledge_buffer[14];
+  char epo_acknowledge_buffer[16];
 
   uint16_t epo_sequence_number;
   int satelite_number;
@@ -181,6 +189,7 @@ class Adafruit_GPS {
   uint16_t serial_baud;
 
   // Private methods for EPO uploading
+  char checksum(char *, int, int);
   void checksum_epo(void);
   void initialize_epo_packet(void);
   void initialize_final_epo_packet(void);
