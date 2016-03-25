@@ -124,7 +124,7 @@ All text above must be included in any redistribution
 
 class Adafruit_GPS {
  public:
-  void begin(uint16_t baud);
+  void begin(uint32_t baud);
 
 #if defined(SPARK)
   Adafruit_GPS(); // Constructor on Particle.io devices
@@ -203,7 +203,7 @@ class Adafruit_GPS {
   uint16_t epo_sequence_number;
   int satellite_number;
 
-  uint16_t serial_baud;
+  uint32_t serial_baud;
 
   // Private methods for EPO uploading
   char checksum(char *, int, int);
@@ -212,6 +212,7 @@ class Adafruit_GPS {
   void initialize_final_epo_packet(void);
   bool send_epo_packet(void);
   bool validate_acknowledgement(void);
+  bool validate_uart_format_packet(void);
   char serial_read_byte(void);
   void serial_send_byte(char);
   bool block_for_pmtk_ack(int, long);

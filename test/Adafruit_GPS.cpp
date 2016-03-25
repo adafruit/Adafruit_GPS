@@ -609,13 +609,13 @@ void Adafruit_GPS::writePmtkChecksum(char* command) {
 // Finishes EPO uploading and sets the GPS back to NMEA mode
 bool Adafruit_GPS::endEpoUpload(void) {
   // TODO: Extract and save ending time of EPO data from last packet
-  //initialize_final_epo_packet();
-  //if (!send_epo_packet()) return false;
+  initialize_final_epo_packet();
+  if (!send_epo_packet()) return false;
   epo_sequence_number = (uint16_t)(0xFF << 8 | 0xFF);
-  //if (!validate_acknowledgement()) return false;
-  // TODO: Set back to NMEA mode  $PMTK253,0,serial_baud*checksum
-  // TODO: Acknowledge PMTK mode change packet (14 bytes)
-  // TODO: Query EPO data status: $PMTK607*33
+  if (!validate_acknowledgement()) return false;
+  set_output_format(PMTK_OUTPUT_FORMAT_NMEA);
+  if (!validate_uart_format_packet()) return false; // This really shouldn't happen...
+  sendCommand("$PMTK607*33");
   // TODO: Process EPO data status response ($PMTK707 response), compare to uploaded data
   return true;
 }
@@ -632,7 +632,6 @@ bool Adafruit_GPS::set_output_format(int format) {
   pmtk[strlen(pmtk)] = '*';
   writePmtkChecksum(pmtk);
   sendCommand(pmtk);
-  // TODO: Require acknowledgement if switching back to NMEA
 }
 
 char Adafruit_GPS::checksum(char* buffer, int start, int finish) {
@@ -656,6 +655,21 @@ bool Adafruit_GPS::validate_acknowledgement(void) {
   expected[7] = sequence_msb;
   expected[9] = checksum(expected, 2, 9);
   return strncmp(epo_acknowledge_buffer, expected, 12) == 0;
+}
+
+bool Adafruit_GPS::validate_uart_format_packet(void) {
+  memset(epo_acknowledge_buffer, 0, 16);
+  for (int i = 0; i <  14; i++) {
+    epo_acknowledge_buffer[i] = serial_read_byte();
+  }
+  char expected[14] = { 0x04, 0x24, 0x0E, 0x00, 0xFD, 0x00, 0x00, 0x00, 0xC2, 0x01, 0x00, 0xFF, 0x0D, 0x0A };
+  uint32_t baud = serial_baud;
+  for (int i = 0; i < 4; i++) {
+    expected[7 + i] = (char)(baud & 0xFF);
+    baud = baud >> 8;
+  }
+  expected[11] = checksum(expected, 2, 11);
+  return strncmp(epo_acknowledge_buffer, expected, 14) == 0;
 }
 
 void Adafruit_GPS::initialize_epo_packet(void) {
