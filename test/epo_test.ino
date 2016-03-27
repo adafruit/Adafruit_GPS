@@ -53,13 +53,17 @@ void setup() {
   delay(500);
   gps.startEpoUpload();
   delay(500);
+  /*
   gps.sendEpoSatellite(satelite_1);
   if (!gps.flush_epo_packet()) {
     Serial.println("Couldn't flush packet");
   } else {
     Serial.println("Flushed packet");
   }
+  */
 }
 
 void loop() {
+  gps.dump_binary_packet();
+  delay(1000);
 }
