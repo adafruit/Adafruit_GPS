@@ -152,6 +152,8 @@ class Adafruit_GPS {
   boolean parseNMEA(char *response);
   uint8_t parseHex(char c);
 
+  void flush(void);
+
   char read(void);
   boolean parse(char *);
   void interruptReads(boolean r);
@@ -183,9 +185,24 @@ class Adafruit_GPS {
   uint8_t LOCUS_type, LOCUS_mode, LOCUS_config, LOCUS_interval, LOCUS_distance, LOCUS_speed, LOCUS_status, LOCUS_percent;
 
   // Convenience functions for sending EPO data for Assisted GPS
-  bool startEpoUpload(long);
+  bool startEpoUpload();
   bool sendEpoSatellite(char *);
   bool endEpoUpload(void);
+
+
+  // Private methods for EPO uploading
+  char checksum(char *, int, int);
+  void send_binary_command(uint16_t, char *, int);
+  bool send_buffer(char*, int);
+  bool byte_available(void);
+  char read_byte(void);
+  void format_packet(uint16_t, char *, int, char *);
+  bool waitForPacket(char*, int, long);
+  void format_acknowledge_packet(char*, uint16_t);
+
+  bool set_output_format(int format);
+  void dump_binary_packet(void);
+  bool flush_epo_packet(void);
 
   // During NMEA parsing, if a PMTK001 (Command acknowledgement packet)
   // is parsed, store the status here
@@ -196,27 +213,13 @@ class Adafruit_GPS {
   boolean paused;
 
   // EPO Packet send buffer
-  char epo_packet_buffer[EPO_PACKET_LENGTH];
-  // EPO acknowledge packet receive buffer
-  char epo_acknowledge_buffer[16];
+  char packet_buffer[EPO_PACKET_LENGTH];
 
   uint16_t epo_sequence_number;
   int satellite_number;
 
   uint32_t serial_baud;
 
-  // Private methods for EPO uploading
-  char checksum(char *, int, int);
-  void checksum_epo(void);
-  void initialize_epo_packet(void);
-  void initialize_final_epo_packet(void);
-  bool send_epo_packet(void);
-  bool validate_acknowledgement(void);
-  bool validate_uart_format_packet(void);
-  char serial_read_byte(void);
-  void serial_send_byte(char);
-  bool block_for_pmtk_ack(int, long);
-  bool set_output_format(int format);
 
   uint8_t parseResponse(char *response);
   #if defined(SPARK)

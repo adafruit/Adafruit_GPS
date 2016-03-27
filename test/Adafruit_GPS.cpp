@@ -277,6 +277,23 @@ boolean Adafruit_GPS::parse(char *nmea) {
   return false;
 }
 
+void Adafruit_GPS::flush(void) {
+  #if defined(SPARK)
+    Serial1.flush();
+  #else
+    #ifdef __AVR__
+      if (gpsSwSerial) {
+        gpsSwSerial->flush();
+      } else
+    #endif
+    {
+      if (gpsHwSerial) {
+        gpsHwSerial->flush();
+      }
+    }
+  #endif
+}
+
 char Adafruit_GPS::read(void) {
   char c = 0;
 
@@ -376,7 +393,7 @@ void Adafruit_GPS::common_init(void) {
     speed = angle = magvariation = HDOP = 0.0; // float
 }
 
-void Adafruit_GPS::begin(uint16_t baud)
+void Adafruit_GPS::begin(uint32_t baud)
 {
   // Need to save serial baudrate for EPO NMEA/Binary mode setting
   serial_baud = baud;
@@ -534,31 +551,11 @@ boolean Adafruit_GPS::wakeup(void) {
   }
 }
 
-// Parse and search for a PMTK_ACK packet that matches the one we are looking for
-// return true if the action succeeded, false if the GPS gave a
-// non-successful status or timed out
-bool Adafruit_GPS::block_for_pmtk_ack(int mtk, long timeout) {
-  long start = millis();
-  while (millis() - start < timeout) {
-    char c = read();
-    if (newNMEAreceived()) {
-      if (parse(lastNMEA())) {
-        if (mtk == lastMTKAcknowledged) {
-          return lastMTKStatus == PMTK_ACK_SUCCEEDED;
-        }
-      }
-    }
-    delay(1);
-  }
-  return false;
-}
-
 // Sets the GPS to binary mode. This is a blocking function!
-bool Adafruit_GPS::startEpoUpload(long timeout) {
+bool Adafruit_GPS::startEpoUpload() {
   sendCommand("$PMTK127*36");                             // clear EPO data
-  if (!block_for_pmtk_ack(127, timeout)) return false;
-  // TODO: set $PMTK253,1,serial_baud,checksum
-
+  delay(500);
+  set_output_format(PMTK_OUTPUT_FORMAT_BINARY);
   return true;
 }
 
@@ -571,23 +568,39 @@ bool Adafruit_GPS::sendEpoSatellite(char* data) {
   if (epo_sequence_number == 0 && satellite_number == 0) {
     // TODO: Save starting time of first satellite data
   }
+  char empty_buffer[180] = { 0 };
   if (satellite_number == 0) {
-    initialize_epo_packet();
+    // initialize an empty satelite data packet
+    format_packet(722, empty_buffer, 180, packet_buffer);
   }
-  memcpy(&epo_packet_buffer[EPO_SATELLITE_OFFSET + satellite_number * 60], data, 60);
+  memcpy(&packet_buffer[EPO_SATELLITE_OFFSET + satellite_number * 60], data, 60);
   satellite_number++;
   if (satellite_number == 3) {
     // if the packet is full then write sequence number, compute checksum,send, then wait for acknowledgement
-    char sequence_lsb = (char)(epo_sequence_number & 0xFF);
-    char sequence_msb = (char)(epo_sequence_number >> 8);
-    epo_packet_buffer[EPO_SEQUENCE_OFFSET] = sequence_lsb;
-    epo_packet_buffer[EPO_SEQUENCE_OFFSET + 1] = sequence_msb;
-    checksum_epo();
-    satellite_number = 0;
-    if (!send_epo_packet()) return false;
-    if (!validate_acknowledgement()) return false;
+    if (!flush_epo_packet()) {
+      return false;
+    }
     epo_sequence_number++;
   }
+  return true;
+}
+
+bool Adafruit_GPS::flush_epo_packet() {
+  char sequence_buffer[2] = { 0 };
+  sequence_buffer[0] = (char)(epo_sequence_number & 0xFF);
+  sequence_buffer[1] = (char)(epo_sequence_number >> 8);
+  packet_buffer[EPO_SEQUENCE_OFFSET] = sequence_buffer[0];
+  packet_buffer[EPO_SEQUENCE_OFFSET + 1] = sequence_buffer[1];
+  packet_buffer[EPO_CHECKSUM_OFFSET] = checksum(packet_buffer, 2, EPO_CHECKSUM_OFFSET);
+  satellite_number = 0;
+  send_buffer(packet_buffer, EPO_PACKET_LENGTH);
+  char expected_packet[12] = { 0 };
+  format_packet(2, sequence_buffer, 2, expected_packet);
+  if (!waitForPacket(expected_packet, 12, 5000)) {
+    Serial.println("EPO packet was rejected");
+    return false;
+  }
+  Serial.println("EPO packet was accepted");
   return true;
 }
 
@@ -609,29 +622,28 @@ void Adafruit_GPS::writePmtkChecksum(char* command) {
 // Finishes EPO uploading and sets the GPS back to NMEA mode
 bool Adafruit_GPS::endEpoUpload(void) {
   // TODO: Extract and save ending time of EPO data from last packet
-  initialize_final_epo_packet();
-  if (!send_epo_packet()) return false;
-  epo_sequence_number = (uint16_t)(0xFF << 8 | 0xFF);
-  if (!validate_acknowledgement()) return false;
-  set_output_format(PMTK_OUTPUT_FORMAT_NMEA);
-  if (!validate_uart_format_packet()) return false; // This really shouldn't happen...
-  sendCommand("$PMTK607*33");
-  // TODO: Process EPO data status response ($PMTK707 response), compare to uploaded data
+
   return true;
 }
 
 bool Adafruit_GPS::set_output_format(int format) {
-  if (format != PMTK_OUTPUT_FORMAT_BINARY || format != PMTK_OUTPUT_FORMAT_NMEA) return false;
+  if (format != PMTK_OUTPUT_FORMAT_BINARY && format != PMTK_OUTPUT_FORMAT_NMEA) return false;
   char pmtk[30] = { 0 };
   if (format == PMTK_OUTPUT_FORMAT_BINARY) {
     strcpy(pmtk, "$PMTK253,1,");
+    sprintf(&pmtk[11], "%u", (int)serial_baud);
+    pmtk[strlen(pmtk)] = '*';
+    writePmtkChecksum(pmtk);
+    sendCommand(pmtk);
   } else {
-    strcpy(pmtk, "$PMTK253,0,");
+    char data[5] = { 0 };
+    uint32_t baud = serial_baud;
+    for (int i = 1; i < 5;i ++) {
+      data[i] = (char)(baud & 0xFF);
+      baud = baud >> 8;
+    }
+    send_binary_command(253, data, 5);
   }
-  sprintf(&pmtk[11], "%u", serial_baud);
-  pmtk[strlen(pmtk)] = '*';
-  writePmtkChecksum(pmtk);
-  sendCommand(pmtk);
 }
 
 char Adafruit_GPS::checksum(char* buffer, int start, int finish) {
@@ -642,94 +654,214 @@ char Adafruit_GPS::checksum(char* buffer, int start, int finish) {
   return sum;
 }
 
-bool Adafruit_GPS::validate_acknowledgement(void) {
-  // TODO: Generalize for data field
-  memset(epo_acknowledge_buffer, 0, 16);
-  for (int i = 0; i < 12; i++) {
-    epo_acknowledge_buffer[i] = serial_read_byte();
+void Adafruit_GPS::format_packet(uint16_t cmd, char* data, int datalength, char* buffer) {
+  buffer[0] = 0x04;
+  buffer[1] = 0x24;
+  uint16_t length = 9 + datalength;
+  buffer[2] = (char)(length & 0xFF);
+  buffer[3] = (char)(length >> 8);
+  buffer[4] = (char)(cmd & 0xFF);
+  buffer[5] = (char)(cmd >> 8);
+  memcpy(&buffer[6], data, datalength);
+  buffer[6 + datalength] = checksum(buffer, 2, 6 + datalength);
+  buffer[6 + datalength + 1] = 0x0D;
+  buffer[6 + datalength + 2] = 0x0A;
+}
+
+void Adafruit_GPS::send_binary_command(uint16_t cmd, char* data, int datalength) {
+  char packet[9 + datalength];
+  format_packet(cmd, data, datalength, packet);
+  /*
+  Serial.println("Packet: ");
+  for (int i = 0; i < 9 + datalength; i++) {
+    Serial.printf("%02X ", packet[i]);
   }
-  char expected[12] = { 0x04, 0x24, 0x0C, 0x00, 0x02, 0x00, 0xFF, 0xFF, 0x01, 0xFF, 0x0D, 0x0A };
-  char sequence_lsb = (char)(epo_sequence_number & 0xFF);
-  char sequence_msb = (char)(epo_sequence_number >> 8);
-  expected[6] = sequence_lsb;
-  expected[7] = sequence_msb;
-  expected[9] = checksum(expected, 2, 9);
-  return strncmp(epo_acknowledge_buffer, expected, 12) == 0;
+  Serial.println();
+  */
+  send_buffer(packet, 9 + datalength);
 }
 
-bool Adafruit_GPS::validate_uart_format_packet(void) {
-  memset(epo_acknowledge_buffer, 0, 16);
-  for (int i = 0; i <  14; i++) {
-    epo_acknowledge_buffer[i] = serial_read_byte();
+void Adafruit_GPS::format_acknowledge_packet(char* buffer, uint16_t command) {
+  buffer[0] = 0x04;
+  buffer[1] = 0x24;
+  buffer[2] = 0x0C;
+  buffer[3] = 0x00;
+  buffer[4] = 0x01;
+  buffer[5] = 0x00;
+  buffer[6] = (char)(command & 0xFF);
+  buffer[7] = (char)(command >> 8);
+  buffer[8] = 0x03;
+  buffer[9] = checksum(buffer, 2, 9);
+  buffer[10] = 0x0D;
+  buffer[11] = 0x0A;
+}
+
+bool Adafruit_GPS::waitForPacket(char* packet, int length, long timeout) {
+  long start = millis();
+  int pos = 0;
+  char c;
+  int state = 0;
+  char expected_checksum = 0;
+  uint16_t temp;
+  while(millis() - start < timeout) {
+    while (byte_available()) {
+      c = read_byte();
+      // Serial.printf("byte: %02X", c);
+      switch (state) {
+        case 0 :  // No packet detected
+                  if (c == 0x04) state = 1; break;
+        case 1 :  // Possible packet
+                  if (c == 0x24) {
+                    Serial.println("Packet started");
+                    state = 2;
+                    memset(packet_buffer, 0, EPO_PACKET_LENGTH);
+                    packet_buffer[0] = 0x04;
+                    packet_buffer[1] = 0x24;
+                  } else {
+                    state = 0;
+                  }
+                  break;
+        case 2 :  // Packet has started, read length LSB
+                  length = (uint16_t)c;
+                  packet_buffer[2] = c;
+                  expected_checksum = c;
+                  state = 3;
+                  break;
+        case 3 :  // Read length MSB
+                  temp = c;
+                  length = (uint16_t)(temp << 8 | length);
+                  // Serial.print(" Packet length: ");
+                  // Serial.print(length);
+                  packet_buffer[3] = c;
+                  expected_checksum ^= c;
+                  pos = 4;
+                  state = 4;
+                  break;
+        case 4 :  // Read packet data
+                  packet_buffer[pos] = c;
+                  expected_checksum ^= c;
+                  // Serial.print(" position: ");
+                  // Serial.print(pos);
+                  pos++;
+                  if (pos == length - 3) {
+                    state = 5;
+                  }
+                  break;
+        case 5 :  // Read checksum byte
+                  if (c == expected_checksum) {
+                    packet_buffer[pos] = c;
+                    pos++;
+                    state = 6;
+                  } else {
+                    // Got bad checksum
+                    state = 0;
+                  }
+                  break;
+        case 6 :  // Read end word LSB
+                  if (c == 0x0D) {
+                    packet_buffer[pos] = c;
+                    pos++;
+                    state = 7;
+                  } else {
+                    // Can't find endword!
+                    state = 0;
+                  }
+                  break;
+        case 7 :  // Read end word MSB
+                  if (c == 0x0A) {
+                    packet_buffer[pos] = c;
+                    pos++;
+                    // Pos should equal packet length now
+                    if (pos != length) {
+                      state = -1;
+                      break;
+                    }
+                    // Serial.println("Complete packet received");
+                    Serial.print("Packet: ");
+                    for (int i = 0; i < pos; i++) {
+                      Serial.printf("%02X ", packet_buffer[i]);
+                    }
+                    Serial.println();
+                    if (strncmp(packet_buffer, packet, length) == 0) return true;
+                    state = 0;
+                  } else {
+                    // Couldn't finish end word!
+                    state = 0;
+                  }
+                  break;
+        case -1 : // Something's wrong!!!!
+                  // Serial.println("Error parsing packet");
+                  break;
+        default : break;
+      }
+      // Serial.print(" State: ");
+      // Serial.print(state);
+      // Serial.println();
+    }
+    delay(1);
   }
-  char expected[14] = { 0x04, 0x24, 0x0E, 0x00, 0xFD, 0x00, 0x00, 0x00, 0xC2, 0x01, 0x00, 0xFF, 0x0D, 0x0A };
-  uint32_t baud = serial_baud;
-  for (int i = 0; i < 4; i++) {
-    expected[7 + i] = (char)(baud & 0xFF);
-    baud = baud >> 8;
+  // Timed out
+  return false;
+}
+
+void Adafruit_GPS::dump_binary_packet() {
+  Serial.println("binary packet dump");
+  char buff[1024] = { 0 };
+  int pos = 0;
+  while (Serial1.available()) {
+    buff[pos] = read_byte();
+    sprintf(buff, "%02X", buff[pos]);
+    Serial.print(buff);
+    Serial.print(" ");
   }
-  expected[11] = checksum(expected, 2, 11);
-  return strncmp(epo_acknowledge_buffer, expected, 14) == 0;
+  Serial.println();
 }
 
-void Adafruit_GPS::initialize_epo_packet(void) {
-  epo_packet_buffer[EPO_PREAMBLE_OFFSET] = 0x04;
-  epo_packet_buffer[EPO_PREAMBLE_OFFSET + 1] = 0x24;
-  epo_packet_buffer[EPO_LENGTH_OFFSET] = 0x00;      // send packet length is always the same
-  epo_packet_buffer[EPO_LENGTH_OFFSET + 1] = 0xBF;
-  epo_packet_buffer[EPO_COMMAND_OFFSET] = 0x02;
-  epo_packet_buffer[EPO_COMMAND_OFFSET + 1] = 0xD2;
-  epo_packet_buffer[EPO_ENDWORD_OFFSET] = 0x0D;
-  epo_packet_buffer[EPO_ENDWORD_OFFSET + 1] = 0x0A;
-  memset(&epo_packet_buffer[EPO_SEQUENCE_OFFSET], 0, 182);
-}
-
-void Adafruit_GPS::initialize_final_epo_packet(void) {
-  initialize_epo_packet();
-  epo_packet_buffer[EPO_SEQUENCE_OFFSET] = 0xFF;
-  epo_packet_buffer[EPO_SEQUENCE_OFFSET + 1] = 0xFF;
-}
-
-void Adafruit_GPS::checksum_epo(void) {
-  epo_packet_buffer[EPO_CHECKSUM_OFFSET] = checksum(epo_packet_buffer, EPO_LENGTH_OFFSET, EPO_CHECKSUM_OFFSET);
-}
-
-bool Adafruit_GPS::send_epo_packet(void) {
-  for (int i = 0; i < EPO_PACKET_LENGTH; i++) {
-    serial_send_byte(epo_packet_buffer[i]);
-  }
-  return true;
-}
-
-char Adafruit_GPS::serial_read_byte(void) {
-  char c = 0;
+bool Adafruit_GPS::byte_available() {
   #if defined(SPARK)
-    if (!Serial1.available()) return c;
-    c = Serial1.read();
+    return Serial1.available();
+  #else
+    #ifdef __AVR__
+      if (gpsSwSerial) {
+        return gpsSwSerial->available();
+      }
+    #endif
+    {
+      return gpsHwSerial->available();
+    }
+  #endif
+  return false;
+}
+
+char Adafruit_GPS::read_byte(void) {
+  #if defined(SPARK)
+    return Serial1.read();
   #else
     #ifdef __AVR__
       if(gpsSwSerial) {
-        if(!gpsSwSerial->available()) return c;
-        c = gpsSwSerial->read();
+        return gpsSwSerial->read();
       } else
     #endif
     {
-      if(!gpsHwSerial->available()) return c;
-      c = gpsHwSerial->read();
+      return gpsHwSerial->read();
     }
   #endif
-  return c;
+  return 0;
 }
 
-void Adafruit_GPS::serial_send_byte(char c) {
+bool Adafruit_GPS::send_buffer(char* buffer, int length) {
   #if defined(SPARK)
-    Serial1.write(c);
+    return Serial1.write(reinterpret_cast<uint8_t *>(buffer), length) == length;
   #else
     #ifdef __AVR__
-      if(gpsSwSerial)
-        gpsSwSerial->write(c);
-      else
+      if (gpsSwSerial) {
+        return gpsSwSerial->write(buffer, length) == length;
+      } else
     #endif
-    gpsHwSerial->write(c);
+    {
+      if (gpsHwSerial) {
+        return gpsHwSerial->write(buffer, length) == length;
+      }
+    }
   #endif
 }
