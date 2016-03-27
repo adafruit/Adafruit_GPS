@@ -93,6 +93,9 @@ All text above must be included in any redistribution
 #define EPO_ENDWORD_OFFSET 189
 #define EPO_PACKET_LENGTH 191
 
+#define PMTK_OUTPUT_FORMAT_BINARY 1
+#define PMTK_OUTPUT_FORMAT_NMEA 0
+
 // definitions for PMTK001 Acknowledgement
 #define PMTK_ACK_INVALID 0
 #define PMTK_ACK_UNSUPPORTED 1
@@ -121,7 +124,7 @@ All text above must be included in any redistribution
 
 class Adafruit_GPS {
  public:
-  void begin(uint16_t baud);
+  void begin(uint32_t baud);
 
 #if defined(SPARK)
   Adafruit_GPS(); // Constructor on Particle.io devices
@@ -142,10 +145,14 @@ class Adafruit_GPS {
 
   void sendCommand(const char *);
 
+  void writePmtkChecksum(char *);
+
   void pause(boolean b);
 
   boolean parseNMEA(char *response);
   uint8_t parseHex(char c);
+
+  void flush(void);
 
   char read(void);
   boolean parse(char *);
@@ -178,9 +185,24 @@ class Adafruit_GPS {
   uint8_t LOCUS_type, LOCUS_mode, LOCUS_config, LOCUS_interval, LOCUS_distance, LOCUS_speed, LOCUS_status, LOCUS_percent;
 
   // Convenience functions for sending EPO data for Assisted GPS
-  bool startEpoUpload(void);
+  bool startEpoUpload();
   bool sendEpoSatellite(char *);
   bool endEpoUpload(void);
+
+
+  // Private methods for EPO uploading
+  char checksum(char *, int, int);
+  void send_binary_command(uint16_t, char *, int);
+  bool send_buffer(char*, int);
+  bool byte_available(void);
+  char read_byte(void);
+  void format_packet(uint16_t, char *, int, char *);
+  bool waitForPacket(char*, int, long);
+  void format_acknowledge_packet(char*, uint16_t);
+
+  bool set_output_format(int format);
+  void dump_binary_packet(void);
+  bool flush_epo_packet(void);
 
   // During NMEA parsing, if a PMTK001 (Command acknowledgement packet)
   // is parsed, store the status here
@@ -189,26 +211,14 @@ class Adafruit_GPS {
 
  private:
   boolean paused;
-
   // EPO Packet send buffer
-  char epo_packet_buffer[EPO_PACKET_LENGTH];
-  // EPO acknowledge packet receive buffer
-  char epo_acknowledge_buffer[16];
+  char packet_buffer[EPO_PACKET_LENGTH];
 
   uint16_t epo_sequence_number;
   int satellite_number;
 
-  uint16_t serial_baud;
+  uint32_t serial_baud;
 
-  // Private methods for EPO uploading
-  char checksum(char *, int, int);
-  void checksum_epo(void);
-  void initialize_epo_packet(void);
-  void initialize_final_epo_packet(void);
-  bool send_epo_packet(void);
-  bool validate_acknowledgement(void);
-  char serial_read_byte(void);
-  void serial_send_byte(char);
 
   uint8_t parseResponse(char *response);
   #if defined(SPARK)

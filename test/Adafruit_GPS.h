@@ -211,7 +211,6 @@ class Adafruit_GPS {
 
  private:
   boolean paused;
-
   // EPO Packet send buffer
   char packet_buffer[EPO_PACKET_LENGTH];
 

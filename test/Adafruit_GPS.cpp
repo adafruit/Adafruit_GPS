@@ -605,28 +605,32 @@ bool Adafruit_GPS::flush_epo_packet() {
   packet_buffer[EPO_SEQUENCE_OFFSET + 1] = sequence_buffer[1];
   packet_buffer[EPO_CHECKSUM_OFFSET] = checksum(packet_buffer, 2, EPO_CHECKSUM_OFFSET);
 
+  /*
   Serial.println("EPO Packet: ");
   for (int i = 0; i < EPO_PACKET_LENGTH; i++) {
     Serial.printf("%02X ",  packet_buffer[i]);
   }
   Serial.println();
+  */
 
   satellite_number = 0;
   send_buffer(packet_buffer, EPO_PACKET_LENGTH);
   char expected_packet[12] = { 0 };
   format_packet(2, sequence_buffer, 3, expected_packet);
 
+  /*
   Serial.print("Expected EPO acknowledgement: ");
   for (int i = 0; i < 12; i++) {
     Serial.printf("%02X ", expected_packet[i]);
   }
   Serial.println();
+  */
 
   if (!waitForPacket(expected_packet, 12, 5000)) {
-    Serial.println("EPO packet was rejected");
+    // Serial.println("EPO packet was rejected");
     return false;
   }
-  Serial.println("EPO packet was accepted");
+  // Serial.println("EPO packet was accepted");
   return true;
 }
 
@@ -648,7 +652,19 @@ void Adafruit_GPS::writePmtkChecksum(char* command) {
 // Finishes EPO uploading and sets the GPS back to NMEA mode
 bool Adafruit_GPS::endEpoUpload(void) {
   // TODO: Extract and save ending time of EPO data from last packet
-
+  if (satellite_number != 0) {
+    // Serial.println("Sending last valid satellite data");
+    if (!flush_epo_packet()) return false;
+  }
+  // make final packet
+  char empty_buffer[182] = { 0 };
+  empty_buffer[0] = 0xFF;
+  empty_buffer[1] = 0xFF;
+  epo_sequence_number = 0xFFFF;
+  format_packet(722, empty_buffer, 182, packet_buffer);
+  if (!flush_epo_packet()) return false;
+  // Serial.println("Sent final packet");
+  set_output_format(PMTK_OUTPUT_FORMAT_NMEA);
   return true;
 }
 
@@ -688,6 +704,13 @@ void Adafruit_GPS::format_packet(uint16_t cmd, char* data, int datalength, char*
   buffer[3] = (char)(length >> 8);
   buffer[4] = (char)(cmd & 0xFF);
   buffer[5] = (char)(cmd >> 8);
+  /*
+  Serial.print("Formatting data: ");
+  for (int i = 0; i < datalength; i++) {
+    Serial.printf("%02X ", data[i]);
+  }
+  Serial.println();
+  */
   memcpy(&buffer[6], data, datalength);
   buffer[6 + datalength] = checksum(buffer, 2, 6 + datalength);
   buffer[6 + datalength + 1] = 0x0D;
@@ -802,12 +825,15 @@ bool Adafruit_GPS::waitForPacket(char* packet, int length, long timeout) {
                       state = -1;
                       break;
                     }
+
+                    /*
                     Serial.println("Complete packet received");
                     Serial.print("Packet: ");
                     for (int i = 0; i < pos; i++) {
                       Serial.printf("%02X ", packet_buffer[i]);
                     }
                     Serial.println();
+                    */
 
                     if (strncmp(packet_buffer, packet, length) == 0) return true;
                     state = 0;

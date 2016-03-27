@@ -53,17 +53,17 @@ void setup() {
   delay(500);
   gps.startEpoUpload();
   delay(500);
-  /*
+
   gps.sendEpoSatellite(satelite_1);
-  if (!gps.flush_epo_packet()) {
-    Serial.println("Couldn't flush packet");
+  if (!gps.endEpoUpload()) {
+    Serial.println("Couldn't end EPO upload");
   } else {
-    Serial.println("Flushed packet");
+    Serial.println("Ended EPO upload");
   }
-  */
 }
 
 void loop() {
-  gps.dump_binary_packet();
-  delay(1000);
+  char c = gps.read();
+  if (gps.newNMEAreceived()) Serial.println(gps.lastNMEA());
+  delay(1);
 }
