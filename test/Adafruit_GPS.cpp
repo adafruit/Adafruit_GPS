@@ -595,7 +595,9 @@ bool Adafruit_GPS::isEPOCurrent(long utcTime) {
   while ((long)(millis() - start) < (long)5000) {
     char c = read();
     if (newNMEAreceived()) {
-      if (parse(lastNMEA())) {
+      char* nmea = lastNMEA();
+      // Serial.println(nmea);
+      if (parse(nmea)) {
         if (epoStartUTC > 0 && epoEndUTC > 0) {
           return utcTime < epoEndUTC;
         }
