@@ -607,6 +607,17 @@ bool Adafruit_GPS::isEPOCurrent(long utcTime) {
 
 }
 
+void Adafruit_GPS::hint(float lat, float lng, int altitude, int YYYY, int MM, int DD, int hh, int mm, int ss) {
+  memset(packet_buffer, 0, EPO_PACKET_LENGTH);
+  sprintf(packet_buffer, "$PMTK741,%f,%f,%u,%u,%u,%u,%u,%u,%u", lat, lng, altitude, YYYY, MM, DD, hh, mm, ss);
+  char sum = checksum(packet_buffer, 1, strlen(packet_buffer));
+  sprintf(&packet_buffer[strlen(packet_buffer)], "*%02X", sum);
+//  Serial.print("GPS hint command: ");
+//  Serial.println(packet_buffer);
+  sendCommand(packet_buffer);
+  delay(500);
+}
+
 // Adds 60 bytes of EPO data to the send buffer.
 // This method will return true for two successive calls, and then
 // initiate a packet transfer once three satellites worth of

@@ -191,9 +191,10 @@ class Adafruit_GPS {
   bool sendEpoSatellite(char *);
   bool endEpoUpload(void);
   long gpsTimeToUTC(long, long);
+  void hint(float, float, int, int, int, int, int, int, int);
+  bool isEPOCurrent(long);
 
-
-  // Private methods for EPO uploading
+  // Binary packet tools
   char checksum(char *, int, int);
   void send_binary_command(uint16_t, char *, int);
   bool send_buffer(char*, int);
@@ -202,11 +203,9 @@ class Adafruit_GPS {
   void format_packet(uint16_t, char *, int, char *);
   bool waitForPacket(char*, int, long);
   void format_acknowledge_packet(char*, uint16_t);
-
   void set_output_format(int);
   void dump_binary_packet(void);
   bool flush_epo_packet(void);
-  bool isEPOCurrent(long);
 
   // During NMEA parsing, if a PMTK001 (Command acknowledgement packet)
   // is parsed, store the status here

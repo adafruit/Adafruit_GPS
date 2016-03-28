@@ -106,7 +106,6 @@ void setup() {
 
   gps.begin(9600);
   delay(500);
-
   streamEpo();
   delay(500);
   if (gps.isEPOCurrent(Time.now())) {
@@ -114,6 +113,8 @@ void setup() {
   } else {
     Serial.println("EPO is not current");
   }
+  gps.hint(30.29128, -97.73858, 149, 2016, 3, 28, 3, 43, 36);
+  delay(500);
 }
 
 void loop() {

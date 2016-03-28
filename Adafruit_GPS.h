@@ -29,6 +29,8 @@ All text above must be included in any redistribution
   #endif
 #endif
 
+#include <time.h>
+
 // different commands to set the update rate from once a second (1 Hz) to 10 times a second (10Hz)
 // Note that these only control the rate at which the position is echoed, to actually speed up the
 // position fix you must also send one of the position fix rate commands below too.
@@ -188,9 +190,11 @@ class Adafruit_GPS {
   bool startEpoUpload();
   bool sendEpoSatellite(char *);
   bool endEpoUpload(void);
+  long gpsTimeToUTC(long, long);
+  void hint(float, float, int, int, int, int, int, int, int);
+  bool isEPOCurrent(long);
 
-
-  // Private methods for EPO uploading
+  // Binary packet tools
   char checksum(char *, int, int);
   void send_binary_command(uint16_t, char *, int);
   bool send_buffer(char*, int);
@@ -199,8 +203,7 @@ class Adafruit_GPS {
   void format_packet(uint16_t, char *, int, char *);
   bool waitForPacket(char*, int, long);
   void format_acknowledge_packet(char*, uint16_t);
-
-  bool set_output_format(int format);
+  void set_output_format(int);
   void dump_binary_packet(void);
   bool flush_epo_packet(void);
 
@@ -218,6 +221,8 @@ class Adafruit_GPS {
   int satellite_number;
 
   uint32_t serial_baud;
+  long epoStartUTC;
+  long epoEndUTC;
 
 
   uint8_t parseResponse(char *response);
