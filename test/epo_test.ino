@@ -1,7 +1,16 @@
+#include "ParticleFtpClient.h"
 #include "Adafruit_GPS.h"
 
-Adafruit_GPS gps = Adafruit_GPS();
+using namespace particleftpclient;
 
+Adafruit_GPS gps = Adafruit_GPS();
+ParticleFtpClient ftp = ParticleFtpClient();
+
+String hostname = "ftp.gtop-tech.com";
+String username = "gtopagpsenduser01";
+String password = "enduser080807";
+String MTKfilename = "MTK7d.EPO";
+int timeout = 8000;
 
 char satelite_1[60] = {
   0xE0, 0x18, 0x04, 0x1D, 0x49, 0x01, 0x00, 0x00, 0x18, 0x00, 0x30, 0x2A, 0x66, 0x2E, 0x92,
@@ -41,29 +50,77 @@ bool test_waitForPacket() {
   Serial.println("Waiting for packet: ");
   if (!gps.waitForPacket(expected_packet, 12, 5000)) {
     Serial.println("Never got packet");
+    return false;
   } else {
     Serial.println("Found packet");
   }
+  return true;
 }
+
+bool streamEpo() {
+  Serial.println("Connecting to FTP...");
+  if (!ftp.open(hostname, timeout)) return false;
+  Serial.println("Logging in with username...");
+  if (!ftp.user(username)) return false;
+  Serial.println("Sending password...");
+  if (!ftp.pass(password)) return false;
+  Serial.println("Retrieving EPO file...");
+  if (!ftp.retr(MTKfilename)) return false;
+  Serial.println("Setting binary mode on GPS");
+  gps.startEpoUpload();
+  Serial.println("Streaming data");
+  char satellite_buffer[60] = { 0 };
+  int pos = 0;
+  int byte_count = 0;
+  while (ftp.data.connected()) {
+    while (ftp.data.available()) {
+      satellite_buffer[pos] = ftp.data.read();
+      pos++;
+      byte_count++;
+      if (pos == 60) {
+        Serial.print("Received satellite, ");
+        Serial.print(byte_count);
+        Serial.println(" bytes");
+        if (!gps.sendEpoSatellite(satellite_buffer)) {
+          Serial.println("Couldn't write satellite");
+        };
+        delay(10);
+        pos = 0;
+      }
+    }
+  }
+  Serial.println("EPO disconnected");
+  if (byte_count != 53760) {
+    Serial.println("File seems incomplete...");
+  }
+  Serial.println("Ending EPO Upload");
+  if (!gps.endEpoUpload()) return false;
+  Serial.println("Ended EPO upload");
+  return true;
+}
+
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Hello friend");
+
   gps.begin(9600);
   delay(500);
-  gps.startEpoUpload();
-  delay(500);
 
-  gps.sendEpoSatellite(satelite_1);
-  if (!gps.endEpoUpload()) {
-    Serial.println("Couldn't end EPO upload");
+  streamEpo();
+  delay(500);
+  if (gps.isEPOCurrent(Time.now())) {
+    Serial.println("EPO is current");
   } else {
-    Serial.println("Ended EPO upload");
+    Serial.println("EPO is not current");
   }
 }
 
 void loop() {
   char c = gps.read();
-  if (gps.newNMEAreceived()) Serial.println(gps.lastNMEA());
+  if (gps.newNMEAreceived()) {
+    Serial.println(gps.lastNMEA());
+//    gps.sendCommand("$PMTK607*33");
+  }
   delay(1);
 }

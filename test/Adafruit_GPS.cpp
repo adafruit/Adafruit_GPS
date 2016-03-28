@@ -273,6 +273,23 @@ boolean Adafruit_GPS::parse(char *nmea) {
     lastMTKStatus = atoi(p);
     return true;
   }
+  if (strstr(nmea, "$PMTK707")) {
+    char *p = nmea;
+    p = strchr(p, ',') + 1;
+    p = strchr(p, ',') + 1;
+    int gpsStartWeek = atoi(p);
+    p = strchr(p, ',') + 1;
+    int gpsStartSec = atoi(p);
+    p = strchr(p, ',') + 1;
+    int gpsEndWeek = atoi(p);
+    p = strchr(p, ',') + 1;
+    int gpsEndSec = atoi(p);
+    if (gpsStartWeek > 1800) {
+      epoStartUTC = gpsTimeToUTC(gpsStartWeek, gpsStartSec);
+      epoEndUTC = gpsTimeToUTC(gpsEndWeek, gpsEndSec);
+      return true;
+    }
+  }
 
   return false;
 }
@@ -570,6 +587,26 @@ bool Adafruit_GPS::startEpoUpload() {
   return true;
 }
 
+bool Adafruit_GPS::isEPOCurrent(long utcTime) {
+  sendCommand("$PMTK607*33");
+  epoStartUTC = -1;
+  epoEndUTC = -1;
+  long start = millis();
+  while ((long)(millis() - start) < (long)5000) {
+    char c = read();
+    if (newNMEAreceived()) {
+      if (parse(lastNMEA())) {
+        if (epoStartUTC > 0 && epoEndUTC > 0) {
+          return utcTime < epoEndUTC;
+        }
+      }
+    }
+    delay(1);
+  }
+  return false;
+
+}
+
 // Adds 60 bytes of EPO data to the send buffer.
 // This method will return true for two successive calls, and then
 // initiate a packet transfer once three satellites worth of
@@ -594,6 +631,10 @@ bool Adafruit_GPS::sendEpoSatellite(char* data) {
     epo_sequence_number++;
   }
   return true;
+}
+
+long Adafruit_GPS::gpsTimeToUTC(long gpsWeek, long timeOfWeek) {
+  return 315964800 + gpsWeek * 7 * 60 * 60 * 24 + timeOfWeek;
 }
 
 bool Adafruit_GPS::flush_epo_packet() {
@@ -668,8 +709,7 @@ bool Adafruit_GPS::endEpoUpload(void) {
   return true;
 }
 
-bool Adafruit_GPS::set_output_format(int format) {
-  if (format != PMTK_OUTPUT_FORMAT_BINARY && format != PMTK_OUTPUT_FORMAT_NMEA) return false;
+void Adafruit_GPS::set_output_format(int format) {
   char pmtk[30] = { 0 };
   if (format == PMTK_OUTPUT_FORMAT_BINARY) {
     strcpy(pmtk, "$PMTK253,1,");
@@ -752,7 +792,7 @@ bool Adafruit_GPS::waitForPacket(char* packet, int length, long timeout) {
   int state = 0;
   char expected_checksum = 0;
   uint16_t temp;
-  while(millis() - start < timeout) {
+  while((long)(millis() - start) < timeout) {
     while (byte_available()) {
       c = read_byte();
       // Serial.printf("byte: %02X", c);
