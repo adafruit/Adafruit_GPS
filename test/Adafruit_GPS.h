@@ -85,7 +85,7 @@ All text above must be included in any redistribution
 #define PGCMD_ANTENNA "$PGCMD,33,1*6C"
 #define PGCMD_NOANTENNA "$PGCMD,33,0*6D"
 
-// definitions for EPO Packets
+// definitions for EPO Packet field offsets
 #define EPO_PREAMBLE_OFFSET 0
 #define EPO_LENGTH_OFFSET 2
 #define EPO_COMMAND_OFFSET 4
@@ -95,10 +95,12 @@ All text above must be included in any redistribution
 #define EPO_ENDWORD_OFFSET 189
 #define EPO_PACKET_LENGTH 191
 
+// Constants for setting the output mode of the GPS
 #define PMTK_OUTPUT_FORMAT_BINARY 1
 #define PMTK_OUTPUT_FORMAT_NMEA 0
 
-// definitions for PMTK001 Acknowledgement
+// Constants for PMTK001 Acknowledgement
+#define PMTK_ACK_NO_RESPONSE -1
 #define PMTK_ACK_INVALID 0
 #define PMTK_ACK_UNSUPPORTED 1
 #define PMTK_ACK_FAILED 2
@@ -186,15 +188,27 @@ class Adafruit_GPS {
   uint16_t LOCUS_serial, LOCUS_records;
   uint8_t LOCUS_type, LOCUS_mode, LOCUS_config, LOCUS_interval, LOCUS_distance, LOCUS_speed, LOCUS_status, LOCUS_percent;
 
-  // Convenience functions for sending EPO data for Assisted GPS
+  // Functions for sending EPO data
   bool startEpoUpload();
   bool sendEpoSatellite(char *);
   bool endEpoUpload(void);
-  long gpsTimeToUTC(long, long);
-  void hint(float, float, int, int, int, int, int, int, int);
-  bool isEPOCurrent(long);
 
-  // Binary packet tools
+  // Functions for sending location and time hints to the GPS to speed up the
+  // Time To First Fix (TTFF). Send a time hint before sennding a location hint!
+  long gpsTimeToUTC(long, long);
+  void sendLocationHint(float, float, int, int, int, int, int, int, int);
+  void sendTimeHint(int, int, int, int, int, int);
+  void sendEpoDataRequest();
+
+  // Functions for determining the status of the above commands
+  // (They take a long time to complete execution)
+  int getTimeHintStatus();
+  int getLocationHintStatus();
+  int getEpoDataRequestResponse();
+
+  // Binary packet utility functions, necessary for sending EPO data,
+  // but also useful to drone community. (They seem to like binary
+  // protocols better.)
   char checksum(char *, int, int);
   void send_binary_command(uint16_t, char *, int);
   bool send_buffer(char*, int);
@@ -212,17 +226,20 @@ class Adafruit_GPS {
   int16_t lastMTKAcknowledged;
   int16_t lastMTKStatus;
 
+  // When sendEpoDataRequest is called, store returned values here
+  long epoStartUTC;
+  long epoEndUTC;
+
+
  private:
   boolean paused;
-  // EPO Packet send buffer
-  char packet_buffer[EPO_PACKET_LENGTH];
 
+  // EPO private variables
+  char packet_buffer[EPO_PACKET_LENGTH];
   uint16_t epo_sequence_number;
   int satellite_number;
 
   uint32_t serial_baud;
-  long epoStartUTC;
-  long epoEndUTC;
 
 
   uint8_t parseResponse(char *response);

@@ -42,7 +42,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     sum += parseHex(nmea[strlen(nmea)-2]);
 
     // check checksum
-    for (uint8_t i=2; i < (strlen(nmea)-4); i++) {
+    for (uint8_t i=1; i < (strlen(nmea)-4); i++) {
       sum ^= nmea[i];
     }
     if (sum != 0) {
@@ -263,8 +263,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     return true;
   }
 
-  // Trap for PMTK command acknowledgement and save it in
-  // lastMTKAcknowledged and lastMTKStatus
+  // Trap for 001 PMTK_ACK (PMTK command acknowledgement) packets and
+  // update lastMTKAcknowledged and lastMTKStatus
   if (strstr(nmea, "$PMTK001")) {
     char *p = nmea;
     p = strchr(p, ',') + 1;
@@ -273,6 +273,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     lastMTKStatus = atoi(p);
     return true;
   }
+
+  // Trap for 707 PMTK_DT_EPO_INFO (EPO data info) responses
   if (strstr(nmea, "$PMTK707")) {
     char *p = nmea;
     p = strchr(p, ',') + 1;
@@ -284,16 +286,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
     int gpsEndWeek = atoi(p);
     p = strchr(p, ',') + 1;
     int gpsEndSec = atoi(p);
-    if (gpsStartWeek > 1800) {
-      epoStartUTC = gpsTimeToUTC(gpsStartWeek, gpsStartSec);
-      epoEndUTC = gpsTimeToUTC(gpsEndWeek, gpsEndSec);
-      return true;
-    }
+    epoStartUTC = gpsTimeToUTC(gpsStartWeek, gpsStartSec);
+    epoEndUTC = gpsTimeToUTC(gpsEndWeek, gpsEndSec);
+
+    return true;
   }
 
   return false;
 }
 
+// Sometimes you need to flush the input buffer
 void Adafruit_GPS::flush(void) {
   #if defined(SPARK)
     Serial1.flush();
@@ -332,10 +334,22 @@ char Adafruit_GPS::read(void) {
 #endif
   //Serial.print(c);
 
-//  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
-//    currentline[lineidx] = 0;
-//    lineidx = 0;
-//  }
+
+  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
+    currentline[lineidx] = 0;  // ^^^   ...but still needs to cycle to a new line!
+                               // If a crlf byte gets lost, a new command will
+                               // always begin with $. -- jyc 3/29/16
+
+    if (currentline == line1) {
+      currentline = line2;
+      lastline = line1;
+    } else {
+      currentline = line1;
+      lastline = line2;
+    }
+    lineidx = 0;
+  }
+
   if (c == '\n') {
     currentline[lineidx] = 0;
 
@@ -428,6 +442,7 @@ void Adafruit_GPS::begin(uint32_t baud)
 }
 
 void Adafruit_GPS::sendCommand(const char *str) {
+  lastMTKStatus = PMTK_ACK_NO_RESPONSE;
 #if defined(SPARK)
   Serial1.println(str);
 #else
@@ -587,37 +602,47 @@ bool Adafruit_GPS::startEpoUpload() {
   return true;
 }
 
-bool Adafruit_GPS::isEPOCurrent(long utcTime) {
-  sendCommand("$PMTK607*33");
+void Adafruit_GPS::sendEpoDataRequest() {
   epoStartUTC = -1;
   epoEndUTC = -1;
-  long start = millis();
-  while ((long)(millis() - start) < (long)5000) {
-    char c = read();
-    if (newNMEAreceived()) {
-      char* nmea = lastNMEA();
-      // Serial.println(nmea);
-      if (parse(nmea)) {
-        if (epoStartUTC > 0 && epoEndUTC > 0) {
-          return utcTime < epoEndUTC;
-        }
-      }
-    }
-    delay(1);
-  }
-  return false;
-
+  sendCommand("$PMTK607*33");
+  delay(500);
 }
 
-void Adafruit_GPS::hint(float lat, float lng, int altitude, int YYYY, int MM, int DD, int hh, int mm, int ss) {
+void Adafruit_GPS::sendTimeHint(int YYYY, int MM, int DD, int hh, int mm, int ss) {
+  lastMTKAcknowledged = 0;
+  lastMTKStatus = PMTK_ACK_NO_RESPONSE;
+  memset(packet_buffer, 0, EPO_PACKET_LENGTH);
+  sprintf(packet_buffer, "$PMTK740,%u,%u,%u,%u,%u,%u", YYYY, MM, DD, hh, mm, ss);
+  char sum = checksum(packet_buffer, 1, strlen(packet_buffer));
+  sprintf(&packet_buffer[strlen(packet_buffer)], "*%02X", sum);
+  sendCommand(packet_buffer);
+  delay(500);
+}
+
+void Adafruit_GPS::sendLocationHint(float lat, float lng, int altitude, int YYYY, int MM, int DD, int hh, int mm, int ss) {
+  lastMTKAcknowledged = 0;
+  lastMTKStatus = PMTK_ACK_NO_RESPONSE;
   memset(packet_buffer, 0, EPO_PACKET_LENGTH);
   sprintf(packet_buffer, "$PMTK741,%f,%f,%u,%u,%u,%u,%u,%u,%u", lat, lng, altitude, YYYY, MM, DD, hh, mm, ss);
   char sum = checksum(packet_buffer, 1, strlen(packet_buffer));
   sprintf(&packet_buffer[strlen(packet_buffer)], "*%02X", sum);
-//  Serial.print("GPS hint command: ");
-//  Serial.println(packet_buffer);
   sendCommand(packet_buffer);
   delay(500);
+}
+
+int Adafruit_GPS::getEpoDataRequestResponse() {
+  return (epoStartUTC > -1 && epoEndUTC > -1) ? PMTK_ACK_SUCCEEDED : PMTK_ACK_NO_RESPONSE;
+}
+
+int Adafruit_GPS::getLocationHintStatus() {
+  if (lastMTKAcknowledged == 741) return lastMTKStatus;
+  return PMTK_ACK_NO_RESPONSE;
+}
+
+int Adafruit_GPS::getTimeHintStatus() {
+  if (lastMTKAcknowledged == 740) return lastMTKStatus;
+  return PMTK_ACK_NO_RESPONSE;
 }
 
 // Adds 60 bytes of EPO data to the send buffer.

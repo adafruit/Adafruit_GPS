@@ -12,7 +12,23 @@ String password = "enduser080807";
 String MTKfilename = "MTK7d.EPO";
 int timeout = 8000;
 long lastTimeout = 0;
+
+#define STATE_SPINNING_UP -1
+#define STATE_GET_EPO_STATUS 0
+#define STATE_WAIT_FOR_EPO_STATUS 1
+#define STATE_STREAM_EPO 2
+#define STATE_SEND_TIME_HINT 3
+#define STATE_WAIT_FOR_TIME_HINT_SUCCESS 4
+#define STATE_SEND_LOCATION_HINT 5
+#define STATE_WAIT_FOR_LOCATION_HINT_SUCCESS 6
+#define STATE_NOW_PROFIT_JUST_KIDDING 7
+#define NMEA_UPDATES_BEFORE_RETRY 5
+
+int state = STATE_SPINNING_UP;
+int counter = 0;
+
 bool streamEpo() {
+  Serial.println("Streaming EPO data from FTP directly to GPS");
   Serial.println("Connecting to FTP...");
   if (!ftp.open(hostname, timeout)) return false;
   Serial.println("Logging in with username...");
@@ -63,37 +79,135 @@ bool streamEpo() {
   return true;
 }
 
+void sendTimeHint() {
+  counter = 0;
+  long now = Time.now();
+  Serial.println("Sending time hint");
+  gps.sendTimeHint(Time.year(now), Time.month(now),
+          Time.day(now), Time.hour(now), Time.minute(now), Time.second(now));
+  delay(100);
+}
+
+void sendGpsHint() {
+  counter = 0;
+  long now = Time.now();
+  Serial.println("Sending GPS hint");
+  gps.sendLocationHint(30.29128, -97.73858, 149, Time.year(now), Time.month(now),
+          Time.day(now), Time.hour(now), Time.minute(now), Time.second(now));
+  delay(100);
+}
+
+void sendEpoRequest() {
+  counter = 0;
+  Serial.println("Sending EPO data request");
+  gps.sendEpoDataRequest();
+  delay(100);
+}
+
+void runStateMachine() {
+  switch(state) {
+    case STATE_SPINNING_UP :
+      Serial.print("Allowing GPS to boot: ");
+      Serial.println(counter);
+      if (counter > NMEA_UPDATES_BEFORE_RETRY) {
+        counter = 0;
+        state = STATE_GET_EPO_STATUS;
+      }
+      break;
+    case STATE_GET_EPO_STATUS :
+      sendEpoRequest();
+      state = STATE_WAIT_FOR_EPO_STATUS;
+      break;
+    case STATE_WAIT_FOR_EPO_STATUS :
+      Serial.print("Awaiting EPO status response: ");
+      Serial.println(counter);
+      if (gps.getEpoDataRequestResponse() == PMTK_ACK_SUCCEEDED) {
+        Serial.println("Got EPO Status Response");
+        if (gps.epoEndUTC < Time.now()) {
+          state = STATE_STREAM_EPO;
+        } else {
+          state = STATE_SEND_TIME_HINT;
+        }
+      } else if (counter > NMEA_UPDATES_BEFORE_RETRY) {
+        state = STATE_GET_EPO_STATUS;
+      }
+      break;
+    case STATE_STREAM_EPO :
+      streamEpo();
+      state = STATE_SEND_TIME_HINT;
+      break;
+    case STATE_SEND_TIME_HINT :
+      sendTimeHint();
+      state = STATE_WAIT_FOR_TIME_HINT_SUCCESS;
+      break;
+    case STATE_WAIT_FOR_TIME_HINT_SUCCESS :
+      Serial.print("Awaiting Time Hint acknowledgement: ");
+      Serial.println(counter);
+      if (gps.getTimeHintStatus() == PMTK_ACK_SUCCEEDED) {
+        Serial.println("Successfully sent time hint");
+        state = STATE_SEND_LOCATION_HINT;
+      } else if (gps.getTimeHintStatus() == PMTK_ACK_FAILED) {
+        state = STATE_NOW_PROFIT_JUST_KIDDING;
+      } else if (counter > NMEA_UPDATES_BEFORE_RETRY) {
+        Serial.println("Retrying Time Hint");
+        state = STATE_SEND_TIME_HINT;
+      }
+      break;
+    case STATE_SEND_LOCATION_HINT :
+      sendGpsHint();
+      state = STATE_WAIT_FOR_LOCATION_HINT_SUCCESS;
+      break;
+    case STATE_WAIT_FOR_LOCATION_HINT_SUCCESS :
+      Serial.print("Awaiting Location Hint acknowledgement ");
+      Serial.println(counter);
+      if (gps.getLocationHintStatus() == PMTK_ACK_SUCCEEDED) {
+        Serial.println("Successfully sent location hint");
+        state = STATE_NOW_PROFIT_JUST_KIDDING;
+      } else if (gps.getLocationHintStatus() == PMTK_ACK_FAILED) {
+        state = STATE_NOW_PROFIT_JUST_KIDDING;
+      } else if (counter > NMEA_UPDATES_BEFORE_RETRY) {
+        Serial.println("Retrying Location Hint");
+        state = STATE_SEND_LOCATION_HINT;
+      }
+      break;
+  }
+}
+
 void setup() {
   Serial.begin(115200);
-  Serial.println("Hello friend");
-
+  Serial.println("Initializing GPS");
   gps.begin(9600);
   delay(500);
-  streamEpo();
+  gps.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
   delay(500);
-
-  long now = Time.now();
-  if (gps.isEPOCurrent(now)) {
-    Serial.println("EPO is current");
-  } else {
-    Serial.println("EPO is not current");
-  }
+  gps.sendCommand(PMTK_SET_NMEA_UPDATE_100_MILLIHERTZ);
   delay(500);
-
-  gps.hint(30.29128, -97.73858, 149, Time.year(now), Time.month(now),
-          Time.day(now), Time.hour(now), Time.minute(now), Time.second(now));
+  gps.sendCommand(PGCMD_NOANTENNA);
   delay(500);
+  char clearEpoCommand[16] = { 0 };
+  sprintf(clearEpoCommand, "$PMTK127*");
+  gps.writePmtkChecksum(clearEpoCommand);
+  Serial.print("PMTK_CMD_CLEAR_EPO (should have checksum of 36): ");
+  Serial.println(clearEpoCommand);
+  gps.sendCommand(clearEpoCommand);
+  delay(500);
+  Serial.println("Running state loop.");
 }
 
 void loop() {
   char c = gps.read();
   if (gps.newNMEAreceived()) {
     char* nmea = gps.lastNMEA();
-    gps.parse(nmea);
+    if (gps.parse(nmea)) Serial.print("Recognized NMEA: ");
     Serial.println(nmea);
-    Serial.print(gps.latitude);
-    Serial.print(", ");
-    Serial.println(gps.longitude);
+    if (strstr(nmea, "GPGGA") && gps.latitude != 0.0 && gps.longitude != 0.0) {
+      Serial.print("Location: ");
+      Serial.print(gps.latitude);
+      Serial.print(", ");
+      Serial.println(gps.longitude);
+    }
+    counter++;
+    runStateMachine();
   }
   delay(1);
 }
