@@ -1,3 +1,14 @@
+// This sketch is designed for Particle.io platforms
+// and is designed to demonstrate how to improve Time to First Fix
+// using EPO data and time/location hinting
+
+// It is designed to check the GPS flash for valid EPO data
+// If the data is invalid, it will download a 7-day EPO file
+// from an FTP server (apporoximately 53 kilobytes) and stream it
+// directly to the GPS unit
+
+// After that, it sends the time and location hints
+
 #include "ParticleFtpClient.h"
 #include "Adafruit_GPS.h"
 
@@ -27,6 +38,7 @@ long lastTimeout = 0;
 int state = STATE_SPINNING_UP;
 int counter = 0;
 
+// Connect with ParticleFtpClient
 bool streamEpo() {
   Serial.println("Streaming EPO data from FTP directly to GPS");
   Serial.println("Connecting to FTP...");
@@ -79,6 +91,7 @@ bool streamEpo() {
   return true;
 }
 
+// Send a time hint
 void sendTimeHint() {
   counter = 0;
   long now = Time.now();
@@ -88,6 +101,7 @@ void sendTimeHint() {
   delay(100);
 }
 
+// Send a location hint
 void sendGpsHint() {
   counter = 0;
   long now = Time.now();
@@ -97,6 +111,7 @@ void sendGpsHint() {
   delay(100);
 }
 
+// Request the starting and ending time of the EPO data currently in flash
 void sendEpoRequest() {
   counter = 0;
   Serial.println("Sending EPO data request");
@@ -104,6 +119,16 @@ void sendEpoRequest() {
   delay(100);
 }
 
+// The program runs using a state machine. Since the GPS will only send
+// acknowledgements occassionally (if at all) and only during an NMEA update,
+// the state machine will wait for a number of NMEA updates to pass without
+// getting the desired response before retrying the current request.
+// The sequence of requests are:
+// - allow the GPS to boot
+// - request EPO info
+// - stream EPO data to the GPS from FTP if the EPO is out of date
+// - send a time hint
+// - send a location hint
 void runStateMachine() {
   switch(state) {
     case STATE_SPINNING_UP :
@@ -184,6 +209,9 @@ void setup() {
   delay(500);
   gps.sendCommand(PGCMD_NOANTENNA);
   delay(500);
+
+  // Clear EPO data. Also, this is a demonstration of how to use the
+  // library to compute a PMTK command checksum
   char clearEpoCommand[16] = { 0 };
   sprintf(clearEpoCommand, "$PMTK127*");
   gps.writePmtkChecksum(clearEpoCommand);
@@ -195,17 +223,24 @@ void setup() {
 }
 
 void loop() {
+  // Read data as fast as possible
   char c = gps.read();
+  // If data forms a complete NMEA message...
   if (gps.newNMEAreceived()) {
+    // Get the last valid NMEA
     char* nmea = gps.lastNMEA();
+    // Attempt to parse the NMEA. Don't skip this!
     if (gps.parse(nmea)) Serial.print("Recognized NMEA: ");
     Serial.println(nmea);
+    // If we have a location fix, print it
     if (strstr(nmea, "GPGGA") && gps.latitude != 0.0 && gps.longitude != 0.0) {
       Serial.print("Location: ");
       Serial.print(gps.latitude);
       Serial.print(", ");
       Serial.println(gps.longitude);
     }
+
+    // Update the state machine
     counter++;
     runStateMachine();
   }

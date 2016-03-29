@@ -42,7 +42,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     sum += parseHex(nmea[strlen(nmea)-2]);
 
     // check checksum
-    for (uint8_t i=2; i < (strlen(nmea)-4); i++) {
+    for (uint8_t i=1; i < (strlen(nmea)-4); i++) {
       sum ^= nmea[i];
     }
     if (sum != 0) {
@@ -263,8 +263,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     return true;
   }
 
-  // Trap for PMTK command acknowledgement and save it in
-  // lastMTKAcknowledged and lastMTKStatus
+  // Trap for 001 PMTK_ACK (PMTK command acknowledgement) packets and
+  // update lastMTKAcknowledged and lastMTKStatus
   if (strstr(nmea, "$PMTK001")) {
     char *p = nmea;
     p = strchr(p, ',') + 1;
@@ -273,6 +273,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     lastMTKStatus = atoi(p);
     return true;
   }
+
+  // Trap for 707 PMTK_DT_EPO_INFO (EPO data info) responses
   if (strstr(nmea, "$PMTK707")) {
     char *p = nmea;
     p = strchr(p, ',') + 1;
@@ -284,16 +286,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
     int gpsEndWeek = atoi(p);
     p = strchr(p, ',') + 1;
     int gpsEndSec = atoi(p);
-    if (gpsStartWeek > 1800) {
-      epoStartUTC = gpsTimeToUTC(gpsStartWeek, gpsStartSec);
-      epoEndUTC = gpsTimeToUTC(gpsEndWeek, gpsEndSec);
-      return true;
-    }
+    epoStartUTC = gpsTimeToUTC(gpsStartWeek, gpsStartSec);
+    epoEndUTC = gpsTimeToUTC(gpsEndWeek, gpsEndSec);
+
+    return true;
   }
 
   return false;
 }
 
+// Sometimes you need to flush the input buffer
 void Adafruit_GPS::flush(void) {
   #if defined(SPARK)
     Serial1.flush();
@@ -332,10 +334,22 @@ char Adafruit_GPS::read(void) {
 #endif
   //Serial.print(c);
 
-//  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
-//    currentline[lineidx] = 0;
-//    lineidx = 0;
-//  }
+
+  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
+    currentline[lineidx] = 0;  // ^^^   ...but still needs to cycle to a new line!
+                               // If a crlf byte gets lost, a new command will
+                               // always begin with $. -- jyc 3/29/16
+
+    if (currentline == line1) {
+      currentline = line2;
+      lastline = line1;
+    } else {
+      currentline = line1;
+      lastline = line2;
+    }
+    lineidx = 0;
+  }
+
   if (c == '\n') {
     currentline[lineidx] = 0;
 
@@ -428,6 +442,7 @@ void Adafruit_GPS::begin(uint32_t baud)
 }
 
 void Adafruit_GPS::sendCommand(const char *str) {
+  lastMTKStatus = PMTK_ACK_NO_RESPONSE;
 #if defined(SPARK)
   Serial1.println(str);
 #else
@@ -438,6 +453,21 @@ void Adafruit_GPS::sendCommand(const char *str) {
   #endif
     gpsHwSerial->println(str);
 #endif
+}
+
+// Appends a PMTK checksum to a PMTK command. Format should be:
+// $PMTK...*
+// The checksum will be appended after the *, so there needs to be
+// space for at least two characters and an additional null terminating 0
+void Adafruit_GPS::writePmtkChecksum(char* command) {
+  int pos = 1;
+  uint8_t sum = 0;
+  while (command[pos] != '*' && command[pos] != 0) {
+    sum ^= (uint8_t)(command[pos]);
+    pos++;
+  }
+  pos++;
+  sprintf(&command[pos], "%02X", sum);
 }
 
 boolean Adafruit_GPS::newNMEAreceived(void) {
@@ -568,9 +598,12 @@ boolean Adafruit_GPS::wakeup(void) {
   }
 }
 
-// Sets the GPS to binary mode. This is a blocking function!
+// Prepares GPS for new EPO data to be uploaded to flash
+// GPS will operate in binary mode after this call, so plaintext PMTK
+// commands will be ignored
 bool Adafruit_GPS::startEpoUpload() {
-  sendCommand("$PMTK127*36");                             // clear EPO data
+  // Clear EPO data
+  sendCommand("$PMTK127*36");
   // Wait for acknowledgement of cleared data... for up to 10 seconds
   long start = millis();
   bool found = false;
@@ -582,40 +615,10 @@ bool Adafruit_GPS::startEpoUpload() {
     }
     delay(1);
   }
+  // Sets output to binar mode.
   set_output_format(PMTK_OUTPUT_FORMAT_BINARY);
   delay(500);
   return true;
-}
-
-bool Adafruit_GPS::isEPOCurrent(long utcTime) {
-  sendCommand("$PMTK607*33");
-  epoStartUTC = -1;
-  epoEndUTC = -1;
-  long start = millis();
-  while ((long)(millis() - start) < (long)5000) {
-    char c = read();
-    if (newNMEAreceived()) {
-      if (parse(lastNMEA())) {
-        if (epoStartUTC > 0 && epoEndUTC > 0) {
-          return utcTime < epoEndUTC;
-        }
-      }
-    }
-    delay(1);
-  }
-  return false;
-
-}
-
-void Adafruit_GPS::hint(float lat, float lng, int altitude, int YYYY, int MM, int DD, int hh, int mm, int ss) {
-  memset(packet_buffer, 0, EPO_PACKET_LENGTH);
-  sprintf(packet_buffer, "$PMTK741,%f,%f,%u,%u,%u,%u,%u,%u,%u", lat, lng, altitude, YYYY, MM, DD, hh, mm, ss);
-  char sum = checksum(packet_buffer, 1, strlen(packet_buffer));
-  sprintf(&packet_buffer[strlen(packet_buffer)], "*%02X", sum);
-//  Serial.print("GPS hint command: ");
-//  Serial.println(packet_buffer);
-  sendCommand(packet_buffer);
-  delay(500);
 }
 
 // Adds 60 bytes of EPO data to the send buffer.
@@ -623,10 +626,9 @@ void Adafruit_GPS::hint(float lat, float lng, int altitude, int YYYY, int MM, in
 // initiate a packet transfer once three satellites worth of
 // data are added. At this point, it will return true if all three satellites
 // data were transfered successfully, or false if they require retransmitting.
+// Once the first packet is received by the GPS unit, it will be in
+// "EPO upload mode" and will not send any updates until a final packet is sent
 bool Adafruit_GPS::sendEpoSatellite(char* data) {
-  if (epo_sequence_number == 0 && satellite_number == 0) {
-    // TODO: Save starting time of first satellite data
-  }
   char empty_buffer[182] = { 0 };
   if (satellite_number == 0) {
     // initialize an empty satelite data packet
@@ -644,66 +646,8 @@ bool Adafruit_GPS::sendEpoSatellite(char* data) {
   return true;
 }
 
-long Adafruit_GPS::gpsTimeToUTC(long gpsWeek, long timeOfWeek) {
-  return 315964800 + gpsWeek * 7 * 60 * 60 * 24 + timeOfWeek;
-}
-
-bool Adafruit_GPS::flush_epo_packet() {
-  char sequence_buffer[3] = { 0 };
-  sequence_buffer[0] = (char)(epo_sequence_number & 0xFF);
-  sequence_buffer[1] = (char)(epo_sequence_number >> 8);
-  sequence_buffer[2] = 0x01;
-  packet_buffer[EPO_SEQUENCE_OFFSET] = sequence_buffer[0];
-  packet_buffer[EPO_SEQUENCE_OFFSET + 1] = sequence_buffer[1];
-  packet_buffer[EPO_CHECKSUM_OFFSET] = checksum(packet_buffer, 2, EPO_CHECKSUM_OFFSET);
-
-  /*
-  Serial.println("EPO Packet: ");
-  for (int i = 0; i < EPO_PACKET_LENGTH; i++) {
-    Serial.printf("%02X ",  packet_buffer[i]);
-  }
-  Serial.println();
-  */
-
-  satellite_number = 0;
-  send_buffer(packet_buffer, EPO_PACKET_LENGTH);
-  char expected_packet[12] = { 0 };
-  format_packet(2, sequence_buffer, 3, expected_packet);
-
-  /*
-  Serial.print("Expected EPO acknowledgement: ");
-  for (int i = 0; i < 12; i++) {
-    Serial.printf("%02X ", expected_packet[i]);
-  }
-  Serial.println();
-  */
-
-  if (!waitForPacket(expected_packet, 12, 5000)) {
-    // Serial.println("EPO packet was rejected");
-    return false;
-  }
-  // Serial.println("EPO packet was accepted");
-  return true;
-}
-
-// Appends a PMTK checksum to a PMTK command. Format should be:
-// $PMTK...*
-// The checksum will be appended after the *, so there needs to be
-// space for at least two characters and an additional null terminating 0
-void Adafruit_GPS::writePmtkChecksum(char* command) {
-  int pos = 1;
-  uint8_t sum = 0;
-  while (command[pos] != '*' && command[pos] != 0) {
-    sum ^= (uint8_t)(command[pos]);
-    pos++;
-  }
-  pos++;
-  sprintf(&command[pos], "%02X", sum);
-}
-
 // Finishes EPO uploading and sets the GPS back to NMEA mode
 bool Adafruit_GPS::endEpoUpload(void) {
-  // TODO: Extract and save ending time of EPO data from last packet
   if (satellite_number != 0) {
     // Serial.println("Sending last valid satellite data");
     if (!flush_epo_packet()) return false;
@@ -720,6 +664,68 @@ bool Adafruit_GPS::endEpoUpload(void) {
   return true;
 }
 
+// Converts GPS Week and Time of Week data to a UTC long. Does NOT
+// account for leap seconds!
+long Adafruit_GPS::gpsTimeToUTC(long gpsWeek, long timeOfWeek) {
+  return 315964800 + gpsWeek * 7 * 60 * 60 * 24 + timeOfWeek;
+}
+
+// Request EPO Data Info
+void Adafruit_GPS::sendEpoDataRequest() {
+  epoStartUTC = -1;
+  epoEndUTC = -1;
+  sendCommand("$PMTK607*33");
+  delay(500);
+}
+
+// Sends a hint to the GPS as to what the time is, to improve TTFF
+// Must be within 3 seconds of current UTC time.
+void Adafruit_GPS::sendTimeHint(int YYYY, int MM, int DD, int hh, int mm, int ss) {
+  lastMTKAcknowledged = 0;
+  lastMTKStatus = PMTK_ACK_NO_RESPONSE;
+  memset(packet_buffer, 0, EPO_PACKET_LENGTH);
+  sprintf(packet_buffer, "$PMTK740,%u,%u,%u,%u,%u,%u", YYYY, MM, DD, hh, mm, ss);
+  char sum = checksum(packet_buffer, 1, strlen(packet_buffer));
+  sprintf(&packet_buffer[strlen(packet_buffer)], "*%02X", sum);
+  sendCommand(packet_buffer);
+  delay(500);
+}
+
+// Sends a hint to the GPS of the approximate location, to improve TTFF
+// Must be within 30 kiliometers of actual location.
+void Adafruit_GPS::sendLocationHint(float lat, float lng, int altitude, int YYYY, int MM, int DD, int hh, int mm, int ss) {
+  lastMTKAcknowledged = 0;
+  lastMTKStatus = PMTK_ACK_NO_RESPONSE;
+  memset(packet_buffer, 0, EPO_PACKET_LENGTH);
+  sprintf(packet_buffer, "$PMTK741,%f,%f,%u,%u,%u,%u,%u,%u,%u", lat, lng, altitude, YYYY, MM, DD, hh, mm, ss);
+  char sum = checksum(packet_buffer, 1, strlen(packet_buffer));
+  sprintf(&packet_buffer[strlen(packet_buffer)], "*%02X", sum);
+  sendCommand(packet_buffer);
+  delay(500);
+}
+
+// Returns a PMTK_ACK constant about the response status of an EPO info request
+// Updated whenever parse() is called
+int Adafruit_GPS::getEpoDataRequestResponse() {
+  return (epoStartUTC > -1 && epoEndUTC > -1) ? PMTK_ACK_SUCCEEDED : PMTK_ACK_NO_RESPONSE;
+}
+
+// Returns a PMTK_ACK constant about the response status of a location hint
+// Updated whenever parse() is called
+int Adafruit_GPS::getLocationHintStatus() {
+  if (lastMTKAcknowledged == 741) return lastMTKStatus;
+  return PMTK_ACK_NO_RESPONSE;
+}
+
+// Returns a PMTK_ACK constant about the response status of a time hint
+// Updated whenever parse() is called
+int Adafruit_GPS::getTimeHintStatus() {
+  if (lastMTKAcknowledged == 740) return lastMTKStatus;
+  return PMTK_ACK_NO_RESPONSE;
+}
+
+// Sets the output format of the GPS to either PMTK_OUTPUT_FORMAT_BINARY or
+// PMTK_OUTPUT_FORMAT_NMEA
 void Adafruit_GPS::set_output_format(int format) {
   char pmtk[30] = { 0 };
   if (format == PMTK_OUTPUT_FORMAT_BINARY) {
@@ -739,6 +745,7 @@ void Adafruit_GPS::set_output_format(int format) {
   }
 }
 
+// Computes an XOR checksum of a buffer from start (inclusive) to finish (exclusive)
 char Adafruit_GPS::checksum(char* buffer, int start, int finish) {
   char sum = 0;
   for (int i = start; i < finish; i++) {
@@ -747,6 +754,9 @@ char Adafruit_GPS::checksum(char* buffer, int start, int finish) {
   return sum;
 }
 
+// Formats a binary packet with a command and data buffer, stores the result in buffer
+// The destination buffer needs to be at least 10 bytes greater than the length of the
+// input data buffer
 void Adafruit_GPS::format_packet(uint16_t cmd, char* data, int datalength, char* buffer) {
   buffer[0] = 0x04;
   buffer[1] = 0x24;
@@ -768,6 +778,7 @@ void Adafruit_GPS::format_packet(uint16_t cmd, char* data, int datalength, char*
   buffer[6 + datalength + 2] = 0x0A;
 }
 
+// Sends a binary command packet with data
 void Adafruit_GPS::send_binary_command(uint16_t cmd, char* data, int datalength) {
   char packet[9 + datalength];
   format_packet(cmd, data, datalength, packet);
@@ -781,6 +792,7 @@ void Adafruit_GPS::send_binary_command(uint16_t cmd, char* data, int datalength)
   send_buffer(packet, 9 + datalength);
 }
 
+// Formats a packet to be a "command succeeded" response packet, for comparison
 void Adafruit_GPS::format_acknowledge_packet(char* buffer, uint16_t command) {
   buffer[0] = 0x04;
   buffer[1] = 0x24;
@@ -796,6 +808,7 @@ void Adafruit_GPS::format_acknowledge_packet(char* buffer, uint16_t command) {
   buffer[11] = 0x0A;
 }
 
+// Blocks for a specific binary command packet of length bytes for timeout milliseconds
 bool Adafruit_GPS::waitForPacket(char* packet, int length, long timeout) {
   long start = millis();
   int pos = 0;
@@ -804,7 +817,7 @@ bool Adafruit_GPS::waitForPacket(char* packet, int length, long timeout) {
   char expected_checksum = 0;
   uint16_t temp;
   while((long)(millis() - start) < timeout) {
-    while (byte_available()) {
+    while (available()) {
       c = read_byte();
       // Serial.printf("byte: %02X", c);
       switch (state) {
@@ -908,6 +921,7 @@ bool Adafruit_GPS::waitForPacket(char* packet, int length, long timeout) {
   return false;
 }
 
+// Debugging method for dumping binary data in the buffer
 void Adafruit_GPS::dump_binary_packet() {
   Serial.println("binary packet dump");
   char buff[1024] = { 0 };
@@ -921,7 +935,8 @@ void Adafruit_GPS::dump_binary_packet() {
   Serial.println();
 }
 
-bool Adafruit_GPS::byte_available() {
+// Returns true if the GPS serial buffer has available data
+bool Adafruit_GPS::available() {
   #if defined(SPARK)
     return Serial1.available();
   #else
@@ -937,6 +952,8 @@ bool Adafruit_GPS::byte_available() {
   return false;
 }
 
+// Returns a byte from the GPS serial buffer without processing it
+// as part of an NMEA
 char Adafruit_GPS::read_byte(void) {
   #if defined(SPARK)
     return Serial1.read();
@@ -953,6 +970,7 @@ char Adafruit_GPS::read_byte(void) {
   return 0;
 }
 
+// Sends a buffer of length bytes to the GPS serial
 bool Adafruit_GPS::send_buffer(char* buffer, int length) {
   #if defined(SPARK)
     return Serial1.write(reinterpret_cast<uint8_t *>(buffer), length) == length;
@@ -968,4 +986,43 @@ bool Adafruit_GPS::send_buffer(char* buffer, int length) {
       }
     }
   #endif
+}
+
+// Flushes an partial EPO packets
+bool Adafruit_GPS::flush_epo_packet() {
+  char sequence_buffer[3] = { 0 };
+  sequence_buffer[0] = (char)(epo_sequence_number & 0xFF);
+  sequence_buffer[1] = (char)(epo_sequence_number >> 8);
+  sequence_buffer[2] = 0x01;
+  packet_buffer[EPO_SEQUENCE_OFFSET] = sequence_buffer[0];
+  packet_buffer[EPO_SEQUENCE_OFFSET + 1] = sequence_buffer[1];
+  packet_buffer[EPO_CHECKSUM_OFFSET] = checksum(packet_buffer, 2, EPO_CHECKSUM_OFFSET);
+
+  /*
+  Serial.println("EPO Packet: ");
+  for (int i = 0; i < EPO_PACKET_LENGTH; i++) {
+    Serial.printf("%02X ",  packet_buffer[i]);
+  }
+  Serial.println();
+  */
+
+  satellite_number = 0;
+  send_buffer(packet_buffer, EPO_PACKET_LENGTH);
+  char expected_packet[12] = { 0 };
+  format_packet(2, sequence_buffer, 3, expected_packet);
+
+  /*
+  Serial.print("Expected EPO acknowledgement: ");
+  for (int i = 0; i < 12; i++) {
+    Serial.printf("%02X ", expected_packet[i]);
+  }
+  Serial.println();
+  */
+
+  if (!waitForPacket(expected_packet, 12, 5000)) {
+    // Serial.println("EPO packet was rejected");
+    return false;
+  }
+  // Serial.println("EPO packet was accepted");
+  return true;
 }
