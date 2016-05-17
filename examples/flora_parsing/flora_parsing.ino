@@ -1,4 +1,5 @@
-// Test code for Adafruit Flora GPS modules
+// Test code for Ultimate GPS Using Hardware Serial (
+// e.g. Adafruit Flora GPS modules or  GPS FeatherWing
 //
 // This code shows how to listen to the GPS module in an interrupt
 // which allows the program to have more 'freedom' - just parse
@@ -7,11 +8,16 @@
 //
 // Tested and works great with the Adafruit Flora GPS module
 // ------> http://adafruit.com/products/1059
+// ------> http://adafruit.com/products/3133
 // Pick one up today at the Adafruit electronics shop
 // and help support open source hardware & software! -ada
      
 #include <Adafruit_GPS.h>
-#include <SoftwareSerial.h>
+#ifdef __AVR__ 
+ #include <SoftwareSerial.h>
+#endif
+
+// Connect to the GPS on the Serial1 hardware port
 Adafruit_GPS GPS(&Serial1);
      
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
