@@ -356,8 +356,9 @@ void Adafruit_GPS::begin(uint16_t baud)
   if(gpsSwSerial) 
     gpsSwSerial->begin(baud);
   else 
-    gpsHwSerial->begin(baud);
 #endif
+    gpsHwSerial->begin(baud);
+
 
   delay(10);
 }
