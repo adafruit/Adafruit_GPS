@@ -362,22 +362,13 @@ void Adafruit_GPS::begin(uint16_t baud)
   delay(10);
 }
 
-void Adafruit_GPS::sendCommand(const char *str) {
+template<typename T> void Adafruit_GPS::sendCommand(const T& str) {
 #ifdef __AVR__
   if(gpsSwSerial) 
     gpsSwSerial->println(str);
   else    
 #endif
     gpsHwSerial->println(str);
-}
-
-void Adafruit_GPS::sendCommand(const __FlashStringHelper *str) {
-#ifdef __AVR__
-  if(gpsSwSerial) 
-    gpsSwSerial->println(str);
-  else    
-#endif
-  gpsHwSerial->println(str);
 }
 
 boolean Adafruit_GPS::newNMEAreceived(void) {

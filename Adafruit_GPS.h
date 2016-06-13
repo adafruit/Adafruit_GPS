@@ -114,8 +114,7 @@ class Adafruit_GPS {
   boolean newNMEAreceived();
   void common_init(void);
 
-  void sendCommand(const char *);
-  void sendCommand(const __FlashStringHelper *);
+  template<typename T> void sendCommand(const T&);
   
   void pause(boolean b);
 
