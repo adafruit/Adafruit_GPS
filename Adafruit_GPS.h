@@ -99,7 +99,7 @@ All text above must be included in any redistribution
 
 class Adafruit_GPS {
  public:
-  void begin(uint16_t baud); 
+  void begin(uint32_t baud); 
 
 #ifdef __AVR__
   #if ARDUINO >= 100 
