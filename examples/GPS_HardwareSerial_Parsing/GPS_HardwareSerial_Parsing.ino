@@ -1,35 +1,38 @@
-// Test code for Ultimate GPS Using Hardware Serial (
-// e.g. Adafruit Flora GPS modules or  GPS FeatherWing
+// Test code for Ultimate GPS Using Hardware Serial (e.g. GPS Flora or FeatherWing)
 //
-// This code shows how to listen to the GPS module in an interrupt
-// which allows the program to have more 'freedom' - just parse
-// when a new NMEA sentence is available! Then access data when
-// desired.
+// This code shows how to listen to the GPS module via polling. Best used with
+// Feathers or Flora where you have hardware Serial and no interrupt
 //
-// Tested and works great with the Adafruit Flora GPS module
-// ------> http://adafruit.com/products/1059
-// ------> http://adafruit.com/products/3133
+// Tested and works great with the Adafruit GPS FeatherWing
+// ------> https://www.adafruit.com/products/3133
+// or Flora GPS
+// ------> https://www.adafruit.com/products/1059
+// but also works with the shield, breakout
+// ------> https://www.adafruit.com/products/1272
+// ------> https://www.adafruit.com/products/746
+// 
 // Pick one up today at the Adafruit electronics shop
 // and help support open source hardware & software! -ada
      
 #include <Adafruit_GPS.h>
-#ifdef __AVR__ 
- #include <SoftwareSerial.h>
-#endif
 
-// Connect to the GPS on the Serial1 hardware port
-Adafruit_GPS GPS(&Serial1);
+// what's the name of the hardware serial port?
+#define GPSSerial Serial1
+
+// Connect to the GPS on the hardware port
+Adafruit_GPS GPS(&GPSSerial);
      
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
 #define GPSECHO false
-     
-// this keeps track of whether we're using the interrupt
-// off by default!
-boolean usingInterrupt = false;
-     
+
+uint32_t timer = millis();
+
+
 void setup()
 {
+  //while (!Serial);  // uncomment to have the sketch wait until Serial is ready
+  
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
   Serial.begin(115200);
@@ -52,13 +55,11 @@ void setup()
   GPS.sendCommand(PGCMD_ANTENNA);
 
   delay(1000);
+  
   // Ask for firmware version
-  Serial1.println(PMTK_Q_RELEASE);
+  GPSSerial.println(PMTK_Q_RELEASE);
 }
-     
-     
-     
-uint32_t timer = millis();
+
 void loop() // run over and over again
 {
   // read data from the GPS in the 'main loop'
