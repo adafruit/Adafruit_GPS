@@ -52,9 +52,9 @@ void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
 void setup()  
 {    
-  // connect at 115200 so we can read the GPS fast enuf and
-  // also spit it out
-  Serial.begin(115200);
+  // Would write garbage data if the baud rate for serial.begin 
+  // was not the same as the default baud rate.
+  Serial.begin(9600);
   Serial.println("Adafruit GPS library basic test!");
 
   // 9600 NMEA is the default baud rate for MTK - some use 4800
