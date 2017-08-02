@@ -411,7 +411,7 @@ boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
       str[19] = 0;
       i++;
 
-      if (strstr(str, wait4me))
+        if (strstr(str, wait4me))
 	return true;
     }
   }
