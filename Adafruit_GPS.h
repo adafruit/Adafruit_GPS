@@ -35,6 +35,7 @@ All text above must be included in any redistribution
 #define PMTK_SET_NMEA_UPDATE_100_MILLIHERTZ  "$PMTK220,10000*2F" // Once every 10 seconds, 100 millihertz.
 #define PMTK_SET_NMEA_UPDATE_200_MILLIHERTZ  "$PMTK220,5000*1B"  // Once every 5 seconds, 200 millihertz.
 #define PMTK_SET_NMEA_UPDATE_1HZ  "$PMTK220,1000*1F"
+#define PMTK_SET_NMEA_UPDATE_2HZ  "$PMTK220,500*2B"
 #define PMTK_SET_NMEA_UPDATE_5HZ  "$PMTK220,200*2C"
 #define PMTK_SET_NMEA_UPDATE_10HZ "$PMTK220,100*2F"
 // Position fix update rate commands.
