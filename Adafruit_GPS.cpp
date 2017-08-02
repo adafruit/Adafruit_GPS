@@ -403,6 +403,8 @@ boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
 
   uint8_t i=0;
   while (i < max) {
+    read();
+
     if (newNMEAreceived()) { 
       char *nmea = lastNMEA();
       strncpy(str, nmea, 20);
