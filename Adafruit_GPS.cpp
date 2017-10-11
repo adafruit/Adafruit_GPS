@@ -9,7 +9,7 @@ Written by Limor Fried/Ladyada for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
-#ifdef __AVR__
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
   // Only include software serial on AVR platforms (i.e. not on Due).
   #include <SoftwareSerial.h>
 #endif
@@ -268,7 +268,7 @@ char Adafruit_GPS::read(void) {
   
   if (paused) return c;
 
-#ifdef __AVR__
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
   if(gpsSwSerial) {
     if(!gpsSwSerial->available()) return c;
     c = gpsSwSerial->read();
@@ -310,7 +310,7 @@ char Adafruit_GPS::read(void) {
   return c;
 }
 
-#ifdef __AVR__
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
 // Constructor when using SoftwareSerial or NewSoftSerial
 #if ARDUINO >= 100
 Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
@@ -331,7 +331,7 @@ Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
 
 // Initialization code used by all constructor types
 void Adafruit_GPS::common_init(void) {
-#ifdef __AVR__
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
   gpsSwSerial = NULL; // Set both to NULL, then override correct
 #endif
   gpsHwSerial = NULL; // port pointer in corresponding constructor
@@ -350,20 +350,20 @@ void Adafruit_GPS::common_init(void) {
     speed = angle = magvariation = HDOP = 0.0; // float
 }
 
-void Adafruit_GPS::begin(uint16_t baud)
+void Adafruit_GPS::begin(uint32_t baud)
 {
-#ifdef __AVR__
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
   if(gpsSwSerial) 
     gpsSwSerial->begin(baud);
   else 
-    gpsHwSerial->begin(baud);
 #endif
+    gpsHwSerial->begin(baud);
 
   delay(10);
 }
 
 template<typename T> void Adafruit_GPS::sendCommand(const T& str) {
-#ifdef __AVR__
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
   if(gpsSwSerial) 
     gpsSwSerial->println(str);
   else    
@@ -403,13 +403,15 @@ boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
 
   uint8_t i=0;
   while (i < max) {
+    read();
+
     if (newNMEAreceived()) { 
       char *nmea = lastNMEA();
       strncpy(str, nmea, 20);
       str[19] = 0;
       i++;
 
-      if (strstr(str, wait4me))
+        if (strstr(str, wait4me))
 	return true;
     }
   }

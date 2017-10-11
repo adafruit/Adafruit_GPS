@@ -21,7 +21,10 @@ All text above must be included in any redistribution
 #ifndef _ADAFRUIT_GPS_H
 #define _ADAFRUIT_GPS_H
 
-#ifdef __AVR__
+//comment this out if you don't want to include software serial in the library
+#define USE_SW_SERIAL
+
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
   #if ARDUINO >= 100
     #include <SoftwareSerial.h>
   #else
@@ -35,6 +38,7 @@ All text above must be included in any redistribution
 #define PMTK_SET_NMEA_UPDATE_100_MILLIHERTZ  "$PMTK220,10000*2F" // Once every 10 seconds, 100 millihertz.
 #define PMTK_SET_NMEA_UPDATE_200_MILLIHERTZ  "$PMTK220,5000*1B"  // Once every 5 seconds, 200 millihertz.
 #define PMTK_SET_NMEA_UPDATE_1HZ  "$PMTK220,1000*1F"
+#define PMTK_SET_NMEA_UPDATE_2HZ  "$PMTK220,500*2B"
 #define PMTK_SET_NMEA_UPDATE_5HZ  "$PMTK220,200*2C"
 #define PMTK_SET_NMEA_UPDATE_10HZ "$PMTK220,100*2F"
 // Position fix update rate commands.
@@ -84,7 +88,7 @@ All text above must be included in any redistribution
 #define PGCMD_NOANTENNA "$PGCMD,33,0*6D" 
 
 // how long to wait when we're looking for a response
-#define MAXWAITSENTENCE 5
+#define MAXWAITSENTENCE 10
 
 #if ARDUINO >= 100
  #include "Arduino.h"
@@ -99,9 +103,9 @@ All text above must be included in any redistribution
 
 class Adafruit_GPS {
  public:
-  void begin(uint16_t baud); 
+  void begin(uint32_t baud); 
 
-#ifdef __AVR__
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
   #if ARDUINO >= 100 
     Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
   #else
@@ -123,7 +127,6 @@ class Adafruit_GPS {
 
   char read(void);
   boolean parse(char *);
-  void interruptReads(boolean r);
 
   boolean wakeup(void);
   boolean standby(void);
@@ -154,7 +157,7 @@ class Adafruit_GPS {
   boolean paused;
   
   uint8_t parseResponse(char *response);
-#ifdef __AVR__
+#if defined(__AVR__) && defined(USE_SW_SERIAL)
   #if ARDUINO >= 100
     SoftwareSerial *gpsSwSerial;
   #else
