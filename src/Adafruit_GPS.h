@@ -1,4 +1,4 @@
-/***********************************
+/***********************************************************************
 This is the Adafruit GPS library - the ultimate GPS library
 for the ultimate GPS module!
 
@@ -12,10 +12,11 @@ Adafruit invests time and resources providing this open source code,
 please support Adafruit and open-source hardware by purchasing 
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada for Adafruit Industries.
+Modified by Biagio Montaruli <biagio.hkr@gmail.com>
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
-****************************************/
+************************************************************************/
 // Fllybob added lines 34,35 and 40,41 to add 100mHz logging capability 
 
 #ifndef _ADAFRUIT_GPS_H
@@ -64,31 +65,60 @@ All text above must be included in any redistribution
 // to generate your own sentences, check out the MTK command datasheet and use a checksum calculator
 // such as the awesome http://www.hhhh.org/wiml/proj/nmeaxor.html
 
-#define PMTK_LOCUS_STARTLOG  "$PMTK185,0*22"
-#define PMTK_LOCUS_STOPLOG "$PMTK185,1*23"
+#define PMTK_LOCUS_STARTLOG "$PMTK185,0*22"
+#define PMTK_LOCUS_STOPLOG  "$PMTK185,1*23"
 #define PMTK_LOCUS_STARTSTOPACK "$PMTK001,185,3*3C"
 #define PMTK_LOCUS_QUERY_STATUS "$PMTK183*38"
-#define PMTK_LOCUS_ERASE_FLASH "$PMTK184,1*22"
-#define LOCUS_OVERLAP 0
-#define LOCUS_FULLSTOP 1
+#define PMTK_LOCUS_ERASE_FLASH  "$PMTK184,1*22"
+#define LOCUS_OVERLAP   0
+#define LOCUS_FULLSTOP  1
 
-#define PMTK_ENABLE_SBAS "$PMTK313,1*2E"
-#define PMTK_ENABLE_WAAS "$PMTK301,2*2E"
+#define PMTK_ENABLE_SBAS    "$PMTK313,1*2E"
+#define PMTK_ENABLE_WAAS    "$PMTK301,2*2E"
 
-// standby command & boot successful message
-#define PMTK_STANDBY "$PMTK161,0*28"
-#define PMTK_STANDBY_SUCCESS "$PMTK001,161,3*36"  // Not needed currently
-#define PMTK_AWAKE "$PMTK010,002*2D"
+// Standby mode command & boot successful message
+#define PMTK_STANDBY    "$PMTK161,0*28"
+#define PMTK_STANDBY_SUCCESS    "$PMTK001,161,3*36"
+#define PMTK_AWAKE  "$PMTK010,002*2D"
+
+// Backup mode commands:
+// keeping GPS_EN signal low and sending PMTK command "$PMTK225,4*2F" will make L80 module enter
+// into backup mode forever. To wake the GPS module up you must pull the GPS_EN signal high.
+#define PMTK_BACKUP "$PMTK225,4*2F"
+
+// AlwaysLocate mode
+// AlwaysLocate standby commands:
+#define PMTK_ALWAYSLOCATE_STANDBY   "$PMTK225,8*23"
+#define PMTK_ALWAYSLOCATE_STANDBY_SUCCESS   "$PMTK001,225,3*35"
+// AlwaysLocate backup command:
+#define PMTK_ALWAYSLOCATE_BACKUP    "$PMTK225,9*22"
+// AlwaysLocate exit command: the gps module returns into full on mode
+#define PMTK_ALWAYSLOCATE_EXIT  "$PMTK225,0*2B"
+
+// EASY function
+// Enable EASY function
+#define PMTK_EASY_ENABLE    "$PMTK869,1,1*35"
+#define PMTK_EASY_DISABLE   "$PMTK869,1,0*34"
+#define PMTK_EASY_CHECK_STATUS  "$PMTK869,0*29"
+#define PMTK_EASY_STATUS_ENABLED    "$PMTK869,2,1*36"
+#define PMTK_EASY_STATUS_DISABLED   "$PMTK869,2,0*37"
 
 // ask for the release and version
 #define PMTK_Q_RELEASE "$PMTK605*31"
 
 // request for updates on antenna status 
-#define PGCMD_ANTENNA "$PGCMD,33,1*6C" 
-#define PGCMD_NOANTENNA "$PGCMD,33,0*6D" 
+#define PGCMD_ANTENNA "$PGCMD,33,1*6C"
+#define PGCMD_NOANTENNA "$PGCMD,33,0*6D"
+
+// AIC function:
+#define PMTK_AIC_ENABLE "$PMTK286,1*23"
+#define PMTK_AIC_DISABLE "$PMTK286,0*22"
 
 // how long to wait when we're looking for a response
 #define MAXWAITSENTENCE 10
+
+// Maximum length of NMEA senstences
+#define MAXLINELENGTH 120
 
 #if ARDUINO >= 100
  #include "Arduino.h"
@@ -102,7 +132,8 @@ All text above must be included in any redistribution
 
 
 class Adafruit_GPS {
- public:
+
+public:
   void begin(uint32_t baud); 
 
 #if defined(__AVR__) && defined(USE_SW_SERIAL)
@@ -115,22 +146,88 @@ class Adafruit_GPS {
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
 
   char *lastNMEA(void);
-  boolean newNMEAreceived();
+  bool newNMEAreceived();
   void common_init(void);
 
   void sendCommand(const char *);
   
   void pause(boolean b);
 
-  boolean parseNMEA(char *response);
+  bool parseNMEA(char *response);
   uint8_t parseHex(char c);
 
   char read(void);
-  boolean parse(char *);
+  bool parse(char *);
+  
+  uint8_t getHour(void);
+  uint8_t getMinutes(void);
+  uint8_t getSeconds(void);
+  uint8_t getMilliseconds(void);
+  
+  uint8_t getYear(void);
+  uint8_t getMonth(void);
+  uint8_t getDay(void);
+  
+  float getLatitude(void);
+  float getLongitude(void);
+  int32_t getLatitudeFixed(void);
+  int32_t getLongitudeFixed(void);
+  float getLatitudeDegrees(void);
+  float getLongitudeDegrees(void);
+  float getAltitude(void);
+  float getGeoidheight(void);
+  float getSpeed(void);
+  float getAngle(void);
+  float getMagVariation(void);
+  float getHDOP(void);
+  
+  char getLatCardinalDir(void);
+  char getLonCardinalDir(void);
+  char getMagCardinalDir(void);
+  
+  bool isFixed(void);
+  uint8_t getQuality(void);
+  
+  uint8_t getSatellites(void);
 
-  boolean wakeup(void);
-  boolean standby(void);
+  bool wakeupStandby(void);
+  bool setStandbyMode(void);
+  
+  bool setAlwaysLocateMode(void);
+  bool wakeupAlwaysLocate(void);
 
+  bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE);
+  bool LOCUS_StartLogger(void);
+  bool LOCUS_StopLogger(void);
+  bool LOCUS_ReadStatus(void);
+  
+  uint16_t LOCUS_GetSerial();
+  uint16_t LOCUS_GetRecords();
+  uint8_t LOCUS_GetType();
+  uint8_t LOCUS_GetMode();
+  uint8_t LOCUS_GetConfig();
+  uint8_t LOCUS_GetInterval();
+  uint8_t LOCUS_GetDistance();
+  uint8_t LOCUS_GetSpeed();
+  uint8_t LOCUS_GetStatus();
+  uint8_t LOCUS_GetPercent();
+
+private:
+  bool paused;
+  bool inStandbyMode;
+  bool inFullOnMode;
+  bool inAlwaysLocateMode;
+  
+  bool recvdflag;
+  // we double buffer: read one line in and leave one for the main program
+  char line1[MAXLINELENGTH];
+  char line2[MAXLINELENGTH];
+  // our index into filling the current line
+  uint8_t lineidx = 0;
+  // pointers to the double buffers
+  char *currentline;
+  char *lastline;
+  
   uint8_t hour, minute, seconds, year, month, day;
   uint16_t milliseconds;
   // Floating point latitude and longitude value in degrees.
@@ -143,18 +240,11 @@ class Adafruit_GPS {
   float geoidheight, altitude;
   float speed, angle, magvariation, HDOP;
   char lat, lon, mag;
-  boolean fix;
-  uint8_t fixquality, satellites;
-
-  boolean waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE);
-  boolean LOCUS_StartLogger(void);
-  boolean LOCUS_StopLogger(void);
-  boolean LOCUS_ReadStatus(void);
-
+  bool fix;
+  uint8_t fixQuality, satellites;
+  
   uint16_t LOCUS_serial, LOCUS_records;
   uint8_t LOCUS_type, LOCUS_mode, LOCUS_config, LOCUS_interval, LOCUS_distance, LOCUS_speed, LOCUS_status, LOCUS_percent;
- private:
-  boolean paused;
   
   uint8_t parseResponse(char *response);
 #if defined(__AVR__) && defined(USE_SW_SERIAL)

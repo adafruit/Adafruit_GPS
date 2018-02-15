@@ -1,36 +1,30 @@
-/***********************************
-This is our GPS library
+/***********************************************************************
+This is the Adafruit GPS library - the ultimate GPS library
+for the ultimate GPS module!
 
-Adafruit invests time and resources providing this open source code,
-please support Adafruit and open-source hardware by purchasing
+Tested and works great with the Adafruit Ultimate GPS module
+using MTK33x9 chipset
+    ------> http://www.adafruit.com/products/746
+Pick one up today at the Adafruit electronics shop 
+and help support open source hardware & software! -ada
+
+Adafruit invests time and resources providing this open source code, 
+please support Adafruit and open-source hardware by purchasing 
 products from Adafruit!
 
 Written by Limor Fried/Ladyada for Adafruit Industries.
+Modified by Biagio Montaruli <biagio.hkr@gmail.com>
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
-****************************************/
+************************************************************************/
+
 #if defined(__AVR__) && defined(USE_SW_SERIAL)
-  // Only include software serial on AVR platforms (i.e. not on Due).
+  // Only include software serial on AVR platforms
   #include <SoftwareSerial.h>
 #endif
 #include <Adafruit_GPS.h>
 
-// how long are max NMEA lines to parse?
-#define MAXLINELENGTH 120
-
-// we double buffer: read one line in and leave one for the main program
-volatile char line1[MAXLINELENGTH];
-volatile char line2[MAXLINELENGTH];
-// our index into filling the current line
-volatile uint8_t lineidx=0;
-// pointers to the double buffers
-volatile char *currentline;
-volatile char *lastline;
-volatile boolean recvdflag;
-volatile boolean inStandbyMode;
-
-
-boolean Adafruit_GPS::parse(char *nmea) {
+bool Adafruit_GPS::parse(char *nmea) {
   // do checksum check
 
   // first look if we even have one
@@ -66,8 +60,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
 
     // parse out latitude
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       strncpy(degreebuff, p, 2);
       p += 2;
       degreebuff[2] = '\0';
@@ -84,8 +77,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       if (p[0] == 'S') latitudeDegrees *= -1.0;
       if (p[0] == 'N') lat = 'N';
       else if (p[0] == 'S') lat = 'S';
@@ -95,8 +87,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     
     // parse out longitude
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       strncpy(degreebuff, p, 3);
       p += 3;
       degreebuff[3] = '\0';
@@ -113,8 +104,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       if (p[0] == 'W') longitudeDegrees *= -1.0;
       if (p[0] == 'W') lon = 'W';
       else if (p[0] == 'E') lon = 'E';
@@ -123,33 +113,28 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      fixquality = atoi(p);
+    if (',' != *p) {
+      fixQuality = atoi(p);
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       satellites = atoi(p);
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       HDOP = atof(p);
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       altitude = atof(p);
     }
     
     p = strchr(p, ',')+1;
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       geoidheight = atof(p);
     }
     return true;
@@ -179,8 +164,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
 
     // parse out latitude
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       strncpy(degreebuff, p, 2);
       p += 2;
       degreebuff[2] = '\0';
@@ -197,8 +181,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       if (p[0] == 'S') latitudeDegrees *= -1.0;
       if (p[0] == 'N') lat = 'N';
       else if (p[0] == 'S') lat = 'S';
@@ -208,8 +191,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     
     // parse out longitude
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       strncpy(degreebuff, p, 3);
       p += 3;
       degreebuff[3] = '\0';
@@ -226,8 +208,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       if (p[0] == 'W') longitudeDegrees *= -1.0;
       if (p[0] == 'W') lon = 'W';
       else if (p[0] == 'E') lon = 'E';
@@ -236,21 +217,18 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
     // speed
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       speed = atof(p);
     }
     
     // angle
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       angle = atof(p);
     }
     
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
+    if (',' != *p) {
       uint32_t fulldate = atof(p);
       day = fulldate / 10000;
       month = (fulldate % 10000) / 100;
@@ -281,10 +259,11 @@ char Adafruit_GPS::read(void) {
 
   //Serial.print(c);
 
-//  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
-//    currentline[lineidx] = 0;
-//    lineidx = 0;
-//  }
+  //if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
+  //  currentline[lineidx] = 0;
+  //  lineidx = 0;
+  //}
+  
   if (c == '\n') {
     currentline[lineidx] = 0;
 
@@ -325,8 +304,8 @@ Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser)
 
 // Constructor when using HardwareSerial
 Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
-  common_init();  // Set everything to common state, then...
-  gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
+  common_init();      // Set everything to common state, then...
+  gpsHwSerial = ser;  // ...override gpsHwSerial with value passed.
 }
 
 // Initialization code used by all constructor types
@@ -340,18 +319,24 @@ void Adafruit_GPS::common_init(void) {
   lineidx     = 0;
   currentline = line1;
   lastline    = line2;
+  inFullOnMode = true;
+  inStandbyMode = false;
+  inAlwaysLocateMode = false;
 
   hour = minute = seconds = year = month = day =
-    fixquality = satellites = 0; // uint8_t
+  fixQuality = satellites = 0; // uint8_t
   lat = lon = mag = 0; // char
   fix = false; // boolean
   milliseconds = 0; // uint16_t
   latitude = longitude = geoidheight = altitude =
-    speed = angle = magvariation = HDOP = 0.0; // float
+  speed = angle = magvariation = HDOP = 0.0; // float
+  
+  LOCUS_serial = LOCUS_records = 0; // uint16_t
+  LOCUS_type = LOCUS_mode = LOCUS_config = LOCUS_interval =
+  LOCUS_distance = LOCUS_speed = LOCUS_status = LOCUS_percent = 0; // uint8_t
 }
 
-void Adafruit_GPS::begin(uint32_t baud)
-{
+void Adafruit_GPS::begin(uint32_t baud) {
 #if defined(__AVR__) && defined(USE_SW_SERIAL)
   if(gpsSwSerial) 
     gpsSwSerial->begin(baud);
@@ -371,7 +356,7 @@ void Adafruit_GPS::sendCommand(const char *str) {
     gpsHwSerial->println(str);
 }
 
-boolean Adafruit_GPS::newNMEAreceived(void) {
+bool Adafruit_GPS::newNMEAreceived(void) {
   return recvdflag;
 }
 
@@ -386,22 +371,22 @@ char *Adafruit_GPS::lastNMEA(void) {
 
 // read a Hex value and return the decimal equivalent
 uint8_t Adafruit_GPS::parseHex(char c) {
-    if (c < '0')
-      return 0;
-    if (c <= '9')
-      return c - '0';
-    if (c < 'A')
-       return 0;
-    if (c <= 'F')
-       return (c - 'A')+10;
-    // if (c > 'F')
+  if (c < '0')
     return 0;
+  if (c <= '9')
+    return c - '0';
+  if (c < 'A')
+    return 0;
+  if (c <= 'F')
+    return (c - 'A')+10;
+  //if (c > 'F')
+  return 0;
 }
 
-boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
+bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
   char str[20];
 
-  uint8_t i=0;
+  uint8_t i = 0;
   while (i < max) {
     read();
 
@@ -410,47 +395,147 @@ boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
       strncpy(str, nmea, 20);
       str[19] = 0;
       i++;
-
-        if (strstr(str, wait4me))
-	return true;
+      
+      if (strstr(str, wait4me))
+        return true;
     }
   }
 
   return false;
 }
 
-boolean Adafruit_GPS::LOCUS_StartLogger(void) {
+uint8_t Adafruit_GPS::getHour(void) {
+  return hour;
+}
+  
+uint8_t Adafruit_GPS::getMinutes(void) {
+  return minute;
+}
+
+uint8_t Adafruit_GPS::getSeconds(void) {
+  return seconds;
+}
+
+uint8_t Adafruit_GPS::getMilliseconds(void) {
+  return milliseconds;
+}
+
+uint8_t Adafruit_GPS::getDay(void) {
+  return day;
+}
+
+uint8_t Adafruit_GPS::getMonth(void) {
+  return month;
+}
+
+uint8_t Adafruit_GPS::getYear(void) {
+  return year;
+}
+
+float Adafruit_GPS::getLatitude(void) {
+  return latitude;
+}
+  
+float Adafruit_GPS::getLongitude(void) {
+  return longitude;
+}
+
+int32_t Adafruit_GPS::getLatitudeFixed(void){
+  return latitude_fixed;
+}
+
+int32_t Adafruit_GPS::getLongitudeFixed(void) {
+  return longitude_fixed;
+}
+
+float Adafruit_GPS::getLatitudeDegrees(void) {
+  return latitudeDegrees;
+}
+
+float Adafruit_GPS::getLongitudeDegrees(void) {
+  return longitudeDegrees;
+}
+
+float Adafruit_GPS::getAltitude(void) {
+  return altitude;
+}
+
+float Adafruit_GPS::getGeoidheight(void) {
+  return geoidheight;
+}
+
+float Adafruit_GPS::getSpeed(void) {
+  return speed;
+}
+
+float Adafruit_GPS::getAngle(void) {
+  return angle;
+}
+
+float Adafruit_GPS::getMagVariation(void) {
+  return magvariation;
+}
+
+float Adafruit_GPS::getHDOP(void) {
+  return HDOP;
+}
+
+char Adafruit_GPS::getLatCardinalDir(void) {
+  return lat;
+}
+
+char Adafruit_GPS::getLonCardinalDir(void) {
+  return lon;
+}
+
+char Adafruit_GPS::getMagCardinalDir(void) {
+  return mag;
+}
+  
+bool Adafruit_GPS::isFixed(void) {
+  return fix;
+}
+
+uint8_t Adafruit_GPS::getQuality(void) {
+  return fixQuality;
+}
+
+uint8_t Adafruit_GPS::getSatellites(void) {
+  return satellites;
+}
+
+bool Adafruit_GPS::LOCUS_StartLogger(void) {
   sendCommand(PMTK_LOCUS_STARTLOG);
   recvdflag = false;
   return waitForSentence(PMTK_LOCUS_STARTSTOPACK);
 }
 
-boolean Adafruit_GPS::LOCUS_StopLogger(void) {
+bool Adafruit_GPS::LOCUS_StopLogger(void) {
   sendCommand(PMTK_LOCUS_STOPLOG);
   recvdflag = false;
   return waitForSentence(PMTK_LOCUS_STARTSTOPACK);
 }
 
-boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
+bool Adafruit_GPS::LOCUS_ReadStatus(void) {
   sendCommand(PMTK_LOCUS_QUERY_STATUS);
   
-  if (! waitForSentence("$PMTKLOG"))
+  if (!waitForSentence("$PMTKLOG"))
     return false;
 
   char *response = lastNMEA();
   uint16_t parsed[10];
   uint8_t i;
   
-  for (i=0; i<10; i++) parsed[i] = -1;
+  for (i = 0; i < 10; i++) parsed[i] = -1;
   
   response = strchr(response, ',');
-  for (i=0; i<10; i++) {
+  for (i = 0; i < 10; i++) {
     if (!response || (response[0] == 0) || (response[0] == '*')) 
       break;
     response++;
     parsed[i]=0;
     while ((response[0] != ',') && 
-	   (response[0] != '*') && (response[0] != 0)) {
+	       (response[0] != '*') && (response[0] != 0)) {
       parsed[i] *= 10;
       char c = response[0];
       if (isDigit(c))
@@ -477,26 +562,105 @@ boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
   return true;
 }
 
-// Standby Mode Switches
-boolean Adafruit_GPS::standby(void) {
+uint16_t Adafruit_GPS::LOCUS_GetSerial() {
+  return LOCUS_serial;
+}
+
+uint16_t Adafruit_GPS::LOCUS_GetRecords() {
+  return LOCUS_records;
+}
+
+uint8_t Adafruit_GPS::LOCUS_GetType() {
+  return LOCUS_type;
+}
+
+uint8_t Adafruit_GPS::LOCUS_GetMode() {
+  return LOCUS_mode;
+}
+
+uint8_t Adafruit_GPS::LOCUS_GetConfig() {
+  return LOCUS_config;
+}
+
+uint8_t Adafruit_GPS::LOCUS_GetInterval() {
+  return LOCUS_interval;
+}
+
+uint8_t Adafruit_GPS::LOCUS_GetDistance() {
+  return LOCUS_distance;
+}
+
+uint8_t Adafruit_GPS::LOCUS_GetSpeed() {
+  return LOCUS_speed;
+}
+
+uint8_t Adafruit_GPS::LOCUS_GetStatus() {
+  return LOCUS_status;
+}
+
+uint8_t Adafruit_GPS::LOCUS_GetPercent() {
+  return LOCUS_percent;
+}
+
+// Standby Mode Commands:
+bool Adafruit_GPS::setStandbyMode(void) {
   if (inStandbyMode) {
-    return false;  // Returns false if already in standby mode, so that you do not wake it up by sending commands to GPS
+    // Returns false if already in standby mode, so that you do not wake it up by sending commands to GPS.
+    return false;
   }
   else {
     inStandbyMode = true;
+    inFullOnMode = false;
+    inAlwaysLocateMode = false;
+    recvdflag = false;
     sendCommand(PMTK_STANDBY);
-    //return waitForSentence(PMTK_STANDBY_SUCCESS);  // don't seem to be fast enough to catch the message, or something else just is not working
-    return true;
+    // don't seem to be fast enough to catch the message, or something else just is not working
+    return waitForSentence(PMTK_STANDBY_SUCCESS);
+    // return true;
   }
 }
 
-boolean Adafruit_GPS::wakeup(void) {
+bool Adafruit_GPS::wakeupStandby(void) {
   if (inStandbyMode) {
-   inStandbyMode = false;
+    inStandbyMode = false;
+    inFullOnMode = true;
+    inAlwaysLocateMode = false;
+    recvdflag = false;
     sendCommand("");  // send byte to wake it up
     return waitForSentence(PMTK_AWAKE);
   }
   else {
-      return false;  // Returns false if not in standby mode, nothing to wakeup
+    // Returns false if not in standby mode, nothing to wakeup
+    return false;
+  }
+}
+
+// AlwaysLocate Mode Commands:
+bool Adafruit_GPS::setAlwaysLocateMode(void) {
+  if (inAlwaysLocateMode) {
+    // Returns false if already in AlwayLocate mode, so that you do not wake it up by sending commands to GPS
+    return false;
+  }
+  else {
+    inStandbyMode = false;
+    inFullOnMode = false;
+    inAlwaysLocateMode = true;
+    recvdflag = false;
+    sendCommand(PMTK_ALWAYSLOCATE_STANDBY);
+    return waitForSentence(PMTK_ALWAYSLOCATE_STANDBY_SUCCESS);
+  }
+}
+
+bool Adafruit_GPS::wakeupAlwaysLocate(void) {
+  if (inAlwaysLocateMode) {
+    inStandbyMode = false;
+    inFullOnMode = true;
+    inAlwaysLocateMode = false;
+    sendCommand(PMTK_ALWAYSLOCATE_EXIT);
+    return true;
+  }
+  else {
+    // Returns false if not in AlwaysLocate mode, nothing to wakeup
+    return false;
   }
 }
