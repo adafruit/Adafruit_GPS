@@ -74,17 +74,20 @@ void setup()
 uint32_t timer = millis();
 void loop()                     // run over and over again
 {
-  do{
+  while(true){
     char c = GPS.read();
     // if you want to debug, this is a good time to do it!
     if ((c) && (GPSECHO))
       Serial.write(c);
-  }while(!GPS.newNMEAreceived()); // if a sentence is received, we can check the checksum, parse it...
-    // a tricky thing here is if we print the NMEA sentence, or data
-    // we end up not listening and catching other sentences!
-    // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
-    //Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
 
+    // if a sentence is received, we can check the checksum, parse it...  
+    if(GPS.newNMEAreceived())
+      break;
+  }
+
+  // a tricky thing here is if we print the NMEA sentence, or data
+  // we end up not listening and catching other sentences!
+  // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
   if (!GPS.parse(GPS.lastNMEA()))   // this also sets the newNMEAreceived() flag to false
     return;  // we can fail to parse a sentence in which case we should just wait for another
 
