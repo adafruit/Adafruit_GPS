@@ -41,13 +41,11 @@ Adafruit_GPS GPS(&mySerial);
 // out the above six lines and enable this line instead:
 //Adafruit_GPS GPS(&Serial1);
 
-void setup()  
-{    
-  while (!Serial);  // Leonardo will wait till serial connects
-
+void setup() {
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
+  while (!Serial);  // Leonardo will wait till serial connects
   Serial.println("Adafruit GPS logging start test!");
 
   // 9600 NMEA is the default baud rate for MTK - some use 4800
@@ -65,8 +63,7 @@ void setup()
 }
 
 
-void loop()                     // run over and over again
-{  
+void loop() {    // run over and over again
   // If using hardware serial (e.g. Arduino Mega), change this to Serial1, etc.
   if (mySerial.available()) {
     char c = mySerial.read();
@@ -79,4 +76,3 @@ void loop()                     // run over and over again
     }
   }
 }
-

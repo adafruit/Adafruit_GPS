@@ -50,8 +50,7 @@ Adafruit_GPS GPS(&mySerial);
 boolean usingInterrupt = false;
 void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
-void setup()  
-{    
+void setup() {
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
@@ -119,7 +118,6 @@ void useInterrupt(boolean v) {
 }
 
 
-void loop()                     // run over and over again
-{
+void loop() {    // run over and over again
    // do nothing! all reading and printing is done in the interrupt
 }

@@ -10,12 +10,12 @@ Adafruit_GPS GPS(&Serial1);
 // off by default!
 boolean usingInterrupt = false;
 
-void setup()  
-{    
-  //while (!Serial);
+void setup() {
+
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
+  //while (!Serial);
   Serial.println("Adafruit GPS logging start test!");
 
   // 9600 NMEA is the default baud rate for MTK - some use 4800
@@ -45,9 +45,7 @@ void setup()
 }
 
 
-
-void loop()                     // run over and over again
-{
+void loop() {    // run over and over again
   pinMode(7, OUTPUT);
   digitalWrite(7, HIGH);
   delay(200);
@@ -77,5 +75,3 @@ void useInterrupt(boolean v) {
     usingInterrupt = false;
   }
 }
-
-

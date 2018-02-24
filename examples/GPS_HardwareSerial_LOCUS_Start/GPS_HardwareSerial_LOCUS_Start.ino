@@ -28,13 +28,12 @@ Adafruit_GPS GPS(&GPSSerial);
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
 #define GPSECHO  true
 
-void setup()  
-{
-  //while (!Serial);  // uncomment to have the sketch wait until Serial is ready
-  
+void setup() {
+
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
   Serial.begin(115200);
+  //while (!Serial);  // uncomment to have the sketch wait until Serial is ready
   delay(1000);
   Serial.println("Adafruit GPS logging start test!");
   
@@ -58,8 +57,8 @@ void setup()
     Serial.println(" no response :(");
 }
 
-void loop()                     // run over and over again
-{
+void loop() {    // run over and over again
+
   if (GPSSerial.available()) {
     char c = GPSSerial.read();
     Serial.write(c);
@@ -69,6 +68,3 @@ void loop()                     // run over and over again
 }
 
 /******************************************************************/
-
-
-

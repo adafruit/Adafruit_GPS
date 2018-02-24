@@ -64,29 +64,27 @@ void error(uint8_t errno) {
     Serial.print(',');
     Serial.println(card.errorData(), HEX);
   }
-  */
-  while(1) {
+*/
+  while (true) {
     uint8_t i;
-    for (i=0; i<errno; i++) {
+    for (i = 0; i < errno; i++) {
       digitalWrite(ledPin, HIGH);
       delay(100);
       digitalWrite(ledPin, LOW);
       delay(100);
     }
-    for (i=errno; i<10; i++) {
+    for (i = errno; i < 10; i++) {
       delay(200);
     }
   }
 }
 
 void setup() {
-  // for Leonardos, if you want to debug SD issues, uncomment this line
-  // to see serial output
-  //while (!Serial);
-  
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
   Serial.begin(115200);
+  // for Leonardos, if you want to debug SD issues, uncomment this line to see serial output
+  //while (!Serial);
   Serial.println("\r\nUltimate GPSlogger Shield");
   pinMode(ledPin, OUTPUT);
 
@@ -106,13 +104,13 @@ void setup() {
     filename[6] = '0' + i/10;
     filename[7] = '0' + i%10;
     // create if does not exist, do not open existing, write, sync after write
-    if (! SD.exists(filename)) {
+    if (!SD.exists(filename)) {
       break;
     }
   }
 
   logfile = SD.open(filename, FILE_WRITE);
-  if( ! logfile ) {
+  if (!logfile) {
     Serial.print("Couldnt create "); Serial.println(filename);
     error(3);
   }
@@ -153,7 +151,7 @@ void loop() {
     
     // Sentence parsed! 
     Serial.println("OK");
-    if (LOG_FIXONLY && !GPS.fix) {
+    if (LOG_FIXONLY && !GPS.isFixed()) {
         Serial.print("No Fix");
         return;
     }
@@ -169,6 +167,5 @@ void loop() {
     Serial.println();
   }
 }
-
 
 /* End code */

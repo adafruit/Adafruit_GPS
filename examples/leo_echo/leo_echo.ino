@@ -25,41 +25,26 @@
 
 // If using software serial, keep these lines enabled
 // (you can change the pin numbers to match your wiring):
-SoftwareSerial mySerial(8, 7);
+SoftwareSerial GPS_Serial(8, 7);
 
 // If using hardware serial, comment
 // out the above two lines and enable these two lines instead:
-//HardwareSerial mySerial = Serial1;
-
-#define PMTK_SET_NMEA_UPDATE_1HZ  "$PMTK220,1000*1F"
-#define PMTK_SET_NMEA_UPDATE_5HZ  "$PMTK220,200*2C"
-#define PMTK_SET_NMEA_UPDATE_10HZ "$PMTK220,100*2F"
-
-// turn on only the second sentence (GPRMC)
-#define PMTK_SET_NMEA_OUTPUT_RMCONLY "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"
-// turn on GPRMC and GGA
-#define PMTK_SET_NMEA_OUTPUT_RMCGGA "$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"
-// turn on ALL THE DATA
-#define PMTK_SET_NMEA_OUTPUT_ALLDATA "$PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28"
-// turn off output
-#define PMTK_SET_NMEA_OUTPUT_OFF "$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"
-
-#define PMTK_Q_RELEASE "$PMTK605*31"
+//HardwareSerial GPS_Serial = Serial1;
 
 void setup() {
-  while (!Serial); // wait for leo to be ready
 
   Serial.begin(57600); // this baud rate doesn't actually matter!
-  mySerial.begin(9600);
+  while (!Serial); // wait for leo to be ready
+  GPS_Serial.begin(9600);
   delay(2000);
   Serial.println("Get version!");
-  mySerial.println(PMTK_Q_RELEASE);
+  GPS_Serial.println(PMTK_Q_RELEASE);
   
   // you can send various commands to get it started
-  //mySerial.println(PMTK_SET_NMEA_OUTPUT_RMCGGA);
-  mySerial.println(PMTK_SET_NMEA_OUTPUT_ALLDATA);
+  //GPS_Serial.println(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  GPS_Serial.println(PMTK_SET_NMEA_OUTPUT_ALLDATA);
 
-  mySerial.println(PMTK_SET_NMEA_UPDATE_1HZ);
+  GPS_Serial.println(PMTK_SET_NMEA_UPDATE_1HZ);
  }
 
 
@@ -67,10 +52,10 @@ void loop() {
   if (Serial.available()) {
    char c = Serial.read();
    Serial.write(c);
-   mySerial.write(c);
+   GPS_Serial.write(c);
   }
-  if (mySerial.available()) {
-    char c = mySerial.read();
+  if (GPS_Serial.available()) {
+    char c = GPS_Serial.read();
     Serial.write(c);
   }
 }

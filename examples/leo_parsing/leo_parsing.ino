@@ -39,8 +39,9 @@ HardwareSerial mySerial = Serial1;
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
 #define GPSECHO  true
 
-void setup()  
-{
+uint32_t timer;
+
+void setup() {
     
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
@@ -69,11 +70,12 @@ void setup()
   delay(1000);
   // Ask for firmware version
   mySerial.println(PMTK_Q_RELEASE);
+  
+  timer = millis();
 }
 
-uint32_t timer = millis();
-void loop()                     // run over and over again
-{
+void loop() {    // run over and over again
+
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
   if ((c) && (GPSECHO))
@@ -98,26 +100,28 @@ void loop()                     // run over and over again
     timer = millis(); // reset the timer
     
     Serial.print("\nTime: ");
-    Serial.print(GPS.hour, DEC); Serial.print(':');
-    Serial.print(GPS.minute, DEC); Serial.print(':');
-    Serial.print(GPS.seconds, DEC); Serial.print('.');
-    Serial.println(GPS.milliseconds);
+    Serial.print(GPS.getHour(), DEC); Serial.print(':');
+    Serial.print(GPS.getMinutes(), DEC); Serial.print(':');
+    Serial.print(GPS.getSeconds(), DEC); Serial.print('.');
+    Serial.println(GPS.getMilliseconds());
     Serial.print("Date: ");
-    Serial.print(GPS.day, DEC); Serial.print('/');
-    Serial.print(GPS.month, DEC); Serial.print("/20");
-    Serial.println(GPS.year, DEC);
-    Serial.print("Fix: "); Serial.print((int)GPS.fix);
-    Serial.print(" quality: "); Serial.println((int)GPS.fixquality); 
-    if (GPS.fix) {
+    Serial.print(GPS.getDay(), DEC); Serial.print('/');
+    Serial.print(GPS.getMonth(), DEC); Serial.print("/20");
+    Serial.println(GPS.getYear(), DEC);
+    Serial.print("Fix: "); Serial.print(GPS.isFixed());
+    Serial.print(" quality: "); Serial.println(GPS.getQuality());
+    if (GPS.isFixed()) {
       Serial.print("Location: ");
-      Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
-      Serial.print(", "); 
-      Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
+      Serial.print(GPS.getLatitude(), 4);
+      Serial.print(GPS.getLatCardinalDir());
+      Serial.print(", ");
+      Serial.print(GPS.getLongitude(), 4);
+      Serial.println(GPS.getLonCardinalDir());
       
-      Serial.print("Speed (knots): "); Serial.println(GPS.speed);
-      Serial.print("Angle: "); Serial.println(GPS.angle);
-      Serial.print("Altitude: "); Serial.println(GPS.altitude);
-      Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+      Serial.print("Speed (knots): "); Serial.println(GPS.getSpeed());
+      Serial.print("Angle: "); Serial.println(GPS.getAngle());
+      Serial.print("Altitude: "); Serial.println(GPS.getAltitude());
+      Serial.print("Satellites: "); Serial.println(GPS.getSatellites());
     }
   }
 }

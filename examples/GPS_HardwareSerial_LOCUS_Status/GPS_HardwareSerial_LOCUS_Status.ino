@@ -28,13 +28,14 @@ Adafruit_GPS GPS(&GPSSerial);
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
 #define GPSECHO  true
 
-void setup()  
-{
-  //while (!Serial);  // uncomment to have the sketch wait until Serial is ready
-  
+uint32_t updateTime = 1000;
+
+void setup() {
+
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
   Serial.begin(115200);
+  //while (!Serial);  // uncomment to have the sketch wait until Serial is ready
   delay(1000);
   Serial.println("Adafruit GPS logging start test!");
   
@@ -58,45 +59,46 @@ void setup()
     Serial.println(" no response :(");
 }
 
-uint32_t updateTime = 1000;
 
-void loop()                     // run over and over again
-{
+void loop() {    // run over and over again
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
   if ((c) && (GPSECHO))
-    Serial.write(c); 
+    Serial.write(c);
     
-  if (millis() > updateTime)
-  {
+  if (millis() > updateTime) {
     updateTime = millis() + 1000;
+    
     if (GPS.LOCUS_ReadStatus()) {
-       Serial.print("\n\nLog #"); 
-       Serial.print(GPS.LOCUS_serial, DEC);
-      if (GPS.LOCUS_type == LOCUS_OVERLAP)
+      Serial.print("\n\nLog #");
+      Serial.print(GPS.LOCUS_GetSerial(), DEC);
+       
+      uint8_t type = GPS.LOCUS_GetType();
+      if (type == LOCUS_OVERLAP)
         Serial.print(", Overlap, ");
-      else if (GPS.LOCUS_type == LOCUS_FULLSTOP)
+      else if (type == LOCUS_FULLSTOP)
         Serial.print(", Full Stop, Logging");
-     
-      if (GPS.LOCUS_mode & 0x1) Serial.print(" AlwaysLocate");
-      if (GPS.LOCUS_mode & 0x2) Serial.print(" FixOnly");
-      if (GPS.LOCUS_mode & 0x4) Serial.print(" Normal");
-      if (GPS.LOCUS_mode & 0x8) Serial.print(" Interval");
-      if (GPS.LOCUS_mode & 0x10) Serial.print(" Distance");
-      if (GPS.LOCUS_mode & 0x20) Serial.print(" Speed");
       
-      Serial.print(", Content "); Serial.print((int)GPS.LOCUS_config);
-      Serial.print(", Interval "); Serial.print((int)GPS.LOCUS_interval);
-      Serial.print(" sec, Distance "); Serial.print((int)GPS.LOCUS_distance);
-      Serial.print(" m, Speed "); Serial.print((int)GPS.LOCUS_speed);
-      Serial.print(" m/s, Status "); 
-      if (GPS.LOCUS_status) 
+      uint8_t mode = GPS.LOCUS_GetMode();
+      if (mode & 0x1) Serial.print(" AlwaysLocate");
+      if (mode & 0x2) Serial.print(" FixOnly");
+      if (mode & 0x4) Serial.print(" Normal");
+      if (mode & 0x8) Serial.print(" Interval");
+      if (mode & 0x10) Serial.print(" Distance");
+      if (mode & 0x20) Serial.print(" Speed");
+      
+      Serial.print(", Content "); Serial.print((int)GPS.LOCUS_GetConfig());
+      Serial.print(", Interval "); Serial.print((int)GPS.LOCUS_GetInterval());
+      Serial.print(" sec, Distance "); Serial.print((int)GPS.LOCUS_GetDistance());
+      Serial.print(" m, Speed "); Serial.print((int)GPS.LOCUS_GetSpeed());
+      Serial.print(" m/s, Status ");
+      if (GPS.LOCUS_GetStatus())
         Serial.print("LOGGING, ");
-      else 
+      else
         Serial.print("OFF, ");
-      Serial.print((int)GPS.LOCUS_records); Serial.print(" Records, ");
-      Serial.print((int)GPS.LOCUS_percent); Serial.print("% Used "); 
+      Serial.print((int)GPS.LOCUS_GetRecords()); Serial.print(" Records, ");
+      Serial.print((int)GPS.LOCUS_GetPercent()); Serial.print("% Used ");
   
-    }//if (GPS.LOCUS_ReadStatus())
-  }//if (millis() > updateTime)
-}//loop
+    } // if (GPS.LOCUS_ReadStatus())
+  } // if (millis() > updateTime)
+} // loop

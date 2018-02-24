@@ -51,13 +51,12 @@ Adafruit_GPS GPS(&mySerial);
 boolean usingInterrupt = false;
 void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
-void setup()  
-{    
-  while (!Serial);  // the Leonardo will 'wait' until the USB plug is connected
+void setup() {
 
-  // connect at 115200 so we can read the GPS fast enuf and
+  // connect at 115200 so we can read the GPS fast enough and
   // also spit it out
   Serial.begin(115200);
+  while (!Serial);  // the Leonardo will 'wait' until the USB plug is connected
   Serial.println("Adafruit GPS logging start test!");
 
   // 9600 NMEA is the default baud rate for MTK - some use 4800
@@ -82,10 +81,7 @@ void setup()
   delay(1000);
 }
 
-
-
-void loop()                     // run over and over again
-{
+void loop() {    // run over and over again
    // do nothing! all reading and printing is done in the interrupt
 }
 
@@ -117,5 +113,3 @@ void useInterrupt(boolean v) {
     usingInterrupt = false;
   }
 }
-
-

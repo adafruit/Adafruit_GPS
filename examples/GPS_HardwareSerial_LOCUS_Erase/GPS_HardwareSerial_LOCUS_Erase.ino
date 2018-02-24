@@ -34,14 +34,12 @@ Adafruit_GPS GPS(&GPSSerial);
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
 #define GPSECHO  true
 
+void setup() {
 
-void setup()  
-{    
-  while (!Serial) ;  //wait for serial port on Leonardo
-  
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
+  while (!Serial) ;  //wait for serial port on Leonardo
   Serial.println("Adafruit GPS erase FLASH!");
 
   // 9600 NMEA is the default baud rate for MTK
@@ -58,12 +56,10 @@ void setup()
   Serial.println("Erased");
 }
 
-void loop()                     // run over and over again
-{
+void loop() {    // run over and over again
   if (GPSSerial.available()) {
     char c = GPSSerial.read();
     if (GPSECHO)
       Serial.write(c);
   }
 }
-

@@ -111,5 +111,3 @@ void useInterrupt(boolean v) {
     usingInterrupt = false;
   }
 }
-
-

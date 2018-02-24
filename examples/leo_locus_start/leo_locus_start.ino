@@ -42,8 +42,8 @@ HardwareSerial mySerial = Serial1;
 boolean usingInterrupt = false;
 void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
-void setup()  
-{    
+void setup() {
+
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
@@ -73,8 +73,7 @@ void setup()
   delay(1000);
 }
 
-void loop()                     // run over and over again
-{
+void loop() {    // run over and over again
    // do nothing! all reading and printing is done in the interrupt
 }
 
@@ -86,7 +85,7 @@ SIGNAL(TIMER0_COMPA_vect) {
   // if you want to debug, this is a good time to do it!
   if (GPSECHO && c) {
 #ifdef UDR0
-    UDR0 = c;  
+    UDR0 = c;
     // writing direct to UDR0 is much much faster than Serial.print 
     // but only one character can be written at a time. 
 #else
@@ -108,5 +107,3 @@ void useInterrupt(boolean v) {
     usingInterrupt = false;
   }
 }
-
-
