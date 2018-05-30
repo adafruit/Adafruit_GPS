@@ -86,11 +86,17 @@ boolean Adafruit_GPS::parse(char *nmea) {
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
-      if (p[0] == 'S') latitudeDegrees *= -1.0;
-      if (p[0] == 'N') lat = 'N';
-      else if (p[0] == 'S') lat = 'S';
-      else if (p[0] == ',') lat = 0;
-      else return false;
+      if (p[0] == 'S') {
+        lat = 'S';
+        latitudeDegrees *= -1.0;
+        latitude_fixed *= -1.0;
+      } else if (p[0] == 'N') {
+        lat = 'N';
+      } else if (p[0] == ',') {
+        lat = 0;
+      } else {
+        return false;
+      }
     }
     
     // parse out longitude
@@ -115,11 +121,17 @@ boolean Adafruit_GPS::parse(char *nmea) {
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
-      if (p[0] == 'W') longitudeDegrees *= -1.0;
-      if (p[0] == 'W') lon = 'W';
-      else if (p[0] == 'E') lon = 'E';
-      else if (p[0] == ',') lon = 0;
-      else return false;
+      if (p[0] == 'W') {
+        lon = 'W';
+        longitudeDegrees *= -1.0;
+        longitude_fixed *= -1.0;
+      } else if (p[0] == 'E') {
+        lon = 'E';
+      } else if (p[0] == ',') {
+        lon = 0;
+      } else {
+        return false;
+      }
     }
     
     p = strchr(p, ',')+1;
@@ -155,7 +167,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     return true;
   }
   if (strstr(nmea, "$GPRMC")) {
-   // found RMC
+    // found RMC
     char *p = nmea;
 
     // get time
@@ -199,11 +211,17 @@ boolean Adafruit_GPS::parse(char *nmea) {
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
-      if (p[0] == 'S') latitudeDegrees *= -1.0;
-      if (p[0] == 'N') lat = 'N';
-      else if (p[0] == 'S') lat = 'S';
-      else if (p[0] == ',') lat = 0;
-      else return false;
+      if (p[0] == 'S') {
+        lat = 'S';
+        latitudeDegrees *= -1.0;
+        latitude_fixed *= -1.0;
+      } else if (p[0] == 'N') {
+        lat = 'N';
+      } else if (p[0] == ',') {
+        lat = 0;
+      } else {
+        return false;
+      }
     }
     
     // parse out longitude
@@ -228,11 +246,17 @@ boolean Adafruit_GPS::parse(char *nmea) {
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
-      if (p[0] == 'W') longitudeDegrees *= -1.0;
-      if (p[0] == 'W') lon = 'W';
-      else if (p[0] == 'E') lon = 'E';
-      else if (p[0] == ',') lon = 0;
-      else return false;
+      if (p[0] == 'W') {
+        lon = 'W';
+        longitudeDegrees *= -1.0;
+        longitude_fixed *= -1.0;
+      } else if (p[0] == 'E') {
+        lon = 'E';
+      } else if (p[0] == ',') {
+        lon = 0;
+      } else {
+        return false;
+      }
     }
     // speed
     p = strchr(p, ',')+1;
