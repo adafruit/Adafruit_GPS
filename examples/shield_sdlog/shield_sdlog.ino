@@ -1,3 +1,6 @@
+// Only for AVR boards with SoftwareSerial
+#if defined(__AVR__)
+
 #include <SPI.h>
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
@@ -14,7 +17,7 @@
 // Tested and works great with the Adafruit Ultimate GPS Shield
 // using MTK33x9 chipset
 //    ------> http://www.adafruit.com/products/
-// Pick one up today at the Adafruit electronics shop 
+// Pick one up today at the Adafruit electronics shop
 // and help support open source hardware & software! -ada
 // Fllybob added 10 sec logging option
 SoftwareSerial mySerial(8, 7);
@@ -24,7 +27,7 @@ Adafruit_GPS GPS(&mySerial);
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
 #define GPSECHO  true
 /* set to true to only log to SD when GPS has a fix, for debugging, keep it false */
-#define LOG_FIXONLY false  
+#define LOG_FIXONLY false
 
 // this keeps track of whether we're using the interrupt
 // off by default!
@@ -88,9 +91,7 @@ void setup() {
   // output, even if you don't use it:
   pinMode(10, OUTPUT);
 
-  // see if the card is present and can be initialized:
-  if (!SD.begin(chipSelect, 11, 12, 13)) {
-    //if (!SD.begin(chipSelect)) {      // if you're using an UNO, you can use this line instead
+  if (!SD.begin(chipSelect)) {
     Serial.println("Card init. failed!");
     error(2);
   }
@@ -107,11 +108,11 @@ void setup() {
 
   logfile = SD.open(filename, FILE_WRITE);
   if( ! logfile ) {
-    Serial.print("Couldnt create "); 
+    Serial.print("Couldnt create ");
     Serial.println(filename);
     error(3);
   }
-  Serial.print("Writing to "); 
+  Serial.print("Writing to ");
   Serial.println(filename);
 
   // connect to the GPS at the desired rate
@@ -139,14 +140,14 @@ void setup() {
 
 
 // Interrupt is called once a millisecond, looks for any new GPS data, and stores it
-SIGNAL(TIMER0_COMPA_vect) {
+ISR(TIMER0_COMPA_vect) {
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
   #ifdef UDR0
       if (GPSECHO)
-        if (c) UDR0 = c;  
-      // writing direct to UDR0 is much much faster than Serial.print 
-      // but only one character can be written at a time. 
+        if (c) UDR0 = c;
+      // writing direct to UDR0 is much much faster than Serial.print
+      // but only one character can be written at a time.
   #endif
 }
 
@@ -157,7 +158,7 @@ void useInterrupt(boolean v) {
     OCR0A = 0xAF;
     TIMSK0 |= _BV(OCIE0A);
     usingInterrupt = true;
-  } 
+  }
   else {
     // do not call the interrupt function COMPA anymore
     TIMSK0 &= ~_BV(OCIE0A);
@@ -173,22 +174,22 @@ void loop() {
     if (GPSECHO)
       if (c) Serial.print(c);
   }
-  
+
   // if a sentence is received, we can check the checksum, parse it...
   if (GPS.newNMEAreceived()) {
     // a tricky thing here is if we print the NMEA sentence, or data
-    // we end up not listening and catching other sentences! 
+    // we end up not listening and catching other sentences!
     // so be very wary if using OUTPUT_ALLDATA and trying to print out data
-    
-    // Don't call lastNMEA more than once between parse calls!  Calling lastNMEA 
+
+    // Don't call lastNMEA more than once between parse calls!  Calling lastNMEA
     // will clear the received flag and can cause very subtle race conditions if
     // new data comes in before parse is called again.
     char *stringptr = GPS.lastNMEA();
-    
+
     if (!GPS.parse(stringptr))   // this also sets the newNMEAreceived() flag to false
       return;  // we can fail to parse a sentence in which case we should just wait for another
 
-    // Sentence parsed! 
+    // Sentence parsed!
     Serial.println("OK");
     if (LOG_FIXONLY && !GPS.fix) {
       Serial.print("No Fix");
@@ -206,6 +207,7 @@ void loop() {
   }
 }
 
-
-/* End code */
-
+#else // Do nothing for other boards
+  void setup() {}
+  void loop() {}
+#endif

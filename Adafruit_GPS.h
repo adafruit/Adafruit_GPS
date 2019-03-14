@@ -28,12 +28,9 @@
 
 #define USE_SW_SERIAL ///< comment this out if you don't want to include software serial in the library
 
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
-  #if ARDUINO >= 100
-    #include <SoftwareSerial.h>
-  #else
-    #include <NewSoftSerial.h>
-  #endif
+#include "Arduino.h"
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  #include <SoftwareSerial.h>
 #endif
 
 /**************************************************************************/
@@ -89,15 +86,6 @@
 #define MAXWAITSENTENCE 10   ///< how long to wait when we're looking for a response
 /**************************************************************************/
 
-#if ARDUINO >= 100
- #include "Arduino.h"
-#if defined (__AVR__) && !defined(__AVR_ATmega32U4__)
- #include "SoftwareSerial.h"
-#endif
-#else
- #include "WProgram.h"
- #include "NewSoftSerial.h"
-#endif
 
 /**************************************************************************/
 /*!
@@ -107,12 +95,8 @@ class Adafruit_GPS {
  public:
   void begin(uint32_t baud);
 
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
-  #if ARDUINO >= 100
-    Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
-  #else
-    Adafruit_GPS(NewSoftSerial  *ser); // Constructor when using NewSoftSerial
-  #endif
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
 #endif
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
 
@@ -184,12 +168,8 @@ class Adafruit_GPS {
   boolean paused;
 
   uint8_t parseResponse(char *response);
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
-  #if ARDUINO >= 100
-    SoftwareSerial *gpsSwSerial;
-  #else
-    NewSoftSerial  *gpsSwSerial;
-  #endif
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  SoftwareSerial *gpsSwSerial;
 #endif
   HardwareSerial *gpsHwSerial;
 };
