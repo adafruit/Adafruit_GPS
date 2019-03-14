@@ -1,6 +1,3 @@
-// Only for AVR boards with SoftwareSerial
-#if defined(__AVR__)
-
 #include <SPI.h>
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
@@ -31,8 +28,9 @@ Adafruit_GPS GPS(&mySerial);
 
 // this keeps track of whether we're using the interrupt
 // off by default!
+#ifndef ESP8266 // Sadly not on ESP8266
 boolean usingInterrupt = false;
-void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
+#endif
 
 // Set the pins used
 #define chipSelect 10
@@ -133,13 +131,16 @@ void setup() {
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the
   // loop code a heck of a lot easier!
+#ifndef ESP8266 // Not on ESP8266
   useInterrupt(true);
+#endif
 
   Serial.println("Ready!");
 }
 
 
 // Interrupt is called once a millisecond, looks for any new GPS data, and stores it
+#ifndef ESP8266 // Not on ESP8266
 ISR(TIMER0_COMPA_vect) {
   char c = GPS.read();
   // if you want to debug, this is a good time to do it!
@@ -165,6 +166,7 @@ void useInterrupt(boolean v) {
     usingInterrupt = false;
   }
 }
+#endif // ESP8266
 
 void loop() {
   if (! usingInterrupt) {
@@ -206,8 +208,3 @@ void loop() {
     Serial.println();
   }
 }
-
-#else // Do nothing for other boards
-  void setup() {}
-  void loop() {}
-#endif

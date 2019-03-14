@@ -1,6 +1,3 @@
-// Only for boards that support hardware serial
-#ifdef Serial1
-
 // Test code for Adafruit GPS modules using MTK3329/MTK3339 driver
 //
 // This code turns on the LOCUS built-in datalogger. The datalogger
@@ -72,9 +69,3 @@ void loop()                     // run over and over again
 }
 
 /******************************************************************/
-
-
-#else // Do nothing for boards without hardware serial
-  void setup() {}
-  void loop() {}
-#endif

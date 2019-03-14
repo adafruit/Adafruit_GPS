@@ -10,9 +10,6 @@
 // Pick one up today at the Adafruit electronics shop
 // and help support open source hardware & software! -ada
 
-// Only for 328 and ESP8266
-#if defined(__AVR_ATmega328P__) || defined(ESP8266)
-
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
 
@@ -61,8 +58,3 @@ void loop()                     // run over and over again
     }
   }
 }
-
-#else // Do nothing for other boards
-  void setup() {}
-  void loop() {}
-#endif

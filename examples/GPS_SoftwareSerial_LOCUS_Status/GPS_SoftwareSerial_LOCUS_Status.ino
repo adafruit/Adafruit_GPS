@@ -10,9 +10,6 @@
 // Pick one up today at the Adafruit electronics shop
 // and help support open source hardware & software! -ada
 
-// Only for 328 and ESP8266
-#if defined(__AVR_ATmega328P__) || defined(ESP8266)
-
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
 
@@ -33,7 +30,6 @@ Adafruit_GPS GPS(&mySerial);
 // off by default!
 #ifndef ESP8266 // Sadly not on ESP8266
 boolean usingInterrupt = false;
-void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 #endif
 
 void setup()
@@ -145,8 +141,3 @@ void useInterrupt(boolean v) {
   }
 }
 #endif // ESP8266
-
-#else // Do nothing for other boards
-  void setup() {}
-  void loop() {}
-#endif

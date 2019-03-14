@@ -1,6 +1,3 @@
-// Only for boards that support hardware serial
-#ifdef Serial1
-
 // Test code for Ultimate GPS Using Hardware Serial (e.g. GPS Flora or FeatherWing)
 //
 // This code shows how to listen to the GPS module via polling. Best used with
@@ -108,8 +105,3 @@ void loop() // run over and over again
     }
   }
 }
-
-#else // Do nothing for boards without hardware serial
-  void setup() {}
-  void loop() {}
-#endif

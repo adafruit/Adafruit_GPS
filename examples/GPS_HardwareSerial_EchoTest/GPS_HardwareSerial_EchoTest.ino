@@ -1,6 +1,3 @@
-// Only for boards that support hardware serial
-#ifdef Serial1
-
 // Test code for Ultimate GPS Using Hardware Serial
 // (e.g. GPS for Leonardo, Flora or FeatherWing)
 //
@@ -44,8 +41,3 @@ void loop() {
     Serial.write(c);
   }
 }
-
-#else // Do nothing for boards without hardware serial
-  void setup() {}
-  void loop() {}
-#endif
