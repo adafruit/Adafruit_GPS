@@ -11,7 +11,7 @@
 // but also works with the shield, breakout
 // ------> https://www.adafruit.com/products/1272
 // ------> https://www.adafruit.com/products/746
-// 
+//
 // Pick one up today at the Adafruit electronics shop
 // and help support open source hardware & software! -ada
 
@@ -28,19 +28,19 @@ Adafruit_GPS GPS(&GPSSerial);
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
 #define GPSECHO  true
 
-void setup()  
+void setup()
 {
   //while (!Serial);  // uncomment to have the sketch wait until Serial is ready
-  
+
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
   Serial.begin(115200);
   delay(1000);
-  Serial.println("Adafruit GPS logging data dump!”);
-  
+  Serial.println("Adafruit GPS logging data dump!");
+
   // 9600 NMEA is the default baud rate for MTK - some use 4800
   GPS.begin(9600);
-  
+
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_OFF);
 
   while (GPSSerial.available())

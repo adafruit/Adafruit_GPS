@@ -5,7 +5,7 @@
 // Tested and works great with the Adafruit Ultimate GPS module
 // using MTK33x9 chipset
 //    ------> http://www.adafruit.com/products/746
-// Pick one up today at the Adafruit electronics shop 
+// Pick one up today at the Adafruit electronics shop
 // and help support open source hardware & software! -ada
 
 //This code is intended for use with Arduino Leonardo and other ATmega32U4-based Arduinos
@@ -35,10 +35,10 @@ Adafruit_GPS GPS(&GPSSerial);
 #define GPSECHO  true
 
 
-void setup()  
-{    
+void setup()
+{
   while (!Serial) ;  //wait for serial port on Leonardo
-  
+
   // connect at 115200 so we can read the GPS fast enuf and
   // also spit it out
   Serial.begin(115200);
@@ -46,7 +46,7 @@ void setup()
 
   // 9600 NMEA is the default baud rate for MTK
   GPS.begin(9600);
-  
+
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_OFF);
 
   Serial.println("This code will ERASE the data log stored in the FLASH - Permanently!");
@@ -66,4 +66,3 @@ void loop()                     // run over and over again
       Serial.write(c);
   }
 }
-

@@ -10,7 +10,7 @@
 // but also works with the shield, breakout
 // ------> https://www.adafruit.com/products/1272
 // ------> https://www.adafruit.com/products/746
-// 
+//
 // Pick one up today at the Adafruit electronics shop
 // and help support open source hardware & software! -ada
 
@@ -30,7 +30,7 @@ void setup() {
   GPSSerial.begin(9600);
 }
 
-     
+
 void loop() {
   if (Serial.available()) {
     char c = Serial.read();

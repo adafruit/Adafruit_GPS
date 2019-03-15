@@ -28,8 +28,8 @@
 */
 /**************************************************************************/
 
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
-  // Only include software serial on AVR platforms (i.e. not on Due).
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  // Only include software serial on AVR platforms and ESP8266 (i.e. not on Due).
   #include <SoftwareSerial.h>
 #endif
 #include <Adafruit_GPS.h>
@@ -295,7 +295,7 @@ char Adafruit_GPS::read(void) {
 
   if (paused) return c;
 
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if(gpsSwSerial) {
     if(!gpsSwSerial->available()) return c;
     c = gpsSwSerial->read();
@@ -339,16 +339,12 @@ char Adafruit_GPS::read(void) {
 
 /**************************************************************************/
 /*!
-    @brief Constructor when using SoftwareSerial or NewSoftSerial
-    @param ser Pointer to SoftwareSerial device or NewSoftSerial device
+    @brief Constructor when using SoftwareSerial
+    @param ser Pointer to SoftwareSerial device
 */
 /**************************************************************************/
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
-  #if ARDUINO >= 100
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
 Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
-  #else
-Adafruit_GPS::Adafruit_GPS(NewSoftSerial *ser)
-  #endif
 {
   common_init();     // Set everything to common state, then...
   gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
@@ -372,7 +368,7 @@ Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
 */
 /**************************************************************************/
 void Adafruit_GPS::common_init(void) {
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   gpsSwSerial = NULL; // Set both to NULL, then override correct
 #endif
   gpsHwSerial = NULL; // port pointer in corresponding constructor
@@ -399,7 +395,7 @@ void Adafruit_GPS::common_init(void) {
 /**************************************************************************/
 void Adafruit_GPS::begin(uint32_t baud)
 {
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if(gpsSwSerial)
     gpsSwSerial->begin(baud);
   else
@@ -416,7 +412,7 @@ void Adafruit_GPS::begin(uint32_t baud)
 */
 /**************************************************************************/
 void Adafruit_GPS::sendCommand(const char *str) {
-#if defined(__AVR__) && defined(USE_SW_SERIAL)
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if(gpsSwSerial)
     gpsSwSerial->println(str);
   else
