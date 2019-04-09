@@ -36,6 +36,8 @@
 
 #define MAXLINELENGTH 120 ///< how long are max NMEA lines to parse?
 
+static boolean strStartsWith(const char* str, const char* prefix);
+
 volatile char line1[MAXLINELENGTH]; ///< We double buffer: read one line in and leave one for the main program
 volatile char line2[MAXLINELENGTH]; ///< Second buffer
 volatile uint8_t lineidx=0;         ///< our index into filling the current line
@@ -55,12 +57,13 @@ boolean Adafruit_GPS::parse(char *nmea) {
   // do checksum check
 
   // first look if we even have one
-  if (nmea[strlen(nmea)-4] == '*') {
-    uint16_t sum = parseHex(nmea[strlen(nmea)-3]) * 16;
-    sum += parseHex(nmea[strlen(nmea)-2]);
+  size_t len = strlen(nmea);
+  if (nmea[len-5] == '*') {
+    uint16_t sum = parseHex(nmea[len-4]) * 16;
+    sum += parseHex(nmea[len-3]);
 
     // check checksum
-    for (uint8_t i=2; i < (strlen(nmea)-4); i++) {
+    for (uint8_t i=1; i < (len-5); i++) {
       sum ^= nmea[i];
     }
     if (sum != 0) {
@@ -72,7 +75,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
   long minutes;
   char degreebuff[10];
   // look for a few common sentences
-  if (strstr(nmea, "$GPGGA")) {
+  if (strStartsWith(nmea, "$GPGGA")) {
     // found GGA
     char *p = nmea;
     // get time
@@ -175,7 +178,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
     return true;
   }
-  if (strstr(nmea, "$GPRMC")) {
+  if (strStartsWith(nmea, "$GPRMC")) {
    // found RMC
     char *p = nmea;
 
@@ -312,6 +315,10 @@ char Adafruit_GPS::read(void) {
 //    currentline[lineidx] = 0;
 //    lineidx = 0;
 //  }
+  currentline[lineidx++] = c;
+  if (lineidx >= MAXLINELENGTH)
+    lineidx = MAXLINELENGTH-1;		// ensure there is someplace to put the next received character
+
   if (c == '\n') {
     currentline[lineidx] = 0;
 
@@ -329,10 +336,6 @@ char Adafruit_GPS::read(void) {
     lineidx = 0;
     recvdflag = true;
   }
-
-  currentline[lineidx++] = c;
-  if (lineidx >= MAXLINELENGTH)
-    lineidx = MAXLINELENGTH-1;
 
   return c;
 }
@@ -477,23 +480,21 @@ uint8_t Adafruit_GPS::parseHex(char c) {
     @brief Wait for a specified sentence from the device
     @param wait4me Pointer to a string holding the desired response
     @param max How long to wait, default is MAXWAITSENTENCE
+    @param usingInterrupts True if using interrupts to read from the GPS (default is false)
     @return True if we got what we wanted, false otherwise
 */
 /**************************************************************************/
-boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max) {
-  char str[20];
-
+boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max, boolean usingInterrupts) {
   uint8_t i=0;
   while (i < max) {
-    read();
+    if (!usingInterrupts)
+      read();
 
     if (newNMEAreceived()) {
       char *nmea = lastNMEA();
-      strncpy(str, nmea, 20);
-      str[19] = 0;
       i++;
 
-      if (strstr(str, wait4me))
+      if (strStartsWith(nmea, wait4me))
 	      return true;
     }
   }
@@ -610,4 +611,21 @@ boolean Adafruit_GPS::wakeup(void) {
   else {
       return false;  // Returns false if not in standby mode, nothing to wakeup
   }
+}
+
+/**************************************************************************/
+/*!
+    @brief Checks whether a string starts with a specified prefix
+    @param str Pointer to a string
+    @param prefix Pointer to the prefix
+    @return True if str starts with prefix, false otherwise
+*/
+/**************************************************************************/
+static boolean strStartsWith(const char* str, const char* prefix)
+{
+  while (*prefix) {
+    if (*prefix++ != *str++)
+      return false;
+  }
+  return true;
 }
