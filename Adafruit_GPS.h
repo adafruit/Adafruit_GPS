@@ -51,8 +51,9 @@
 #define PMTK_API_SET_FIX_CTL_5HZ  "$PMTK300,200,0,0,0,0*2F"               ///< 5 Hz
 // Can't fix position faster than 5 times a second!
 
-#define PMTK_SET_BAUD_57600 "$PMTK251,57600*2C" ///< 57600 bps
-#define PMTK_SET_BAUD_9600 "$PMTK251,9600*17"   ///<  9600 bps
+#define PMTK_SET_BAUD_115200 "$PMTK251,115200*1F"  ///< 115200 bps
+#define PMTK_SET_BAUD_57600  "$PMTK251,57600*2C"   ///<  57600 bps
+#define PMTK_SET_BAUD_9600   "$PMTK251,9600*17"    ///<   9600 bps
 
 #define PMTK_SET_NMEA_OUTPUT_RMCONLY "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on only the second sentence (GPRMC)
 #define PMTK_SET_NMEA_OUTPUT_RMCGGA "$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"   ///< turn on GPRMC and GGA
