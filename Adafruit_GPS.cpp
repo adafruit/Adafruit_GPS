@@ -61,7 +61,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     sum += parseHex(*(ast+2));
 
     // check checksum
-    for (char *p = nmea+2; p < ast; p++) {
+    for (char *p = strchr(nmea,'$')+1; p < ast; p++) {
       sum ^= *p;
     }
     if (sum != 0) {
@@ -414,7 +414,7 @@ char Adafruit_GPS::read(void) {
     recvdflag = true;
   }
 
-  currentline[lineidx++] = c;
+  if(c != '\n' && c != '\r') currentline[lineidx++] = c;
   if (lineidx >= MAXLINELENGTH)
     lineidx = MAXLINELENGTH-1;
 
