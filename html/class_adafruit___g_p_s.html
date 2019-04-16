@@ -111,9 +111,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a589f5ea7cfc958fd5fc62d1b19f5fe71"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a589f5ea7cfc958fd5fc62d1b19f5fe71">standby</a> (void)</td></tr>
 <tr class="memdesc:a589f5ea7cfc958fd5fc62d1b19f5fe71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standby Mode Switches.  <a href="#a589f5ea7cfc958fd5fc62d1b19f5fe71">More...</a><br /></td></tr>
 <tr class="separator:a589f5ea7cfc958fd5fc62d1b19f5fe71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93a140ac59cff5a034eff003d25935dd"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a93a140ac59cff5a034eff003d25935dd">waitForSentence</a> (const char *wait, uint8_t max=<a class="el" href="_adafruit___g_p_s_8h.html#aeebf6a58258596ef38bd7ea07e056a94">MAXWAITSENTENCE</a>)</td></tr>
-<tr class="memdesc:a93a140ac59cff5a034eff003d25935dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for a specified sentence from the device.  <a href="#a93a140ac59cff5a034eff003d25935dd">More...</a><br /></td></tr>
-<tr class="separator:a93a140ac59cff5a034eff003d25935dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7be8125ecdbe57a21c17fb8b1f621b96"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a7be8125ecdbe57a21c17fb8b1f621b96">waitForSentence</a> (const char *wait, uint8_t max=<a class="el" href="_adafruit___g_p_s_8h.html#aeebf6a58258596ef38bd7ea07e056a94">MAXWAITSENTENCE</a>, boolean usingInterrupts=false)</td></tr>
+<tr class="memdesc:a7be8125ecdbe57a21c17fb8b1f621b96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for a specified sentence from the device.  <a href="#a7be8125ecdbe57a21c17fb8b1f621b96">More...</a><br /></td></tr>
+<tr class="separator:a7be8125ecdbe57a21c17fb8b1f621b96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a459860d1ccf8d4cb7cbfe8e61b9c8630"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a459860d1ccf8d4cb7cbfe8e61b9c8630">LOCUS_StartLogger</a> (void)</td></tr>
 <tr class="memdesc:a459860d1ccf8d4cb7cbfe8e61b9c8630"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the LOCUS logger.  <a href="#a459860d1ccf8d4cb7cbfe8e61b9c8630">More...</a><br /></td></tr>
 <tr class="separator:a459860d1ccf8d4cb7cbfe8e61b9c8630"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -539,8 +539,8 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 </div>
 </div>
-<a id="a93a140ac59cff5a034eff003d25935dd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a93a140ac59cff5a034eff003d25935dd">&#9670;&nbsp;</a></span>waitForSentence()</h2>
+<a id="a7be8125ecdbe57a21c17fb8b1f621b96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7be8125ecdbe57a21c17fb8b1f621b96">&#9670;&nbsp;</a></span>waitForSentence()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -555,7 +555,13 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>max</em> = <code><a class="el" href="_adafruit___g_p_s_8h.html#aeebf6a58258596ef38bd7ea07e056a94">MAXWAITSENTENCE</a></code>&#160;</td>
+          <td class="paramname"><em>max</em> = <code><a class="el" href="_adafruit___g_p_s_8h.html#aeebf6a58258596ef38bd7ea07e056a94">MAXWAITSENTENCE</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">boolean&#160;</td>
+          <td class="paramname"><em>usingInterrupts</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -570,6 +576,7 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   <table class="params">
     <tr><td class="paramname">wait4me</td><td>Pointer to a string holding the desired response </td></tr>
     <tr><td class="paramname">max</td><td>How long to wait, default is MAXWAITSENTENCE </td></tr>
+    <tr><td class="paramname">usingInterrupts</td><td>True if using interrupts to read from the GPS (default is false) </td></tr>
   </table>
   </dd>
 </dl>
