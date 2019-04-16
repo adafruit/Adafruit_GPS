@@ -285,7 +285,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     // we dont parse the remaining, yet!
     return true;
   }
-  if (strstr(nmea, "$GPGLL")) {
+  if (strStartsWith(nmea, "$GPGLL")) {
    // found GLL
     char *p = nmea;
 
