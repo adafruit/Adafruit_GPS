@@ -15,6 +15,7 @@ var searchData=
   ['pmtk_5flocus_5fstartstopack',['PMTK_LOCUS_STARTSTOPACK',['../_adafruit___g_p_s_8h.html#a5fa8379e8ed611060b16d5f02b1c1dd8',1,'Adafruit_GPS.h']]],
   ['pmtk_5flocus_5fstoplog',['PMTK_LOCUS_STOPLOG',['../_adafruit___g_p_s_8h.html#a4c44c7abcfe149f1d72bdbb207c86eeb',1,'Adafruit_GPS.h']]],
   ['pmtk_5fq_5frelease',['PMTK_Q_RELEASE',['../_adafruit___g_p_s_8h.html#a5c77d38e1e8c50af3bd64a43fad53b57',1,'Adafruit_GPS.h']]],
+  ['pmtk_5fset_5fbaud_5f115200',['PMTK_SET_BAUD_115200',['../_adafruit___g_p_s_8h.html#af4786d88703fbfe424a3f19491d1c1a3',1,'Adafruit_GPS.h']]],
   ['pmtk_5fset_5fbaud_5f57600',['PMTK_SET_BAUD_57600',['../_adafruit___g_p_s_8h.html#a549460207c65eb13674930fdf6fc2bac',1,'Adafruit_GPS.h']]],
   ['pmtk_5fset_5fbaud_5f9600',['PMTK_SET_BAUD_9600',['../_adafruit___g_p_s_8h.html#a139bab811447a6f82469032f71343717',1,'Adafruit_GPS.h']]],
   ['pmtk_5fset_5fnmea_5foutput_5falldata',['PMTK_SET_NMEA_OUTPUT_ALLDATA',['../_adafruit___g_p_s_8h.html#ac31cfcc416ba69780e3894a559404914',1,'Adafruit_GPS.h']]],
