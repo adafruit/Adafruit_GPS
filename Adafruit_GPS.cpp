@@ -57,14 +57,13 @@ boolean Adafruit_GPS::parse(char *nmea) {
   // do checksum check
 
   // first look if we even have one
-  size_t len = strlen(nmea);
-  if (nmea[len-5] == '*') {
-    uint16_t sum = parseHex(nmea[len-4]) * 16;
-    sum += parseHex(nmea[len-3]);
-
+  char *ast = strchr(nmea,'*');
+  if (ast != NULL) {
+    uint16_t sum = parseHex(*(ast+1)) * 16;
+    sum += parseHex(*(ast+2));
     // check checksum
-    for (uint8_t i=1; i < (len-5); i++) {
-      sum ^= nmea[i];
+    for (char *p = strchr(nmea,'$')+1; p < ast; p++) {
+      sum ^= *p;
     }
     if (sum != 0) {
       // bad checksum :(
