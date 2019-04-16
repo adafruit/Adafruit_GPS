@@ -70,6 +70,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
       // bad checksum :(
       return false;
     }
+  } else {
+  	return false;
   }
   int32_t degree;
   long minutes;
