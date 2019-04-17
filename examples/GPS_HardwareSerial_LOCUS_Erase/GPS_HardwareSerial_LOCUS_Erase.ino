@@ -25,7 +25,11 @@
 // (you can change the pin numbers to match your wiring):
 
 // what's the name of the hardware serial port?
-#define GPSSerial Serial1
+#ifdef ESP32
+  HardwareSerial GPSSerial(2);
+#else
+  #define GPSSerial Serial1
+#endif
 
 // Connect to the GPS on the hardware port
 Adafruit_GPS GPS(&GPSSerial);
