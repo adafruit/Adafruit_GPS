@@ -62,12 +62,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
     uint16_t sum = parseHex(*(ast+1)) * 16;
     sum += parseHex(*(ast+2));
     // check checksum
-    for (char *p = strchr(nmea,'$')+1; p < ast; p++) {
-      sum ^= *p;
-    }
-    if (sum != 0) {
-      // bad checksum :(
-      return false;
+    char *p = strchr(nmea,'$');
+    if(p == NULL) return false;
+    else{ 
+      for (char *p1 = p+1; p1 < ast; p1++) {
+        sum ^= *p1;
+      }
+      if (sum != 0) {
+        // bad checksum :(
+        return false;
+      }
     }
   } else {
   	return false;
