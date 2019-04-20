@@ -103,7 +103,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
       fixquality = atoi(p);
       if(fixquality > 0){
         fix = true; 
-        lastFix = millis();
+        lastFix = recvdTime;
       } else
         fix = false;
     }
@@ -178,6 +178,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
       day = fulldate / 10000;
       month = (fulldate % 10000) / 100;
       year = (fulldate % 100);
+      lastDate = recvdTime;
     }
     return true;
   }
@@ -226,6 +227,7 @@ void Adafruit_GPS::parseTime(char *p) {
     seconds = (time % 100);
 
     milliseconds = fmod(timef, 1.0) * 1000;
+    lastTime = recvdTime;
 }
 
 /**************************************************************************/
@@ -332,7 +334,7 @@ boolean Adafruit_GPS::parseLonDir(char *p) {
 boolean Adafruit_GPS::parseFix(char *p) {
     if (p[0] == 'A'){
       fix = true;
-      lastFix = millis();
+      lastFix = recvdTime;
       }
     else if (p[0] == 'V')
       fix = false;
@@ -343,13 +345,35 @@ boolean Adafruit_GPS::parseFix(char *p) {
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last fix was obtained. Will fail by 
-    rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @brief Time in seconds since the last position fix was obtained. Will 
+    fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
     @return float value in seconds since last fix.
 */
 /**************************************************************************/
-float Adafruit_GPS::timeSinceFix() {
+float Adafruit_GPS::secondsSinceFix() {
     return (millis()-lastFix) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last GPS time was obtained. Will fail 
+    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return float value in seconds since last GPS time.
+*/
+/**************************************************************************/
+float Adafruit_GPS::secondsSinceTime() {
+    return (millis()-lastTime) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last GPS date was obtained. Will fail 
+    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return float value in seconds since last GPS date.
+*/
+/**************************************************************************/
+float Adafruit_GPS::secondsSinceDate() {
+    return (millis()-lastDate) / 1000.;
 }
 
 /**************************************************************************/
@@ -400,6 +424,7 @@ char Adafruit_GPS::read(void) {
     //Serial.println("----");
     lineidx = 0;
     recvdflag = true;
+    recvdTime = millis();	// time we got the end of the string
   }
 
   return c;

@@ -119,7 +119,9 @@ class Adafruit_GPS {
 
   char read(void);
   boolean parse(char *);
-  float timeSinceFix();
+  float secondsSinceFix();
+  float secondsSinceTime();
+  float secondsSinceDate();
 
   boolean wakeup(void);
   boolean standby(void);
@@ -179,7 +181,12 @@ class Adafruit_GPS {
   void parseLon(char *);
   boolean parseLonDir(char *);
   boolean parseFix(char *);
-  time_t lastFix;
+  // Make all of these times far in the past by setting them near the middle of the 
+  // millis() range. Timing assumes that sentences are parsed promptly. 
+  time_t lastFix = 2000000000L;		// millis() when last fix received
+  time_t lastTime = 2000000000L;    // millis() when last time received
+  time_t lastDate = 2000000000L;    // millis() when last date received
+  time_t recvdTime = 2000000000L;   // millis() when last full sentence received
   boolean paused;
 
   uint8_t parseResponse(char *response);
