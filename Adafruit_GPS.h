@@ -55,11 +55,15 @@
 #define PMTK_SET_BAUD_57600  "$PMTK251,57600*2C"   ///<  57600 bps
 #define PMTK_SET_BAUD_9600   "$PMTK251,9600*17"    ///<   9600 bps
 
-#define PMTK_SET_NMEA_OUTPUT_RMCONLY "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on only the second sentence (GPRMC)
-#define PMTK_SET_NMEA_OUTPUT_RMCGGA "$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"   ///< turn on GPRMC and GGA
-#define PMTK_SET_NMEA_OUTPUT_GGAONLY "$PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on just the GGA
+#define PMTK_SET_NMEA_OUTPUT_GLLONLY "$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on only the GPGLL sentence
+#define PMTK_SET_NMEA_OUTPUT_RMCONLY "$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on only the GPRMC sentence
+#define PMTK_SET_NMEA_OUTPUT_VTGONLY "$PMTK314,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on only the GPVTG
+#define PMTK_SET_NMEA_OUTPUT_GGAONLY "$PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on just the GPGGA
+#define PMTK_SET_NMEA_OUTPUT_GSAONLY "$PMTK314,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on just the GPGSA
+#define PMTK_SET_NMEA_OUTPUT_GSVONLY "$PMTK314,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on just the GPGSV
+#define PMTK_SET_NMEA_OUTPUT_RMCGGA  "$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"  ///< turn on GPRMC and GPGGA
 #define PMTK_SET_NMEA_OUTPUT_ALLDATA "$PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28"  ///< turn on ALL THE DATA
-#define PMTK_SET_NMEA_OUTPUT_OFF "$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"      ///< turn off output
+#define PMTK_SET_NMEA_OUTPUT_OFF     "$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"  ///< turn off output
 
 
 // to generate your own sentences, check out the MTK command datasheet and use a checksum calculator
@@ -115,6 +119,9 @@ class Adafruit_GPS {
 
   char read(void);
   boolean parse(char *);
+  float secondsSinceFix();
+  float secondsSinceTime();
+  float secondsSinceDate();
 
   boolean wakeup(void);
   boolean standby(void);
@@ -168,6 +175,18 @@ class Adafruit_GPS {
   uint8_t LOCUS_percent;    ///< Log life used percentage
 
  private:
+  void parseTime(char *);
+  void parseLat(char *);
+  boolean parseLatDir(char *);
+  void parseLon(char *);
+  boolean parseLonDir(char *);
+  boolean parseFix(char *);
+  // Make all of these times far in the past by setting them near the middle of the 
+  // millis() range. Timing assumes that sentences are parsed promptly. 
+  uint32_t lastFix = 2000000000L;		// millis() when last fix received
+  uint32_t lastTime = 2000000000L;    // millis() when last time received
+  uint32_t lastDate = 2000000000L;    // millis() when last date received
+  uint32_t recvdTime = 2000000000L;   // millis() when last full sentence received
   boolean paused;
 
   uint8_t parseResponse(char *response);

@@ -76,85 +76,36 @@ boolean Adafruit_GPS::parse(char *nmea) {
   } else {
   	return false;
   }
-  int32_t degree;
-  long minutes;
-  char degreebuff[10];
   // look for a few common sentences
+  char *p = nmea;
+  
   if (strStartsWith(nmea, "$GPGGA")) {
     // found GGA
-    char *p = nmea;
     // get time
     p = strchr(p, ',')+1;
-    float timef = atof(p);
-    uint32_t time = timef;
-    hour = time / 10000;
-    minute = (time % 10000) / 100;
-    seconds = (time % 100);
-
-    milliseconds = fmod(timef, 1.0) * 1000;
+    parseTime(p);
 
     // parse out latitude
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      strncpy(degreebuff, p, 2);
-      p += 2;
-      degreebuff[2] = '\0';
-      degree = atol(degreebuff) * 10000000;
-      strncpy(degreebuff, p, 2); // minutes
-      p += 3; // skip decimal point
-      strncpy(degreebuff + 2, p, 4);
-      degreebuff[6] = '\0';
-      minutes = 50 * atol(degreebuff) / 3;
-      latitude_fixed = degree + minutes;
-      latitude = degree / 100000 + minutes * 0.000006F;
-      latitudeDegrees = (latitude-100*int(latitude/100))/60.0;
-      latitudeDegrees += int(latitude/100);
-    }
-
+    parseLat(p);
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      if (p[0] == 'S') latitudeDegrees *= -1.0;
-      if (p[0] == 'N') lat = 'N';
-      else if (p[0] == 'S') lat = 'S';
-      else if (p[0] == ',') lat = 0;
-      else return false;
-    }
+    if(!parseLatDir(p)) return false;
 
     // parse out longitude
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      strncpy(degreebuff, p, 3);
-      p += 3;
-      degreebuff[3] = '\0';
-      degree = atol(degreebuff) * 10000000;
-      strncpy(degreebuff, p, 2); // minutes
-      p += 3; // skip decimal point
-      strncpy(degreebuff + 2, p, 4);
-      degreebuff[6] = '\0';
-      minutes = 50 * atol(degreebuff) / 3;
-      longitude_fixed = degree + minutes;
-      longitude = degree / 100000 + minutes * 0.000006F;
-      longitudeDegrees = (longitude-100*int(longitude/100))/60.0;
-      longitudeDegrees += int(longitude/100);
-    }
-
+    parseLon(p);
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      if (p[0] == 'W') longitudeDegrees *= -1.0;
-      if (p[0] == 'W') lon = 'W';
-      else if (p[0] == 'E') lon = 'E';
-      else if (p[0] == ',') lon = 0;
-      else return false;
-    }
-
+    if(!parseLonDir(p)) return false;
+  
     p = strchr(p, ',')+1;
     if (',' != *p)
     {
       fixquality = atoi(p);
+      if(fixquality > 0){
+        fix = true; 
+        lastFix = recvdTime;
+      } else
+        fix = false;
     }
 
     p = strchr(p, ',')+1;
@@ -183,86 +134,29 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
     return true;
   }
+  
   if (strStartsWith(nmea, "$GPRMC")) {
-   // found RMC
-    char *p = nmea;
-
+    // found RMC
     // get time
     p = strchr(p, ',')+1;
-    float timef = atof(p);
-    uint32_t time = timef;
-    hour = time / 10000;
-    minute = (time % 10000) / 100;
-    seconds = (time % 100);
+    parseTime(p);
 
-    milliseconds = fmod(timef, 1.0) * 1000;
-
+    // fix or no fix
     p = strchr(p, ',')+1;
-    // Serial.println(p);
-    if (p[0] == 'A')
-      fix = true;
-    else if (p[0] == 'V')
-      fix = false;
-    else
-      return false;
+    if(!parseFix(p)) return false;
 
     // parse out latitude
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      strncpy(degreebuff, p, 2);
-      p += 2;
-      degreebuff[2] = '\0';
-      long degree = atol(degreebuff) * 10000000;
-      strncpy(degreebuff, p, 2); // minutes
-      p += 3; // skip decimal point
-      strncpy(degreebuff + 2, p, 4);
-      degreebuff[6] = '\0';
-      long minutes = 50 * atol(degreebuff) / 3;
-      latitude_fixed = degree + minutes;
-      latitude = degree / 100000 + minutes * 0.000006F;
-      latitudeDegrees = (latitude-100*int(latitude/100))/60.0;
-      latitudeDegrees += int(latitude/100);
-    }
-
+    parseLat(p);
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      if (p[0] == 'S') latitudeDegrees *= -1.0;
-      if (p[0] == 'N') lat = 'N';
-      else if (p[0] == 'S') lat = 'S';
-      else if (p[0] == ',') lat = 0;
-      else return false;
-    }
+    if(!parseLatDir(p)) return false;
 
     // parse out longitude
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      strncpy(degreebuff, p, 3);
-      p += 3;
-      degreebuff[3] = '\0';
-      degree = atol(degreebuff) * 10000000;
-      strncpy(degreebuff, p, 2); // minutes
-      p += 3; // skip decimal point
-      strncpy(degreebuff + 2, p, 4);
-      degreebuff[6] = '\0';
-      minutes = 50 * atol(degreebuff) / 3;
-      longitude_fixed = degree + minutes;
-      longitude = degree / 100000 + minutes * 0.000006F;
-      longitudeDegrees = (longitude-100*int(longitude/100))/60.0;
-      longitudeDegrees += int(longitude/100);
-    }
-
+    parseLon(p);
     p = strchr(p, ',')+1;
-    if (',' != *p)
-    {
-      if (p[0] == 'W') longitudeDegrees *= -1.0;
-      if (p[0] == 'W') lon = 'W';
-      else if (p[0] == 'E') lon = 'E';
-      else if (p[0] == ',') lon = 0;
-      else return false;
-    }
+    if(!parseLonDir(p)) return false;
+
     // speed
     p = strchr(p, ',')+1;
     if (',' != *p)
@@ -284,16 +178,68 @@ boolean Adafruit_GPS::parse(char *nmea) {
       day = fulldate / 10000;
       month = (fulldate % 10000) / 100;
       year = (fulldate % 100);
+      lastDate = recvdTime;
     }
-    // we dont parse the remaining, yet!
     return true;
   }
+  
   if (strStartsWith(nmea, "$GPGLL")) {
-   // found GLL
-    char *p = nmea;
-
+    // found GLL
     // parse out latitude
     p = strchr(p, ',')+1;
+    parseLat(p);
+    p = strchr(p, ',')+1;
+    if(!parseLatDir(p)) return false;
+
+    // parse out longitude
+    p = strchr(p, ',')+1;
+    parseLon(p);
+    p = strchr(p, ',')+1;
+    if(!parseLonDir(p)) return false;
+
+    // get time
+    p = strchr(p, ',')+1;
+    parseTime(p);
+
+    // fix or no fix
+    p = strchr(p, ',')+1;
+    if(!parseFix(p)) return false;
+
+    return true;
+  }
+
+  // we dont parse the remaining, yet!
+  return false;
+}
+
+/**************************************************************************/
+/*!
+    @brief Parse a part of an NMEA string for time
+    @param p Pointer to the location of the token in the NMEA string
+*/
+/**************************************************************************/
+void Adafruit_GPS::parseTime(char *p) {
+    // get time
+    float timef = atof(p);
+    uint32_t time = timef;
+    hour = time / 10000;
+    minute = (time % 10000) / 100;
+    seconds = (time % 100);
+
+    milliseconds = fmod(timef, 1.0) * 1000;
+    lastTime = recvdTime;
+}
+
+/**************************************************************************/
+/*!
+    @brief Parse a part of an NMEA string for latitude angle
+    @param p Pointer to the location of the token in the NMEA string
+*/
+/**************************************************************************/
+void Adafruit_GPS::parseLat(char *p) {
+  int32_t degree;
+  long minutes;
+  char degreebuff[10];
     if (',' != *p)
     {
       strncpy(degreebuff, p, 2);
@@ -310,8 +256,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
       latitudeDegrees = (latitude-100*int(latitude/100))/60.0;
       latitudeDegrees += int(latitude/100);
     }
+}
 
-    p = strchr(p, ',')+1;
+/**************************************************************************/
+/*!
+    @brief Parse a part of an NMEA string for latitude direction
+    @param p Pointer to the location of the token in the NMEA string
+    @return True if we parsed it, false if it has invalid data
+*/
+/**************************************************************************/
+boolean Adafruit_GPS::parseLatDir(char *p) {
     if (',' != *p)
     {
       if (p[0] == 'S') latitudeDegrees *= -1.0;
@@ -320,9 +274,19 @@ boolean Adafruit_GPS::parse(char *nmea) {
       else if (p[0] == ',') lat = 0;
       else return false;
     }
+    return true;
+}
 
-    // parse out longitude
-    p = strchr(p, ',')+1;
+/**************************************************************************/
+/*!
+    @brief Parse a part of an NMEA string for longitude angle
+    @param p Pointer to the location of the token in the NMEA string
+*/
+/**************************************************************************/
+void Adafruit_GPS::parseLon(char *p) {
+  int32_t degree;
+  long minutes;
+  char degreebuff[10];
     if (',' != *p)
     {
       strncpy(degreebuff, p, 3);
@@ -339,8 +303,16 @@ boolean Adafruit_GPS::parse(char *nmea) {
       longitudeDegrees = (longitude-100*int(longitude/100))/60.0;
       longitudeDegrees += int(longitude/100);
     }
+}
 
-    p = strchr(p, ',')+1;
+/**************************************************************************/
+/*!
+    @brief Parse a part of an NMEA string for longitude direction
+    @param p Pointer to the location of the token in the NMEA string
+    @return True if we parsed it, false if it has invalid data
+*/
+/**************************************************************************/
+boolean Adafruit_GPS::parseLonDir(char *p) {
     if (',' != *p)
     {
       if (p[0] == 'W') longitudeDegrees *= -1.0;
@@ -349,30 +321,59 @@ boolean Adafruit_GPS::parse(char *nmea) {
       else if (p[0] == ',') lon = 0;
       else return false;
     }
+    return true;
+}
 
-    // get time
-    p = strchr(p, ',')+1;
-    float timef = atof(p);
-    uint32_t time = timef;
-    hour = time / 10000;
-    minute = (time % 10000) / 100;
-    seconds = (time % 100);
-
-    milliseconds = fmod(timef, 1.0) * 1000;
-
-    p = strchr(p, ',')+1;
-    // Serial.println(p);
-    if (p[0] == 'A')
+/**************************************************************************/
+/*!
+    @brief Parse a part of an NMEA string for whether there is a fix
+    @param p Pointer to the location of the token in the NMEA string
+    @return True if we parsed it, false if it has invalid data
+*/
+/**************************************************************************/
+boolean Adafruit_GPS::parseFix(char *p) {
+    if (p[0] == 'A'){
       fix = true;
+      lastFix = recvdTime;
+      }
     else if (p[0] == 'V')
       fix = false;
     else
       return false;
-
     return true;
-  }
+}
 
-  return false;
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last position fix was obtained. Will 
+    fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return float value in seconds since last fix.
+*/
+/**************************************************************************/
+float Adafruit_GPS::secondsSinceFix() {
+    return (millis()-lastFix) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last GPS time was obtained. Will fail 
+    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return float value in seconds since last GPS time.
+*/
+/**************************************************************************/
+float Adafruit_GPS::secondsSinceTime() {
+    return (millis()-lastTime) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last GPS date was obtained. Will fail 
+    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return float value in seconds since last GPS date.
+*/
+/**************************************************************************/
+float Adafruit_GPS::secondsSinceDate() {
+    return (millis()-lastDate) / 1000.;
 }
 
 /**************************************************************************/
@@ -423,6 +424,7 @@ char Adafruit_GPS::read(void) {
     //Serial.println("----");
     lineidx = 0;
     recvdflag = true;
+    recvdTime = millis();	// time we got the end of the string
   }
 
   return c;
