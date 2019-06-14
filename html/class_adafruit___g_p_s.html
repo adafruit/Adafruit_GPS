@@ -105,6 +105,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:acbcf98b71ccfb7f51844a3eb5815d6ad"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#acbcf98b71ccfb7f51844a3eb5815d6ad">parse</a> (char *)</td></tr>
 <tr class="memdesc:acbcf98b71ccfb7f51844a3eb5815d6ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a NMEA string.  <a href="#acbcf98b71ccfb7f51844a3eb5815d6ad">More...</a><br /></td></tr>
 <tr class="separator:acbcf98b71ccfb7f51844a3eb5815d6ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a394fa6d23cfe78d6a1e6ce13f5d107f3"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a394fa6d23cfe78d6a1e6ce13f5d107f3">secondsSinceFix</a> ()</td></tr>
+<tr class="memdesc:a394fa6d23cfe78d6a1e6ce13f5d107f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time in seconds since the last position fix was obtained. Will fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.  <a href="#a394fa6d23cfe78d6a1e6ce13f5d107f3">More...</a><br /></td></tr>
+<tr class="separator:a394fa6d23cfe78d6a1e6ce13f5d107f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a169901489db4e6d865f9758a69db551b"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a169901489db4e6d865f9758a69db551b">secondsSinceTime</a> ()</td></tr>
+<tr class="memdesc:a169901489db4e6d865f9758a69db551b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time in seconds since the last GPS time was obtained. Will fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.  <a href="#a169901489db4e6d865f9758a69db551b">More...</a><br /></td></tr>
+<tr class="separator:a169901489db4e6d865f9758a69db551b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60ca879f3eeee9ca546f9b9480e1c3f8"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a60ca879f3eeee9ca546f9b9480e1c3f8">secondsSinceDate</a> ()</td></tr>
+<tr class="memdesc:a60ca879f3eeee9ca546f9b9480e1c3f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time in seconds since the last GPS date was obtained. Will fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.  <a href="#a60ca879f3eeee9ca546f9b9480e1c3f8">More...</a><br /></td></tr>
+<tr class="separator:a60ca879f3eeee9ca546f9b9480e1c3f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a032614ec7013f7e109a111d974c69d6e"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a032614ec7013f7e109a111d974c69d6e">wakeup</a> (void)</td></tr>
 <tr class="memdesc:a032614ec7013f7e109a111d974c69d6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wake the sensor up.  <a href="#a032614ec7013f7e109a111d974c69d6e">More...</a><br /></td></tr>
 <tr class="separator:a032614ec7013f7e109a111d974c69d6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -494,6 +503,66 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if we parsed it, false if it has an invalid checksum or invalid data </dd></dl>
+
+</div>
+</div>
+<a id="a394fa6d23cfe78d6a1e6ce13f5d107f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a394fa6d23cfe78d6a1e6ce13f5d107f3">&#9670;&nbsp;</a></span>secondsSinceFix()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Adafruit_GPS::secondsSinceFix </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Time in seconds since the last position fix was obtained. Will fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks. </p>
+<dl class="section return"><dt>Returns</dt><dd>float value in seconds since last fix. </dd></dl>
+
+</div>
+</div>
+<a id="a169901489db4e6d865f9758a69db551b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a169901489db4e6d865f9758a69db551b">&#9670;&nbsp;</a></span>secondsSinceTime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Adafruit_GPS::secondsSinceTime </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Time in seconds since the last GPS time was obtained. Will fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks. </p>
+<dl class="section return"><dt>Returns</dt><dd>float value in seconds since last GPS time. </dd></dl>
+
+</div>
+</div>
+<a id="a60ca879f3eeee9ca546f9b9480e1c3f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60ca879f3eeee9ca546f9b9480e1c3f8">&#9670;&nbsp;</a></span>secondsSinceDate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Adafruit_GPS::secondsSinceDate </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Time in seconds since the last GPS date was obtained. Will fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks. </p>
+<dl class="section return"><dt>Returns</dt><dd>float value in seconds since last GPS date. </dd></dl>
 
 </div>
 </div>
