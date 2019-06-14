@@ -79,7 +79,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
   // look for a few common sentences
   char *p = nmea;
   
-  if (strStartsWith(nmea, "$GPGGA")) {
+  if (strStartsWith(nmea, "$GPGGA") || strStartsWith(nmea, "$GNGGA")) {
     // found GGA
     // get time
     p = strchr(p, ',')+1;
@@ -135,7 +135,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     return true;
   }
   
-  if (strStartsWith(nmea, "$GPRMC")) {
+  if (strStartsWith(nmea, "$GPRMC") || strStartsWith(nmea, "$GNRMC")) {
     // found RMC
     // get time
     p = strchr(p, ',')+1;
@@ -183,7 +183,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     return true;
   }
   
-  if (strStartsWith(nmea, "$GPGLL")) {
+  if (strStartsWith(nmea, "$GPGLL") || strStartsWith(nmea, "$GNGLL")) {
     // found GLL
     // parse out latitude
     p = strchr(p, ',')+1;
