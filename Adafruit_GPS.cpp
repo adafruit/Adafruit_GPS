@@ -269,7 +269,7 @@ boolean Adafruit_GPS::parseLatDir(char *p) {
     if (p[0] == 'S') {
       lat = 'S';
       latitudeDegrees *= -1.0;
-      latitude_fixed *= -1.0;
+      latitude_fixed *= -1;
     } else if (p[0] == 'N') {
       lat = 'N';
     } else if (p[0] == ',') {
@@ -321,7 +321,7 @@ boolean Adafruit_GPS::parseLonDir(char *p) {
       if (p[0] == 'W') {
         lon = 'W';
         longitudeDegrees *= -1.0;
-        longitude_fixed *= -1.0;
+        longitude_fixed *= -1;
       } else if (p[0] == 'E') {
         lon = 'E';
       } else if (p[0] == ',') {
