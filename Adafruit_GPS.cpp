@@ -74,7 +74,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
       }
     }
   } else {
-  	return false;
+    return false;
   }
   // look for a few common sentences
   char *p = nmea;
@@ -266,13 +266,16 @@ void Adafruit_GPS::parseLat(char *p) {
 */
 /**************************************************************************/
 boolean Adafruit_GPS::parseLatDir(char *p) {
-    if (',' != *p)
-    {
-      if (p[0] == 'S') latitudeDegrees *= -1.0;
-      if (p[0] == 'N') lat = 'N';
-      else if (p[0] == 'S') lat = 'S';
-      else if (p[0] == ',') lat = 0;
-      else return false;
+    if (p[0] == 'S') {
+      lat = 'S';
+      latitudeDegrees *= -1.0;
+      latitude_fixed *= -1.0;
+    } else if (p[0] == 'N') {
+      lat = 'N';
+    } else if (p[0] == ',') {
+      lat = 0;
+    } else {
+      return false;
     }
     return true;
 }
@@ -315,11 +318,17 @@ void Adafruit_GPS::parseLon(char *p) {
 boolean Adafruit_GPS::parseLonDir(char *p) {
     if (',' != *p)
     {
-      if (p[0] == 'W') longitudeDegrees *= -1.0;
-      if (p[0] == 'W') lon = 'W';
-      else if (p[0] == 'E') lon = 'E';
-      else if (p[0] == ',') lon = 0;
-      else return false;
+      if (p[0] == 'W') {
+        lon = 'W';
+        longitudeDegrees *= -1.0;
+        longitude_fixed *= -1.0;
+      } else if (p[0] == 'E') {
+        lon = 'E';
+      } else if (p[0] == ',') {
+        lon = 0;
+      } else {
+        return false;
+      }
     }
     return true;
 }
@@ -406,7 +415,7 @@ char Adafruit_GPS::read(void) {
 //  }
   currentline[lineidx++] = c;
   if (lineidx >= MAXLINELENGTH)
-    lineidx = MAXLINELENGTH-1;		// ensure there is someplace to put the next received character
+    lineidx = MAXLINELENGTH-1;      // ensure there is someplace to put the next received character
 
   if (c == '\n') {
     currentline[lineidx] = 0;
@@ -424,7 +433,7 @@ char Adafruit_GPS::read(void) {
     //Serial.println("----");
     lineidx = 0;
     recvdflag = true;
-    recvdTime = millis();	// time we got the end of the string
+    recvdTime = millis();   // time we got the end of the string
   }
 
   return c;
@@ -585,7 +594,7 @@ boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max, boolean 
       i++;
 
       if (strStartsWith(nmea, wait4me))
-	      return true;
+          return true;
     }
   }
 
@@ -641,7 +650,7 @@ boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
     response++;
     parsed[i]=0;
     while ((response[0] != ',') &&
-	   (response[0] != '*') && (response[0] != 0)) {
+       (response[0] != '*') && (response[0] != 0)) {
       parsed[i] *= 10;
       char c = response[0];
       if (isDigit(c))
