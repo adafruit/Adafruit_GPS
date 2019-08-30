@@ -28,10 +28,6 @@
 */
 /**************************************************************************/
 
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-  // Only include software serial on AVR platforms and ESP8266 (i.e. not on Due).
-  #include <SoftwareSerial.h>
-#endif
 #include <Adafruit_GPS.h>
 
 #define MAXLINELENGTH 120 ///< how long are max NMEA lines to parse?
@@ -385,6 +381,47 @@ float Adafruit_GPS::secondsSinceDate() {
     return (millis()-lastDate) / 1000.;
 }
 
+
+size_t Adafruit_GPS::available(void) {
+  char c = 0;
+
+  if (paused) return c;
+
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  if (gpsSwSerial) {
+    return gpsSwSerial->available();
+  } 
+#endif
+  if (gpsHwSerial) {
+    return gpsHwSerial->available();
+  }
+  if (gpsI2C) {
+    return 1; // I2C doesnt have 'availability' so always has a byte at least to read!
+  }
+  return false;
+}
+
+size_t Adafruit_GPS::write(uint8_t c) {
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  if (gpsSwSerial) {
+    return gpsSwSerial->write(c);
+  } 
+#endif
+  if (gpsHwSerial) {
+    return gpsHwSerial->write(c);
+  }
+  if (gpsI2C) {
+    gpsI2C->beginTransmission(_i2caddr);
+    if (gpsI2C->write(c) != 1) {
+      return 0;
+    }
+    if (gpsI2C->endTransmission(true) == 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 /**************************************************************************/
 /*!
     @brief Read one character from the GPS device
@@ -398,21 +435,51 @@ char Adafruit_GPS::read(void) {
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if(gpsSwSerial) {
-    if(!gpsSwSerial->available()) return c;
+    if (!gpsSwSerial->available()) 
+      return c;
     c = gpsSwSerial->read();
-  } else
+  } 
 #endif
-  {
-    if(!gpsHwSerial->available()) return c;
+  if (gpsHwSerial) {
+    if (!gpsHwSerial->available()) 
+      return c;
     c = gpsHwSerial->read();
   }
-
+  if (gpsI2C) {
+    if (_i2cbuff_idx <= _i2cbuff_max) {
+      c = _i2cbuffer[_i2cbuff_idx];
+      _i2cbuff_idx++;
+    } else {
+      // refill the buffer!
+      if (Wire.requestFrom(0x10, GPS_MAX_I2C_TRANSFER, true) == GPS_MAX_I2C_TRANSFER) {
+	// got data!
+	_i2cbuff_max = 0;
+	char last_char = 0, curr_char = 0;
+	for (int i=0; i<GPS_MAX_I2C_TRANSFER; i++) {
+	  curr_char = Wire.read();
+	  if ((curr_char == 0x0A) && (last_char == 0x0A)) {  // skip duplicate 0x0A's (i2c buffer is empty)
+	    continue;
+	  }
+	  last_char = curr_char;
+	  _i2cbuffer[_i2cbuff_max] = curr_char;
+	  _i2cbuff_max++;
+	}
+	_i2cbuff_max--;  // back up to the last valid slot
+	if ((_i2cbuff_max == 0) && (_i2cbuffer[0] == 0x0A)) {
+	  _i2cbuff_max = -1;  // ahh there was nothing to read after all
+	}
+	_i2cbuff_idx = 0;
+      }
+      return c;
+    }
+  }
+  
   //Serial.print(c);
-
-//  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
-//    currentline[lineidx] = 0;
-//    lineidx = 0;
-//  }
+  
+  //  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
+  //    currentline[lineidx] = 0;
+  //    lineidx = 0;
+  //  }
   currentline[lineidx++] = c;
   if (lineidx >= MAXLINELENGTH)
     lineidx = MAXLINELENGTH-1;      // ensure there is someplace to put the next received character
@@ -466,6 +533,17 @@ Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
 
 /**************************************************************************/
 /*!
+    @brief Constructor when using I2C
+    @param theWire Pointer to an I2C TwoWire object
+*/
+/**************************************************************************/
+Adafruit_GPS::Adafruit_GPS(TwoWire *theWire) {
+  common_init();  // Set everything to common state, then...
+  gpsI2C = theWire; // ...override gpsI2C
+}
+
+/**************************************************************************/
+/*!
     @brief Initialization code used by all constructor types
 */
 /**************************************************************************/
@@ -474,6 +552,7 @@ void Adafruit_GPS::common_init(void) {
   gpsSwSerial = NULL; // Set both to NULL, then override correct
 #endif
   gpsHwSerial = NULL; // port pointer in corresponding constructor
+  gpsI2C      = NULL;
   recvdflag   = false;
   paused      = false;
   lineidx     = 0;
@@ -492,19 +571,34 @@ void Adafruit_GPS::common_init(void) {
 /**************************************************************************/
 /*!
     @brief Start the HW or SW serial port
-    @param baud Baud rate
+    @param baud_or_i2caddr Baud rate if using serial, I2C address if using I2C
+    @returns True on successful hardware init, False on failure
 */
 /**************************************************************************/
-void Adafruit_GPS::begin(uint32_t baud)
+bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr)
 {
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-  if(gpsSwSerial)
-    gpsSwSerial->begin(baud);
-  else
+  if(gpsSwSerial) {
+    gpsSwSerial->begin(baud_or_i2caddr);
+  } 
 #endif
-    gpsHwSerial->begin(baud);
-
+  if (gpsHwSerial) {
+    gpsHwSerial->begin(baud_or_i2caddr);
+  }
+  if (gpsI2C) {
+    gpsI2C->begin();
+    if (baud_or_i2caddr > 0x7F) {
+      _i2caddr = GPS_DEFAULT_I2C_ADDR;
+    } else {
+      _i2caddr = baud_or_i2caddr;
+    }
+    gpsI2C->setClock(400000);
+    // A basic scanner, see if it ACK's
+    gpsI2C->beginTransmission(_i2caddr);
+    return (gpsI2C->endTransmission () == 0);
+  }
   delay(10);
+  return true;
 }
 
 /**************************************************************************/
@@ -514,12 +608,7 @@ void Adafruit_GPS::begin(uint32_t baud)
 */
 /**************************************************************************/
 void Adafruit_GPS::sendCommand(const char *str) {
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-  if(gpsSwSerial)
-    gpsSwSerial->println(str);
-  else
-#endif
-    gpsHwSerial->println(str);
+  println(str);
 }
 
 /**************************************************************************/
