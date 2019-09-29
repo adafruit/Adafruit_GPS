@@ -103,7 +103,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
       fixquality = atoi(p);
       if(fixquality > 0){
         fix = true;
-        lastFix = recvdTime;
+        lastFix = sentTime;
       } else
         fix = false;
     }
@@ -178,7 +178,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
       day = fulldate / 10000;
       month = (fulldate % 10000) / 100;
       year = (fulldate % 100);
-      lastDate = recvdTime;
+      lastDate = sentTime;
     }
     return true;
   }
@@ -227,7 +227,7 @@ void Adafruit_GPS::parseTime(char *p) {
 
     p = strchr(p, '.')+1;
     milliseconds = atoi(p);
-    lastTime = recvdTime;
+    lastTime = sentTime;
 }
 
 /**************************************************************************/
@@ -343,7 +343,7 @@ boolean Adafruit_GPS::parseLonDir(char *p) {
 boolean Adafruit_GPS::parseFix(char *p) {
     if (p[0] == 'A'){
       fix = true;
-      lastFix = recvdTime;
+      lastFix = sentTime;
       }
     else if (p[0] == 'V')
       fix = false;
@@ -392,6 +392,8 @@ float Adafruit_GPS::secondsSinceDate() {
 */
 /**************************************************************************/
 char Adafruit_GPS::read(void) {
+  static uint32_t firstChar = 0;   // first character received in current sentence
+  uint32_t tStart = millis();      // as close as we can get to time char was sent
   char c = 0;
 
   if (paused) return c;
@@ -434,8 +436,12 @@ char Adafruit_GPS::read(void) {
     lineidx = 0;
     recvdflag = true;
     recvdTime = millis();   // time we got the end of the string
+    sentTime = firstChar;
+    firstChar = 0;          // there are no characters yet
+    return c;               // wait until next character to set time
   }
 
+  if(firstChar == 0) firstChar = tStart;
   return c;
 }
 
