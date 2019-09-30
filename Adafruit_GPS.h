@@ -187,6 +187,7 @@ class Adafruit_GPS {
   uint32_t lastTime = 2000000000L;    // millis() when last time received
   uint32_t lastDate = 2000000000L;    // millis() when last date received
   uint32_t recvdTime = 2000000000L;   // millis() when last full sentence received
+  uint32_t sentTime = 2000000000L;   // millis() when first character of last full sentence received
   boolean paused;
 
   uint8_t parseResponse(char *response);
