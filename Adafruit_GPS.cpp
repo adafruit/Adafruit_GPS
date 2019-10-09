@@ -383,9 +383,7 @@ float Adafruit_GPS::secondsSinceDate() {
 
 
 size_t Adafruit_GPS::available(void) {
-  char c = 0;
-
-  if (paused) return c;
+  if (paused) return 0;
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if (gpsSwSerial) {
@@ -398,7 +396,7 @@ size_t Adafruit_GPS::available(void) {
   if (gpsI2C) {
     return 1; // I2C doesnt have 'availability' so always has a byte at least to read!
   }
-  return false;
+  return 0;
 }
 
 size_t Adafruit_GPS::write(uint8_t c) {
@@ -476,10 +474,6 @@ char Adafruit_GPS::read(void) {
   
   //Serial.print(c);
   
-  //  if (c == '$') {         //please don't eat the dollar sign - rdl 9/15/14
-  //    currentline[lineidx] = 0;
-  //    lineidx = 0;
-  //  }
   currentline[lineidx++] = c;
   if (lineidx >= MAXLINELENGTH)
     lineidx = MAXLINELENGTH-1;      // ensure there is someplace to put the next received character
@@ -592,7 +586,6 @@ bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr)
     } else {
       _i2caddr = baud_or_i2caddr;
     }
-    gpsI2C->setClock(400000);
     // A basic scanner, see if it ACK's
     gpsI2C->beginTransmission(_i2caddr);
     return (gpsI2C->endTransmission () == 0);
