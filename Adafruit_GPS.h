@@ -27,11 +27,15 @@
 #define _ADAFRUIT_GPS_H
 
 #define USE_SW_SERIAL ///< comment this out if you don't want to include software serial in the library
+#define GPS_DEFAULT_I2C_ADDR 0x10  ///< The default address for I2C transport of GPS data
+#define GPS_MAX_I2C_TRANSFER 32  ///< The max number of bytes we'll try to read at once
 
 #include "Arduino.h"
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   #include <SoftwareSerial.h>
 #endif
+#include <Wire.h>
+
 
 /**************************************************************************/
 /**
@@ -98,14 +102,15 @@
 /*!
     @brief  The GPS class
 */
-class Adafruit_GPS {
+class Adafruit_GPS : public Print{
  public:
-  void begin(uint32_t baud);
+  bool begin(uint32_t baud_or_i2caddr);
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
 #endif
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
+  Adafruit_GPS(TwoWire *theWire); // Constructor when using I2C
 
   char *lastNMEA(void);
   boolean newNMEAreceived();
@@ -118,6 +123,9 @@ class Adafruit_GPS {
   uint8_t parseHex(char c);
 
   char read(void);
+  size_t write(uint8_t);
+  size_t available(void);
+
   boolean parse(char *);
   float secondsSinceFix();
   float secondsSinceTime();
@@ -195,6 +203,11 @@ class Adafruit_GPS {
   SoftwareSerial *gpsSwSerial;
 #endif
   HardwareSerial *gpsHwSerial;
+  TwoWire *gpsI2C;
+  uint8_t _i2caddr;
+  char _i2cbuffer[GPS_MAX_I2C_TRANSFER];
+  int8_t _i2cbuff_max = -1, _i2cbuff_idx = 0;
+  char last_char = 0;
 };
 /**************************************************************************/
 
