@@ -206,6 +206,7 @@ class Adafruit_GPS : public Print{
   uint8_t _i2caddr;
   char _i2cbuffer[GPS_MAX_I2C_TRANSFER];
   int8_t _i2cbuff_max = -1, _i2cbuff_idx = 0;
+  char last_char = 0;
 };
 /**************************************************************************/
 

@@ -452,10 +452,11 @@ char Adafruit_GPS::read(void) {
       if (Wire.requestFrom(0x10, GPS_MAX_I2C_TRANSFER, true) == GPS_MAX_I2C_TRANSFER) {
 	// got data!
 	_i2cbuff_max = 0;
-	char last_char = 0, curr_char = 0;
+	char curr_char = 0;
 	for (int i=0; i<GPS_MAX_I2C_TRANSFER; i++) {
 	  curr_char = Wire.read();
-	  if ((curr_char == 0x0A) && (last_char == 0x0A)) {  // skip duplicate 0x0A's (i2c buffer is empty)
+	  if ((curr_char == 0x0A) && (last_char != 0x0D)) { 
+	    // skip duplicate 0x0A's - but keep as part of a CRLF
 	    continue;
 	  }
 	  last_char = curr_char;
