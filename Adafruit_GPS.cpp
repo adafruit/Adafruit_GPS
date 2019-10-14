@@ -381,7 +381,12 @@ float Adafruit_GPS::secondsSinceDate() {
     return (millis()-lastDate) / 1000.;
 }
 
-
+/**************************************************************************/
+/*!
+    @brief How many bytes are available to read - part of 'Print'-class functionality
+    @return Bytes available, 0 if none
+*/
+/**************************************************************************/
 size_t Adafruit_GPS::available(void) {
   if (paused) return 0;
 
@@ -399,6 +404,13 @@ size_t Adafruit_GPS::available(void) {
   return 0;
 }
 
+/**************************************************************************/
+/*!
+    @brief Write a byte to the underlying transport - part of 'Print'-class functionality
+    @param c A single byte to send
+    @return Bytes written - 1 on success, 0 on failure
+*/
+/**************************************************************************/
 size_t Adafruit_GPS::write(uint8_t c) {
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if (gpsSwSerial) {

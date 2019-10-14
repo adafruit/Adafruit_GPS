@@ -28,7 +28,7 @@
 
 #define USE_SW_SERIAL ///< comment this out if you don't want to include software serial in the library
 #define GPS_DEFAULT_I2C_ADDR 0x10  ///< The default address for I2C transport of GPS data
-#define GPS_MAX_I2C_TRANSFER 32
+#define GPS_MAX_I2C_TRANSFER 32  ///< The max number of bytes we'll try to read at once
 
 #include "Arduino.h"
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
