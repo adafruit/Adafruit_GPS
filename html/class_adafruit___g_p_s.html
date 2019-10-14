@@ -71,15 +71,26 @@ $(function() {
  <a href="class_adafruit___g_p_s.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_adafruit___g_p_s_8h_source.html">Adafruit_GPS.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for Adafruit_GPS:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="class_adafruit___g_p_s.png" usemap="#Adafruit_5FGPS_map" alt=""/>
+  <map id="Adafruit_5FGPS_map" name="Adafruit_5FGPS_map">
+</map>
+ </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac6278c9e3325223534b3b881ff9f2154"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#ac6278c9e3325223534b3b881ff9f2154">begin</a> (uint32_t baud)</td></tr>
-<tr class="memdesc:ac6278c9e3325223534b3b881ff9f2154"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the HW or SW serial port.  <a href="#ac6278c9e3325223534b3b881ff9f2154">More...</a><br /></td></tr>
-<tr class="separator:ac6278c9e3325223534b3b881ff9f2154"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab86462ef1409d2bd8ff7a8405c70ff34"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#ab86462ef1409d2bd8ff7a8405c70ff34">begin</a> (uint32_t baud_or_i2caddr)</td></tr>
+<tr class="memdesc:ab86462ef1409d2bd8ff7a8405c70ff34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the HW or SW serial port.  <a href="#ab86462ef1409d2bd8ff7a8405c70ff34">More...</a><br /></td></tr>
+<tr class="separator:ab86462ef1409d2bd8ff7a8405c70ff34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3dd74265015def9c893170f38bab1b61"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a3dd74265015def9c893170f38bab1b61">Adafruit_GPS</a> (HardwareSerial *ser)</td></tr>
 <tr class="memdesc:a3dd74265015def9c893170f38bab1b61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor when using SoftwareSerial.  <a href="#a3dd74265015def9c893170f38bab1b61">More...</a><br /></td></tr>
 <tr class="separator:a3dd74265015def9c893170f38bab1b61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a7f90b64349dca658dbc8e0c79c9938"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a2a7f90b64349dca658dbc8e0c79c9938">Adafruit_GPS</a> (TwoWire *theWire)</td></tr>
+<tr class="memdesc:a2a7f90b64349dca658dbc8e0c79c9938"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor when using I2C.  <a href="#a2a7f90b64349dca658dbc8e0c79c9938">More...</a><br /></td></tr>
+<tr class="separator:a2a7f90b64349dca658dbc8e0c79c9938"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6938dadca5d72ec6e89e86a5b01b9b67"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a6938dadca5d72ec6e89e86a5b01b9b67">lastNMEA</a> (void)</td></tr>
 <tr class="memdesc:a6938dadca5d72ec6e89e86a5b01b9b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the last NMEA line received and unsets the received flag.  <a href="#a6938dadca5d72ec6e89e86a5b01b9b67">More...</a><br /></td></tr>
 <tr class="separator:a6938dadca5d72ec6e89e86a5b01b9b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -102,6 +113,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a776378bc3e4e8a098dce88d6a4ffb0b8"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a776378bc3e4e8a098dce88d6a4ffb0b8">read</a> (void)</td></tr>
 <tr class="memdesc:a776378bc3e4e8a098dce88d6a4ffb0b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one character from the GPS device.  <a href="#a776378bc3e4e8a098dce88d6a4ffb0b8">More...</a><br /></td></tr>
 <tr class="separator:a776378bc3e4e8a098dce88d6a4ffb0b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a079d9990da5971f336fab880cd141445"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a079d9990da5971f336fab880cd141445">write</a> (uint8_t)</td></tr>
+<tr class="memdesc:a079d9990da5971f336fab880cd141445"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a byte to the underlying transport - part of 'Print'-class functionality.  <a href="#a079d9990da5971f336fab880cd141445">More...</a><br /></td></tr>
+<tr class="separator:a079d9990da5971f336fab880cd141445"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe6399af00c0047527ea20e3f35a0182"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#abe6399af00c0047527ea20e3f35a0182">available</a> (void)</td></tr>
+<tr class="memdesc:abe6399af00c0047527ea20e3f35a0182"><td class="mdescLeft">&#160;</td><td class="mdescRight">How many bytes are available to read - part of 'Print'-class functionality.  <a href="#abe6399af00c0047527ea20e3f35a0182">More...</a><br /></td></tr>
+<tr class="separator:abe6399af00c0047527ea20e3f35a0182"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acbcf98b71ccfb7f51844a3eb5815d6ad"><td class="memItemLeft" align="right" valign="top">boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#acbcf98b71ccfb7f51844a3eb5815d6ad">parse</a> (char *)</td></tr>
 <tr class="memdesc:acbcf98b71ccfb7f51844a3eb5815d6ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a NMEA string.  <a href="#acbcf98b71ccfb7f51844a3eb5815d6ad">More...</a><br /></td></tr>
 <tr class="separator:acbcf98b71ccfb7f51844a3eb5815d6ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -279,7 +296,7 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <div class="textblock"><p>The GPS class. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a3dd74265015def9c893170f38bab1b61"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3dd74265015def9c893170f38bab1b61">&#9670;&nbsp;</a></span>Adafruit_GPS()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a3dd74265015def9c893170f38bab1b61">&#9670;&nbsp;</a></span>Adafruit_GPS() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -310,18 +327,44 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 </div>
 </div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="ac6278c9e3325223534b3b881ff9f2154"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac6278c9e3325223534b3b881ff9f2154">&#9670;&nbsp;</a></span>begin()</h2>
+<a id="a2a7f90b64349dca658dbc8e0c79c9938"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a7f90b64349dca658dbc8e0c79c9938">&#9670;&nbsp;</a></span>Adafruit_GPS() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Adafruit_GPS::begin </td>
+          <td class="memname">Adafruit_GPS::Adafruit_GPS </td>
+          <td>(</td>
+          <td class="paramtype">TwoWire *&#160;</td>
+          <td class="paramname"><em>theWire</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Constructor when using I2C. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">theWire</td><td>Pointer to an I2C TwoWire object </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ab86462ef1409d2bd8ff7a8405c70ff34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab86462ef1409d2bd8ff7a8405c70ff34">&#9670;&nbsp;</a></span>begin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Adafruit_GPS::begin </td>
           <td>(</td>
           <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>baud</em></td><td>)</td>
+          <td class="paramname"><em>baud_or_i2caddr</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -330,10 +373,11 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <p>Start the HW or SW serial port. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">baud</td><td>Baud rate </td></tr>
+    <tr><td class="paramname">baud_or_i2caddr</td><td>Baud rate if using serial, I2C address if using I2C </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>True on successful hardware init, False on failure </dd></dl>
 
 </div>
 </div>
@@ -476,6 +520,54 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 
 <p>Read one character from the GPS device. </p>
 <dl class="section return"><dt>Returns</dt><dd>The character that we received, or 0 if nothing was available </dd></dl>
+
+</div>
+</div>
+<a id="a079d9990da5971f336fab880cd141445"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a079d9990da5971f336fab880cd141445">&#9670;&nbsp;</a></span>write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t Adafruit_GPS::write </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>c</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Write a byte to the underlying transport - part of 'Print'-class functionality. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">c</td><td>A single byte to send </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Bytes written - 1 on success, 0 on failure </dd></dl>
+
+</div>
+</div>
+<a id="abe6399af00c0047527ea20e3f35a0182"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe6399af00c0047527ea20e3f35a0182">&#9670;&nbsp;</a></span>available()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t Adafruit_GPS::available </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>How many bytes are available to read - part of 'Print'-class functionality. </p>
+<dl class="section return"><dt>Returns</dt><dd>Bytes available, 0 if none </dd></dl>
 
 </div>
 </div>

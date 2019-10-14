@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['locus_5ffullstop',['LOCUS_FULLSTOP',['../_adafruit___g_p_s_8h.html#ac61d2228d947ef7e4999a21a99d4df2f',1,'Adafruit_GPS.h']]],
-  ['locus_5foverlap',['LOCUS_OVERLAP',['../_adafruit___g_p_s_8h.html#ac3306296913b929db8cc8e0947ac5622',1,'Adafruit_GPS.h']]]
+  ['gps_5fdefault_5fi2c_5faddr',['GPS_DEFAULT_I2C_ADDR',['../_adafruit___g_p_s_8h.html#a09a011d0f9a94852f1cf93de299f6152',1,'Adafruit_GPS.h']]],
+  ['gps_5fmax_5fi2c_5ftransfer',['GPS_MAX_I2C_TRANSFER',['../_adafruit___g_p_s_8h.html#aa4f51a6693bb8e084e5b879528dee0bf',1,'Adafruit_GPS.h']]]
 ];

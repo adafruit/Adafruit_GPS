@@ -66,6 +66,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;Arduino.h&quot;</code><br />
+<code>#include &lt;Wire.h&gt;</code><br />
 </div>
 <p><a href="_adafruit___g_p_s_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -81,6 +82,14 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a7d44b2886944eb862b51948f2acc8d23">USE_SW_SERIAL</a></td></tr>
 <tr class="memdesc:a7d44b2886944eb862b51948f2acc8d23"><td class="mdescLeft">&#160;</td><td class="mdescRight">comment this out if you don't want to include software serial in the library <br /></td></tr>
 <tr class="separator:a7d44b2886944eb862b51948f2acc8d23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09a011d0f9a94852f1cf93de299f6152"><td class="memItemLeft" align="right" valign="top"><a id="a09a011d0f9a94852f1cf93de299f6152"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a09a011d0f9a94852f1cf93de299f6152">GPS_DEFAULT_I2C_ADDR</a>&#160;&#160;&#160;0x10</td></tr>
+<tr class="memdesc:a09a011d0f9a94852f1cf93de299f6152"><td class="mdescLeft">&#160;</td><td class="mdescRight">The default address for I2C transport of GPS data. <br /></td></tr>
+<tr class="separator:a09a011d0f9a94852f1cf93de299f6152"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4f51a6693bb8e084e5b879528dee0bf"><td class="memItemLeft" align="right" valign="top"><a id="aa4f51a6693bb8e084e5b879528dee0bf"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#aa4f51a6693bb8e084e5b879528dee0bf">GPS_MAX_I2C_TRANSFER</a>&#160;&#160;&#160;32</td></tr>
+<tr class="memdesc:aa4f51a6693bb8e084e5b879528dee0bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">The max number of bytes we'll try to read at once. <br /></td></tr>
+<tr class="separator:aa4f51a6693bb8e084e5b879528dee0bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ab791da4ee0f06f23113aeed47e80cf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a3ab791da4ee0f06f23113aeed47e80cf">PMTK_SET_NMEA_UPDATE_100_MILLIHERTZ</a>&#160;&#160;&#160;&quot;$PMTK220,10000*2F&quot;</td></tr>
 <tr class="memdesc:a3ab791da4ee0f06f23113aeed47e80cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Once every 10 seconds, 100 millihertz.  <a href="#a3ab791da4ee0f06f23113aeed47e80cf">More...</a><br /></td></tr>
 <tr class="separator:a3ab791da4ee0f06f23113aeed47e80cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
