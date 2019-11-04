@@ -25,6 +25,7 @@ var searchData=
   ['pmtk_5fset_5fnmea_5foutput_5fgsvonly',['PMTK_SET_NMEA_OUTPUT_GSVONLY',['../_adafruit___g_p_s_8h.html#ab1ccddfffabbb66cf69872b728e1f69e',1,'Adafruit_GPS.h']]],
   ['pmtk_5fset_5fnmea_5foutput_5foff',['PMTK_SET_NMEA_OUTPUT_OFF',['../_adafruit___g_p_s_8h.html#aef371298391fd30cc08c4980f8502ce9',1,'Adafruit_GPS.h']]],
   ['pmtk_5fset_5fnmea_5foutput_5frmcgga',['PMTK_SET_NMEA_OUTPUT_RMCGGA',['../_adafruit___g_p_s_8h.html#af29abbfb3588c15b2b6cd6c8e96a34e9',1,'Adafruit_GPS.h']]],
+  ['pmtk_5fset_5fnmea_5foutput_5frmcggagsa',['PMTK_SET_NMEA_OUTPUT_RMCGGAGSA',['../_adafruit___g_p_s_8h.html#a95ee80f53d11d05c6a593330679c89b2',1,'Adafruit_GPS.h']]],
   ['pmtk_5fset_5fnmea_5foutput_5frmconly',['PMTK_SET_NMEA_OUTPUT_RMCONLY',['../_adafruit___g_p_s_8h.html#a4c352344763c1ae0f1293dc15c51a824',1,'Adafruit_GPS.h']]],
   ['pmtk_5fset_5fnmea_5foutput_5fvtgonly',['PMTK_SET_NMEA_OUTPUT_VTGONLY',['../_adafruit___g_p_s_8h.html#a211f1db5c03fa0a0e7d307920e04b335',1,'Adafruit_GPS.h']]],
   ['pmtk_5fset_5fnmea_5fupdate_5f100_5fmillihertz',['PMTK_SET_NMEA_UPDATE_100_MILLIHERTZ',['../_adafruit___g_p_s_8h.html#a3ab791da4ee0f06f23113aeed47e80cf',1,'Adafruit_GPS.h']]],
