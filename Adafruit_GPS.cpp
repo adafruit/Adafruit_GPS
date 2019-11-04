@@ -204,6 +204,63 @@ boolean Adafruit_GPS::parse(char *nmea) {
     return true;
   }
 
+if (strStartsWith(nmea, "$GPGSA")) {
+  // found GSA
+  // parse out Auto selection, but ignore them
+  p = strchr(p, ',')+1;
+  // parse out 3d fixquality
+  p = strchr(p, ',')+1;
+  if (',' != *p)
+  {
+    fixquality_3d = atoi(p);
+  }
+  // parse out Satellite PDNs, but ignore them
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  p = strchr(p, ',')+1;
+
+  //parse out PDOP
+  p = strchr(p, ',')+1;
+  if (',' != *p)
+  {
+    PDOP = atof(p);
+  }
+  // parse out HDOP, we also parse this from the GGA sentence. Chipset should report the same for both
+  p = strchr(p, ',')+1;
+  if (',' != *p)
+  {
+    HDOP = atof(p);
+  }
+  // parse out VDOP
+  p = strchr(p, ',')+1;
+  if (',' != *p)
+  {
+    VDOP = atof(p);
+  }
+  return true;
+}
+
+
   // we dont parse the remaining, yet!
   return false;
 }
@@ -393,7 +450,7 @@ size_t Adafruit_GPS::available(void) {
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if (gpsSwSerial) {
     return gpsSwSerial->available();
-  } 
+  }
 #endif
   if (gpsHwSerial) {
     return gpsHwSerial->available();
@@ -415,7 +472,7 @@ size_t Adafruit_GPS::write(uint8_t c) {
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if (gpsSwSerial) {
     return gpsSwSerial->write(c);
-  } 
+  }
 #endif
   if (gpsHwSerial) {
     return gpsHwSerial->write(c);
@@ -447,13 +504,13 @@ char Adafruit_GPS::read(void) {
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if(gpsSwSerial) {
-    if (!gpsSwSerial->available()) 
+    if (!gpsSwSerial->available())
       return c;
     c = gpsSwSerial->read();
-  } 
+  }
 #endif
   if (gpsHwSerial) {
-    if (!gpsHwSerial->available()) 
+    if (!gpsHwSerial->available())
       return c;
     c = gpsHwSerial->read();
   }
@@ -469,7 +526,7 @@ char Adafruit_GPS::read(void) {
 	char curr_char = 0;
 	for (int i=0; i<GPS_MAX_I2C_TRANSFER; i++) {
 	  curr_char = Wire.read();
-	  if ((curr_char == 0x0A) && (last_char != 0x0D)) { 
+	  if ((curr_char == 0x0A) && (last_char != 0x0D)) {
 	    // skip duplicate 0x0A's - but keep as part of a CRLF
 	    continue;
 	  }
@@ -486,9 +543,9 @@ char Adafruit_GPS::read(void) {
       return c;
     }
   }
-  
+
   //Serial.print(c);
-  
+
   currentline[lineidx++] = c;
   if (lineidx >= MAXLINELENGTH)
     lineidx = MAXLINELENGTH-1;      // ensure there is someplace to put the next received character
@@ -573,12 +630,12 @@ void Adafruit_GPS::common_init(void) {
   lastline    = line2;
 
   hour = minute = seconds = year = month = day =
-    fixquality = satellites = 0; // uint8_t
+    fixquality = fixquality_3d = satellites = 0; // uint8_t
   lat = lon = mag = 0; // char
   fix = false; // boolean
   milliseconds = 0; // uint16_t
   latitude = longitude = geoidheight = altitude =
-    speed = angle = magvariation = HDOP = 0.0; // float
+    speed = angle = magvariation = HDOP = VDOP = PDOP = 0.0; // float
 }
 
 /**************************************************************************/
@@ -593,7 +650,7 @@ bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr)
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if(gpsSwSerial) {
     gpsSwSerial->begin(baud_or_i2caddr);
-  } 
+  }
 #endif
   if (gpsHwSerial) {
     gpsHwSerial->begin(baud_or_i2caddr);

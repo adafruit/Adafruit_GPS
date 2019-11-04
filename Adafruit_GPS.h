@@ -66,6 +66,7 @@
 #define PMTK_SET_NMEA_OUTPUT_GSAONLY "$PMTK314,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on just the GPGSA
 #define PMTK_SET_NMEA_OUTPUT_GSVONLY "$PMTK314,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on just the GPGSV
 #define PMTK_SET_NMEA_OUTPUT_RMCGGA  "$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"  ///< turn on GPRMC and GPGGA
+#define PMTK_SET_NMEA_OUTPUT_RMCGGAGSA  "$PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"  ///< turn on GPRMC, GPGGA and GPGSA
 #define PMTK_SET_NMEA_OUTPUT_ALLDATA "$PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28"  ///< turn on ALL THE DATA
 #define PMTK_SET_NMEA_OUTPUT_OFF     "$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"  ///< turn off output
 
@@ -159,11 +160,14 @@ class Adafruit_GPS : public Print{
   float angle;              ///< Course in degrees from true north
   float magvariation;       ///< Magnetic variation in degrees (vs. true north)
   float HDOP;               ///< Horizontal Dilution of Precision - relative accuracy of horizontal position
+  float VDOP;               ///< Vertical Dilution of Precision - relative accuracy of vertical position
+  float PDOP;               ///< Position Dilution of Precision - Complex maths derives a simple, single number for each kind of DOP
   char lat;                 ///< N/S
   char lon;                 ///< E/W
   char mag;                 ///< Magnetic variation direction
   boolean fix;              ///< Have a fix?
   uint8_t fixquality;       ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
+  uint8_t fixquality_3d;    ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;       ///< Number of satellites in use
 
   boolean waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE, boolean usingInterrupts = false);
@@ -189,8 +193,8 @@ class Adafruit_GPS : public Print{
   void parseLon(char *);
   boolean parseLonDir(char *);
   boolean parseFix(char *);
-  // Make all of these times far in the past by setting them near the middle of the 
-  // millis() range. Timing assumes that sentences are parsed promptly. 
+  // Make all of these times far in the past by setting them near the middle of the
+  // millis() range. Timing assumes that sentences are parsed promptly.
   uint32_t lastFix = 2000000000L;		// millis() when last fix received
   uint32_t lastTime = 2000000000L;    // millis() when last time received
   uint32_t lastDate = 2000000000L;    // millis() when last date received
