@@ -35,7 +35,7 @@
   #include <SoftwareSerial.h>
 #endif
 #include <Wire.h>
-
+#include <SPI.h>
 
 /**************************************************************************/
 /**
@@ -112,6 +112,7 @@ class Adafruit_GPS : public Print{
 #endif
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
   Adafruit_GPS(TwoWire *theWire); // Constructor when using I2C
+  Adafruit_GPS(SPIClass *theSPI, int8_t cspin); // Constructor when using SPI
 
   char *lastNMEA(void);
   boolean newNMEAreceived();
@@ -208,9 +209,13 @@ class Adafruit_GPS : public Print{
 #endif
   HardwareSerial *gpsHwSerial;
   TwoWire *gpsI2C;
+  SPIClass *gpsSPI;
+  int8_t gpsSPI_cs = -1;
+  SPISettings gpsSPI_settings = SPISettings(1000000, MSBFIRST, SPI_MODE0); // default
+  char _spibuffer[GPS_MAX_SPI_TRANSFER]; // for when we write data, we need to read it too!
   uint8_t _i2caddr;
   char _i2cbuffer[GPS_MAX_I2C_TRANSFER];
-  int8_t _i2cbuff_max = -1, _i2cbuff_idx = 0;
+  int8_t _buff_max = -1, _buff_idx = 0;
   char last_char = 0;
 };
 /**************************************************************************/
