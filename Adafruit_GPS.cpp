@@ -533,12 +533,12 @@ char Adafruit_GPS::read(void) {
       _buff_idx++;
     } else {
       // refill the buffer!
-      if (Wire.requestFrom(0x10, GPS_MAX_I2C_TRANSFER, true) == GPS_MAX_I2C_TRANSFER) {
+      if (gpsI2C->requestFrom(0x10, GPS_MAX_I2C_TRANSFER, true) == GPS_MAX_I2C_TRANSFER) {
 	// got data!
 	_buff_max = 0;
 	char curr_char = 0;
 	for (int i=0; i<GPS_MAX_I2C_TRANSFER; i++) {
-	  curr_char = Wire.read();
+	  curr_char = gpsI2C->read();
 	  if ((curr_char == 0x0A) && (last_char != 0x0D)) {
 	    // skip duplicate 0x0A's - but keep as part of a CRLF
 	    continue;
