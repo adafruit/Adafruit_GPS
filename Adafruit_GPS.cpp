@@ -30,17 +30,7 @@
 
 #include <Adafruit_GPS.h>
 
-#define MAXLINELENGTH 120 ///< how long are max NMEA lines to parse?
-
 static boolean strStartsWith(const char* str, const char* prefix);
-
-volatile char line1[MAXLINELENGTH]; ///< We double buffer: read one line in and leave one for the main program
-volatile char line2[MAXLINELENGTH]; ///< Second buffer
-volatile uint8_t lineidx=0;         ///< our index into filling the current line
-volatile char *currentline;         ///< Pointer to current line buffer
-volatile char *lastline;            ///< Pointer to previous line buffer
-volatile boolean recvdflag;         ///< Received flag
-volatile boolean inStandbyMode;     ///< In standby flag
 
 /**************************************************************************/
 /*!

@@ -30,6 +30,8 @@
 #define GPS_DEFAULT_I2C_ADDR 0x10  ///< The default address for I2C transport of GPS data
 #define GPS_MAX_I2C_TRANSFER 32  ///< The max number of bytes we'll try to read at once
 #define GPS_MAX_SPI_TRANSFER 100  ///< The max number of bytes we'll try to read at once
+#define MAXLINELENGTH 120 ///< how long are max NMEA lines to parse?
+
 
 #include "Arduino.h"
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
@@ -218,6 +220,14 @@ class Adafruit_GPS : public Print{
   char _i2cbuffer[GPS_MAX_I2C_TRANSFER];
   int8_t _buff_max = -1, _buff_idx = 0;
   char last_char = 0;
+  
+  volatile char line1[MAXLINELENGTH]; ///< We double buffer: read one line in and leave one for the main program
+  volatile char line2[MAXLINELENGTH]; ///< Second buffer
+  volatile uint8_t lineidx=0;         ///< our index into filling the current line
+  volatile char *currentline;         ///< Pointer to current line buffer
+  volatile char *lastline;            ///< Pointer to previous line buffer
+  volatile boolean recvdflag;         ///< Received flag
+  volatile boolean inStandbyMode;     ///< In standby flag
 };
 /**************************************************************************/
 
