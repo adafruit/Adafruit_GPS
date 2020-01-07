@@ -1,25 +1,4 @@
 var searchData=
 [
-  ['lastline',['lastline',['../_adafruit___g_p_s_8cpp.html#a02ce03f6bed92fbaedff4091013e8f6b',1,'Adafruit_GPS.cpp']]],
-  ['lat',['lat',['../class_adafruit___g_p_s.html#a2b04c8136e976cd8cd87aaa3526753d6',1,'Adafruit_GPS']]],
-  ['latitude',['latitude',['../class_adafruit___g_p_s.html#a1b6477f3f89e0a804ceddcfd85d70c81',1,'Adafruit_GPS']]],
-  ['latitude_5ffixed',['latitude_fixed',['../class_adafruit___g_p_s.html#a2d3b65036628a65d1e119d3d9a69678c',1,'Adafruit_GPS']]],
-  ['latitudedegrees',['latitudeDegrees',['../class_adafruit___g_p_s.html#a31499ad9fedee485d8407491fde96a32',1,'Adafruit_GPS']]],
-  ['line1',['line1',['../_adafruit___g_p_s_8cpp.html#a001a9f9298d4373e52ee8de0d285a7a7',1,'Adafruit_GPS.cpp']]],
-  ['line2',['line2',['../_adafruit___g_p_s_8cpp.html#a97aaf59dac188c01bddb7c03725ee775',1,'Adafruit_GPS.cpp']]],
-  ['lineidx',['lineidx',['../_adafruit___g_p_s_8cpp.html#ab2bbde586a88d2dea7270bfc5ef3467f',1,'Adafruit_GPS.cpp']]],
-  ['locus_5fconfig',['LOCUS_config',['../class_adafruit___g_p_s.html#ab306e67df47d2e02a69dddc97317ea8e',1,'Adafruit_GPS']]],
-  ['locus_5fdistance',['LOCUS_distance',['../class_adafruit___g_p_s.html#a9a09b0dc6344dbe3904dfa1c2bcdc538',1,'Adafruit_GPS']]],
-  ['locus_5finterval',['LOCUS_interval',['../class_adafruit___g_p_s.html#aaf51d53983b61ab9d5c7795fcb97b41c',1,'Adafruit_GPS']]],
-  ['locus_5fmode',['LOCUS_mode',['../class_adafruit___g_p_s.html#a16f2f26bc48f38e208307569e9d5f245',1,'Adafruit_GPS']]],
-  ['locus_5fpercent',['LOCUS_percent',['../class_adafruit___g_p_s.html#a911accd6b643a08c6cae3b844ccf6e69',1,'Adafruit_GPS']]],
-  ['locus_5frecords',['LOCUS_records',['../class_adafruit___g_p_s.html#af6a8b70851f8625bde5a8b3eab6c9fd3',1,'Adafruit_GPS']]],
-  ['locus_5fserial',['LOCUS_serial',['../class_adafruit___g_p_s.html#adfeb77f544ca2a8f76e479ae077952eb',1,'Adafruit_GPS']]],
-  ['locus_5fspeed',['LOCUS_speed',['../class_adafruit___g_p_s.html#abc92488b6bcd0372c38b50f1384e4765',1,'Adafruit_GPS']]],
-  ['locus_5fstatus',['LOCUS_status',['../class_adafruit___g_p_s.html#ae8cfb553f10224487d0a45354984776c',1,'Adafruit_GPS']]],
-  ['locus_5ftype',['LOCUS_type',['../class_adafruit___g_p_s.html#ae3eddbc004d2945018eb1f71abecd0b8',1,'Adafruit_GPS']]],
-  ['lon',['lon',['../class_adafruit___g_p_s.html#a704ab5d76824ade6f954e11029c1c916',1,'Adafruit_GPS']]],
-  ['longitude',['longitude',['../class_adafruit___g_p_s.html#ad2e0cd2f3f555685dcee8eeb7ddfd45b',1,'Adafruit_GPS']]],
-  ['longitude_5ffixed',['longitude_fixed',['../class_adafruit___g_p_s.html#a8010f253b2708e05547c452cb5368837',1,'Adafruit_GPS']]],
-  ['longitudedegrees',['longitudeDegrees',['../class_adafruit___g_p_s.html#a38d7ec0a4728aa23f056d02dd0745db7',1,'Adafruit_GPS']]]
+  ['pdop',['PDOP',['../class_adafruit___g_p_s.html#a1a5e707772b7df168228a475ed5561f6',1,'Adafruit_GPS']]]
 ];

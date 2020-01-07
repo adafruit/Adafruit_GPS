@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pdop',['PDOP',['../class_adafruit___g_p_s.html#a1a5e707772b7df168228a475ed5561f6',1,'Adafruit_GPS']]]
+  ['vdop',['VDOP',['../class_adafruit___g_p_s.html#a647d00bd91fd96cce5593ccc2c2dfff6',1,'Adafruit_GPS']]]
 ];
