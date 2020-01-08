@@ -103,6 +103,7 @@
 #define MAXWAITSENTENCE 10   ///< how long to wait when we're looking for a response
 /**************************************************************************/
 
+/// type for resulting code from running check()
 typedef enum {
     NMEA_BAD                  =  0,   ///< passed none of the checks
     NMEA_HAS_DOLLAR           =  1,   ///< has a dollar sign in the first position
@@ -111,7 +112,7 @@ typedef enum {
     NMEA_HAS_SOURCE           = 10,   ///< has a recognized source ID
     NMEA_HAS_SENTENCE         = 20,   ///< has a recognized sentence ID
     NMEA_HAS_SENTENCE_P       = 40    ///< has a recognized parseable sentence ID
-} nmea_check_t;                       ///< resulting code from running check()
+} nmea_check_t;                       
 
 /**************************************************************************/
 /*!
