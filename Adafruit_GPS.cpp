@@ -958,3 +958,20 @@ boolean Adafruit_GPS::wakeup(void) {
       return false;  // Returns false if not in standby mode, nothing to wakeup
   }
 }
+
+/**************************************************************************/
+/*!
+    @brief Checks whether a string starts with a specified prefix
+    @param str Pointer to a string
+    @param prefix Pointer to the prefix
+    @return True if str starts with prefix, false otherwise
+*/
+/**************************************************************************/
+static boolean strStartsWith(const char* str, const char* prefix)
+{
+  while (*prefix) {
+    if (*prefix++ != *str++)
+      return false;
+  }
+  return true;
+}
