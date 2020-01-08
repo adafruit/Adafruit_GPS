@@ -41,34 +41,16 @@ static boolean strStartsWith(const char* str, const char* prefix);
 /**************************************************************************/
 boolean Adafruit_GPS::parse(char *nmea) {
   // do checksum check
+  if(!check(nmea)) return false;
+  // passed the check, so there's a valid source in thisSource and a valid sentence in thisSentence
 
-  // first look if we even have one
-  char *ast = strchr(nmea,'*');
-  if (ast != NULL) {
-    uint16_t sum = parseHex(*(ast+1)) * 16;
-    sum += parseHex(*(ast+2));
-    // check checksum
-    char *p = strchr(nmea,'$');
-    if(p == NULL) return false;
-    else{
-      for (char *p1 = p+1; p1 < ast; p1++) {
-        sum ^= *p1;
-      }
-      if (sum != 0) {
-        // bad checksum :(
-        return false;
-      }
-    }
-  } else {
-    return false;
-  }
   // look for a few common sentences
-  char *p = nmea;
+  char *p = nmea;         // Pointer to move through the sentence -- good parsers are non-destructive
+  p = strchr(p, ',')+1;   // Skip to the character after the next comma, then check sentence.
 
-  if (strStartsWith(nmea, "$GPGGA") || strStartsWith(nmea, "$GNGGA")) {
+  if (!strcmp(thisSentence,"GGA")) {
     // found GGA
     // get time
-    p = strchr(p, ',')+1;
     parseTime(p);
 
     // parse out latitude
@@ -118,13 +100,11 @@ boolean Adafruit_GPS::parse(char *nmea) {
     {
       geoidheight = atof(p);
     }
-    return true;
-  }
+  } 
 
-  if (strStartsWith(nmea, "$GPRMC") || strStartsWith(nmea, "$GNRMC")) {
+  else if (!strcmp(thisSentence,"RMC")) {
     // found RMC
     // get time
-    p = strchr(p, ',')+1;
     parseTime(p);
 
     // fix or no fix
@@ -166,13 +146,11 @@ boolean Adafruit_GPS::parse(char *nmea) {
       year = (fulldate % 100);
       lastDate = sentTime;
     }
-    return true;
   }
 
-  if (strStartsWith(nmea, "$GPGLL") || strStartsWith(nmea, "$GNGLL")) {
+  else if (!strcmp(thisSentence,"GLL")) {
     // found GLL
     // parse out latitude
-    p = strchr(p, ',')+1;
     parseLat(p);
     p = strchr(p, ',')+1;
     if(!parseLatDir(p)) return false;
@@ -190,69 +168,138 @@ boolean Adafruit_GPS::parse(char *nmea) {
     // fix or no fix
     p = strchr(p, ',')+1;
     if(!parseFix(p)) return false;
-
-    return true;
   }
 
-if (strStartsWith(nmea, "$GPGSA")) {
-  // found GSA
-  // parse out Auto selection, but ignore them
-  p = strchr(p, ',')+1;
-  // parse out 3d fixquality
-  p = strchr(p, ',')+1;
-  if (',' != *p)
-  {
-    fixquality_3d = atoi(p);
+  else if (!strcmp(thisSentence,"GSA")) {
+    // found GSA
+    // parse out Auto selection, but ignore them
+    // parse out 3d fixquality
+    p = strchr(p, ',')+1;
+    if (',' != *p)
+    {
+      fixquality_3d = atoi(p);
+    }
+    // skip 12 Satellite PDNs without interpreting them
+    for(int i = 0;i < 12;i++) p = strchr(p, ',')+1;
+
+    //parse out PDOP
+    p = strchr(p, ',')+1;
+    if (',' != *p)
+    {
+      PDOP = atof(p);
+    }
+    // parse out HDOP, we also parse this from the GGA sentence. Chipset should report the same for both
+    p = strchr(p, ',')+1;
+    if (',' != *p)
+    {
+      HDOP = atof(p);
+    }
+    // parse out VDOP
+    p = strchr(p, ',')+1;
+    if (',' != *p)
+    {
+      VDOP = atof(p);
+    }
   }
-  // parse out Satellite PDNs, but ignore them
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  p = strchr(p, ',')+1;
-
-  //parse out PDOP
-  p = strchr(p, ',')+1;
-  if (',' != *p)
-  {
-    PDOP = atof(p);
-  }
-  // parse out HDOP, we also parse this from the GGA sentence. Chipset should report the same for both
-  p = strchr(p, ',')+1;
-  if (',' != *p)
-  {
-    HDOP = atof(p);
-  }
-  // parse out VDOP
-  p = strchr(p, ',')+1;
-  if (',' != *p)
-  {
-    VDOP = atof(p);
-  }
-  return true;
-}
 
 
   // we dont parse the remaining, yet!
-  return false;
+  else return false;
+  
+  // Record the successful parsing of where the last data came from and when
+  strcpy(lastSource,thisSource);
+  strcpy(lastSentence,thisSentence);
+  lastUpdate = millis();
+  return true;  
+}
+
+/**************************************************************************/
+/*!
+    @brief Check an NMEA string for basic format, valid source ID and valid
+    and valid sentence ID. Update the values of thisCheck, thisSource and 
+    thisSentence. 
+    @param nmea Pointer to the NMEA string
+    @return True if well formed, false if it has problems
+*/
+/**************************************************************************/
+boolean Adafruit_GPS::check(char *nmea) {
+  thisCheck = 0;                            // new check
+  if(*nmea != '$') return false;            // doesn't start with $
+  else thisCheck += NMEA_HAS_DOLLAR;
+  // do checksum check -- first look if we even have one -- ignore all but last *
+  char *ast = nmea;                         // not strchr(nmea,'*'); for first *
+  while(*ast) ast++;                        // go to the end
+  while(*ast != '*' && ast > nmea) ast--;   // then back to * if it's there
+  if (*ast != '*') return false;            // there is no asterisk
+  else {
+    uint16_t sum = parseHex(*(ast+1)) * 16; // extract checksum
+    sum += parseHex(*(ast+2));
+    char *p = nmea;                         // check checksum
+    for (char *p1 = p+1; p1 < ast; p1++) sum ^= *p1;
+    if (sum != 0) return false;             // bad checksum :(
+    else thisCheck += NMEA_HAS_CHECKSUM;
+  }
+  // extract source of variable length
+  char *p = nmea +1;
+  const char *src = tokenOnList(p,sources);
+  if(src){
+    strcpy(thisSource,src);
+    thisCheck += NMEA_HAS_SOURCE;
+  } else return false;
+  p += strlen(src);
+  // extract sentence id and check if parsed
+  const char *snc = tokenOnList(p,sentences_parsed);
+  if(snc){
+    strcpy(thisSentence,snc);
+    thisCheck += NMEA_HAS_SENTENCE_P + NMEA_HAS_SENTENCE;
+  } else {      // check if known
+    snc = tokenOnList(p,sentences_known);
+    if(snc){
+      strcpy(thisSentence,snc);
+      thisCheck += NMEA_HAS_SENTENCE;
+      return false;
+    }    
+  }
+  return true;                              // passed all the tests
+}
+
+/**************************************************************************/
+/*!
+    @brief Check if a token at the start of a string is on a list.
+    @param token Pointer to the string
+    @param list A list of strings, with the final entry starting "ZZ"
+    @return Pointer to the found token, or NULL if it fails
+*/
+/**************************************************************************/
+const char * Adafruit_GPS::tokenOnList(char *token, const char **list) {
+  int i = 0;                                    // index in the list
+  while(strncmp(list[i],"ZZ",2) && i < 1000){   // stop at terminator and don't crash without it
+    // test for a match on the sentence name
+    if(!strncmp((const char *)list[i],(const char *)token,strlen(list[i]))) return list[i];
+    i++;
+  }
+  return NULL;                               // couldn't find a match
+}
+
+/**************************************************************************/
+/*!
+    @brief Add *CS where CS is the two character hex checksum for all but 
+    the first character in the string. The checksum is the result of an
+    exclusive or of all the characters in the string. Also useful if you 
+    are creating new PMTK strings for controlling a GPS module and need a
+    checksum added.
+    @param buff Pointer to the string, which must be long enough 
+    @return none
+*/
+/**************************************************************************/
+void Adafruit_GPS::addChecksum(char *buff){
+  char cs = 0;
+  int i = 1;
+  while(buff[i]){
+    cs ^= buff[i];
+    i++;
+  }
+  sprintf(buff,"%s*%02X",buff,cs);
 }
 
 /**************************************************************************/
@@ -910,21 +957,4 @@ boolean Adafruit_GPS::wakeup(void) {
   else {
       return false;  // Returns false if not in standby mode, nothing to wakeup
   }
-}
-
-/**************************************************************************/
-/*!
-    @brief Checks whether a string starts with a specified prefix
-    @param str Pointer to a string
-    @param prefix Pointer to the prefix
-    @return True if str starts with prefix, false otherwise
-*/
-/**************************************************************************/
-static boolean strStartsWith(const char* str, const char* prefix)
-{
-  while (*prefix) {
-    if (*prefix++ != *str++)
-      return false;
-  }
-  return true;
 }

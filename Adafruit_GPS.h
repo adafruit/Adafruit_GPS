@@ -31,6 +31,8 @@
 #define GPS_MAX_I2C_TRANSFER 32  ///< The max number of bytes we'll try to read at once
 #define GPS_MAX_SPI_TRANSFER 100  ///< The max number of bytes we'll try to read at once
 #define MAXLINELENGTH 120 ///< how long are max NMEA lines to parse?
+#define NMEA_MAX_SENTENCE_ID  20    // maximum length of a sentence ID name, including terminating 0
+#define NMEA_MAX_SOURCE_ID     3    // maximum length of a source ID name, including terminating 0
 
 
 #include "Arduino.h"
@@ -101,6 +103,15 @@
 #define MAXWAITSENTENCE 10   ///< how long to wait when we're looking for a response
 /**************************************************************************/
 
+typedef enum {
+    NMEA_BAD                  =  0,   // passed none of the checks
+    NMEA_HAS_DOLLAR           =  1,   // has a dollar sign in the first position
+    NMEA_HAS_CHECKSUM         =  2,   // has a valid checksum at the end
+    NMEA_HAS_NAME             =  4,   // there is a token after the $ followed by a comma
+    NMEA_HAS_SOURCE           = 10,   // has a recognized source ID
+    NMEA_HAS_SENTENCE         = 20,   // has a recognized sentence ID
+    NMEA_HAS_SENTENCE_P       = 40    // has a recognized parseable sentence ID
+} nmea_check_t;
 
 /**************************************************************************/
 /*!
@@ -131,13 +142,21 @@ class Adafruit_GPS : public Print{
   size_t write(uint8_t);
   size_t available(void);
 
+  boolean check(char *nmea); 
   boolean parse(char *);
+  void addChecksum(char *buff);
   float secondsSinceFix();
   float secondsSinceTime();
   float secondsSinceDate();
 
   boolean wakeup(void);
   boolean standby(void);
+
+  int thisCheck = 0;                              // the results of the check on the current sentence
+  char thisSource[NMEA_MAX_SOURCE_ID] = {0};      // the first two letters of the current sentence, e.g. WI, GP
+  char thisSentence[NMEA_MAX_SENTENCE_ID] = {0};  // the next three letters of the current sentence, e.g. GLL, RMC
+  char lastSource[NMEA_MAX_SOURCE_ID] = {0};      // same for last correctly parsed sentence
+  char lastSentence[NMEA_MAX_SENTENCE_ID] = {0};
 
   uint8_t hour;                                     ///< GMT hours
   uint8_t minute;                                   ///< GMT minutes
@@ -191,19 +210,26 @@ class Adafruit_GPS : public Print{
   uint8_t LOCUS_percent;    ///< Log life used percentage
 
  private:
+  const char * tokenOnList(char *token, const char **list);
   void parseTime(char *);
   void parseLat(char *);
   boolean parseLatDir(char *);
   void parseLon(char *);
   boolean parseLonDir(char *);
   boolean parseFix(char *);
+  // used by check() for validity tests, room for future expansion
+  const char *sources[5] =          {"II",  "WI",  "GP",  "GN",  "ZZZ"};
+  const char *sentences_parsed[5] = {"GGA", "GLL", "GSA", "RMC", "ZZZ"};
+  const char *sentences_known[1] =  {"ZZZ"};
+  
   // Make all of these times far in the past by setting them near the middle of the
   // millis() range. Timing assumes that sentences are parsed promptly.
-  uint32_t lastFix = 2000000000L;		// millis() when last fix received
+  uint32_t lastUpdate = 2000000000L;  // millis() when last full sentence successfully parsed
+  uint32_t lastFix = 2000000000L;     // millis() when last fix received
   uint32_t lastTime = 2000000000L;    // millis() when last time received
   uint32_t lastDate = 2000000000L;    // millis() when last date received
   uint32_t recvdTime = 2000000000L;   // millis() when last full sentence received
-  uint32_t sentTime = 2000000000L;   // millis() when first character of last full sentence received
+  uint32_t sentTime = 2000000000L;    // millis() when first character of last full sentence received
   boolean paused;
 
   uint8_t parseResponse(char *response);
