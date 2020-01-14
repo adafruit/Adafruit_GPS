@@ -1,5 +1,7 @@
 var searchData=
 [
+  ['lastsentence',['lastSentence',['../class_adafruit___g_p_s.html#a35d9d4c069a8ac93cbcbc98cf1c86ba0',1,'Adafruit_GPS']]],
+  ['lastsource',['lastSource',['../class_adafruit___g_p_s.html#a8c44f113dda3b54b41a7d05f516c9ec0',1,'Adafruit_GPS']]],
   ['lat',['lat',['../class_adafruit___g_p_s.html#a2b04c8136e976cd8cd87aaa3526753d6',1,'Adafruit_GPS']]],
   ['latitude',['latitude',['../class_adafruit___g_p_s.html#a1b6477f3f89e0a804ceddcfd85d70c81',1,'Adafruit_GPS']]],
   ['latitude_5ffixed',['latitude_fixed',['../class_adafruit___g_p_s.html#a2d3b65036628a65d1e119d3d9a69678c',1,'Adafruit_GPS']]],
