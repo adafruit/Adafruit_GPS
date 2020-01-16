@@ -31,6 +31,15 @@
 #define GPS_MAX_I2C_TRANSFER 32  ///< The max number of bytes we'll try to read at once
 #define GPS_MAX_SPI_TRANSFER 100  ///< The max number of bytes we'll try to read at once
 #define MAXLINELENGTH 120 ///< how long are max NMEA lines to parse?
+
+/**************************************************************************/
+/**
+ Comment out the definition of NMEA_EXTENSIONS to make the library use as 
+ little memory as possible for GPS functionality only. The ARDUINO_ARCH_AVR 
+ test should leave it out of any compilations for the UNO and similar. */
+#ifndef ARDUINO_ARCH_AVR
+#define NMEA_EXTENSIONS    ///< if defined will include more NMEA sentences
+#endif
 #define NMEA_MAX_SENTENCE_ID  20    ///< maximum length of a sentence ID name, including terminating 0
 #define NMEA_MAX_SOURCE_ID     3    ///< maximum length of a source ID name, including terminating 0
 
@@ -210,8 +219,21 @@ class Adafruit_GPS : public Print{
   uint8_t LOCUS_status;     ///< 0: Logging, 1: Stop logging
   uint8_t LOCUS_percent;    ///< Log life used percentage
 
+#ifdef NMEA_EXTENSIONS
+  // NMEA additional public functions
+  char * build(char *nmea, const char *thisSource, const char *thisSentence, char ref = 'R');
+  
+  // NMEA additional public variables
+  char txtTXT[63] = {0};                  ///< text content from most recent TXT sentence
+  int txtTot = 0;                         ///< total TXT sentences in group
+  int txtID = 0;                          ///< id of the text message
+  int txtN = 0;                           ///< the TXT sentence number
+#endif    // NMEA_EXTENSIONS
+
  private:
   const char * tokenOnList(char *token, const char **list);
+  char * parseStr(char * buff, char *p, int n);
+  bool isEmpty(char *pStart);  
   void parseTime(char *);
   void parseLat(char *);
   boolean parseLatDir(char *);
