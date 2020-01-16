@@ -66,7 +66,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     if(!parseLonDir(p)) return false;
 
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       fixquality = atoi(p);
       if(fixquality > 0){
@@ -77,26 +77,26 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
 
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       satellites = atoi(p);
     }
 
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       HDOP = atof(p);
     }
 
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       altitude = atof(p);
     }
 
     p = strchr(p, ',')+1;
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       geoidheight = atof(p);
     }
@@ -125,20 +125,20 @@ boolean Adafruit_GPS::parse(char *nmea) {
 
     // speed
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       speed = atof(p);
     }
 
     // angle
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       angle = atof(p);
     }
 
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       uint32_t fulldate = atof(p);
       day = fulldate / 10000;
@@ -175,7 +175,7 @@ boolean Adafruit_GPS::parse(char *nmea) {
     // parse out Auto selection, but ignore them
     // parse out 3d fixquality
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       fixquality_3d = atoi(p);
     }
@@ -184,19 +184,19 @@ boolean Adafruit_GPS::parse(char *nmea) {
 
     //parse out PDOP
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       PDOP = atof(p);
     }
     // parse out HDOP, we also parse this from the GGA sentence. Chipset should report the same for both
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       HDOP = atof(p);
     }
     // parse out VDOP
     p = strchr(p, ',')+1;
-    if (',' != *p)
+    if (!isEmpty(p))
     {
       VDOP = atof(p);
     }
@@ -367,9 +367,8 @@ void Adafruit_GPS::parseTime(char *p) {
     hour = time / 10000;
     minute = (time % 10000) / 100;
     seconds = (time % 100);
-
-    p = strchr(p, '.')+1;
-    milliseconds = atoi(p);
+    p = strchr(p, '.');
+    milliseconds = atof(p) * 1000;
     lastTime = sentTime;
 }
 
