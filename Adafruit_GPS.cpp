@@ -1031,6 +1031,16 @@ static boolean strStartsWith(const char* str, const char* prefix)
 #ifdef NMEA_EXTENSIONS
 /**************************************************************************/
 /*!
+    @brief Fakes time of receipt of a sentence. Use between build() and parse()
+    to make the timing look like the sentence arrived from the GPS.
+*/
+/**************************************************************************/
+void Adafruit_GPS::resetSentTime(){
+  sentTime = millis();
+}
+
+/**************************************************************************/
+/*!
     @brief Build an NMEA sentence string based on the relevant variables. 
     Sentences start with a $, then a two character source identifier, then 
     a three character sentence name that defines the format, then a comma 

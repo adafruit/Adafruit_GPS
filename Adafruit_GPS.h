@@ -222,6 +222,7 @@ class Adafruit_GPS : public Print{
 #ifdef NMEA_EXTENSIONS
   // NMEA additional public functions
   char * build(char *nmea, const char *thisSource, const char *thisSentence, char ref = 'R');
+  void resetSentTime();
   
   // NMEA additional public variables
   char txtTXT[63] = {0};                  ///< text content from most recent TXT sentence
