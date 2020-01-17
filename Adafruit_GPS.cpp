@@ -1044,8 +1044,8 @@ static boolean strStartsWith(const char* str, const char* prefix)
     build() will not work properly in an environment that does not support 
     the %f floating point formatter in sprintf(), and will return NULL.
 
-    build() adds <CR><LF> to sentences to conform to NMEA-183, so send your 
-    output with a print, not a println.
+    build() adds Carriage Return and Line Feed to sentences to conform to 
+    NMEA-183, so send your output with a print, not a println.
 
     Some of the data in these test sentences may be arbitrary, e.g. for the 
     TXT sentence which has a more complicated protocol for multiple lines 
@@ -1169,7 +1169,7 @@ char * Adafruit_GPS::build(char *nmea, const char *thisSource, const char *thisS
   }
 
   addChecksum(nmea);                          // Successful completion  
-  sprintf(nmea,"%s\r\n",nmea);                // Add <CR><LF> to comply with NMEA-183
+  sprintf(nmea,"%s\r\n",nmea);                // Add Carriage Return and Line Feed to comply with NMEA-183
   return nmea;                                // return pointer to finished product
 }
 
