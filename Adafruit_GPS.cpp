@@ -313,7 +313,7 @@ char * Adafruit_GPS::parseStr(char * buff, char *p, int n) {
       strncpy(buff,p,len);          // or up to the *
       buff[e-p] = 0;
     } else {
-      len = min(strlen(p), n - 1);
+      len = min((int) strlen(p), n - 1);
       strncpy(buff,p,len);          // or to the end or max capacity
     }
   }
