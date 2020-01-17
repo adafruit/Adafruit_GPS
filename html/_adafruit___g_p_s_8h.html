@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Adafruit GPS: Adafruit_GPS.h File Reference</title>
+<title>Adafruit GPS Library: Adafruit_GPS.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Adafruit GPS
+   <div id="projectname">Adafruit GPS Library
    </div>
   </td>
  </tr>
@@ -67,8 +67,8 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;Arduino.h&quot;</code><br />
-<code>#include &lt;Wire.h&gt;</code><br />
 <code>#include &lt;SPI.h&gt;</code><br />
+<code>#include &lt;Wire.h&gt;</code><br />
 </div>
 <p><a href="_adafruit___g_p_s_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -80,9 +80,8 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a7d44b2886944eb862b51948f2acc8d23"><td class="memItemLeft" align="right" valign="top"><a id="a7d44b2886944eb862b51948f2acc8d23"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a7d44b2886944eb862b51948f2acc8d23">USE_SW_SERIAL</a></td></tr>
-<tr class="memdesc:a7d44b2886944eb862b51948f2acc8d23"><td class="mdescLeft">&#160;</td><td class="mdescRight">comment this out if you don't want to include software serial in the library <br /></td></tr>
+<tr class="memitem:a7d44b2886944eb862b51948f2acc8d23"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a7d44b2886944eb862b51948f2acc8d23">USE_SW_SERIAL</a></td></tr>
+<tr class="memdesc:a7d44b2886944eb862b51948f2acc8d23"><td class="mdescLeft">&#160;</td><td class="mdescRight">software serial in the library  <a href="#a7d44b2886944eb862b51948f2acc8d23">More...</a><br /></td></tr>
 <tr class="separator:a7d44b2886944eb862b51948f2acc8d23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09a011d0f9a94852f1cf93de299f6152"><td class="memItemLeft" align="right" valign="top"><a id="a09a011d0f9a94852f1cf93de299f6152"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a09a011d0f9a94852f1cf93de299f6152">GPS_DEFAULT_I2C_ADDR</a>&#160;&#160;&#160;0x10</td></tr>
@@ -159,37 +158,29 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a139bab811447a6f82469032f71343717">PMTK_SET_BAUD_9600</a>&#160;&#160;&#160;&quot;$PMTK251,9600*17&quot;</td></tr>
 <tr class="memdesc:a139bab811447a6f82469032f71343717"><td class="mdescLeft">&#160;</td><td class="mdescRight">9600 bps <br /></td></tr>
 <tr class="separator:a139bab811447a6f82469032f71343717"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8354e3e8bdca1ad8dd4b4e356e79a822"><td class="memItemLeft" align="right" valign="top"><a id="a8354e3e8bdca1ad8dd4b4e356e79a822"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a8354e3e8bdca1ad8dd4b4e356e79a822">PMTK_SET_NMEA_OUTPUT_GLLONLY</a>&#160;&#160;&#160;&quot;$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
-<tr class="memdesc:a8354e3e8bdca1ad8dd4b4e356e79a822"><td class="mdescLeft">&#160;</td><td class="mdescRight">turn on only the GPGLL sentence <br /></td></tr>
+<tr class="memitem:a8354e3e8bdca1ad8dd4b4e356e79a822"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a8354e3e8bdca1ad8dd4b4e356e79a822">PMTK_SET_NMEA_OUTPUT_GLLONLY</a>&#160;&#160;&#160;&quot;$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
+<tr class="memdesc:a8354e3e8bdca1ad8dd4b4e356e79a822"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPGLL sentence.  <a href="#a8354e3e8bdca1ad8dd4b4e356e79a822">More...</a><br /></td></tr>
 <tr class="separator:a8354e3e8bdca1ad8dd4b4e356e79a822"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c352344763c1ae0f1293dc15c51a824"><td class="memItemLeft" align="right" valign="top"><a id="a4c352344763c1ae0f1293dc15c51a824"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a4c352344763c1ae0f1293dc15c51a824">PMTK_SET_NMEA_OUTPUT_RMCONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
-<tr class="memdesc:a4c352344763c1ae0f1293dc15c51a824"><td class="mdescLeft">&#160;</td><td class="mdescRight">turn on only the GPRMC sentence <br /></td></tr>
+<tr class="memitem:a4c352344763c1ae0f1293dc15c51a824"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a4c352344763c1ae0f1293dc15c51a824">PMTK_SET_NMEA_OUTPUT_RMCONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
+<tr class="memdesc:a4c352344763c1ae0f1293dc15c51a824"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPRMC sentence.  <a href="#a4c352344763c1ae0f1293dc15c51a824">More...</a><br /></td></tr>
 <tr class="separator:a4c352344763c1ae0f1293dc15c51a824"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a211f1db5c03fa0a0e7d307920e04b335"><td class="memItemLeft" align="right" valign="top"><a id="a211f1db5c03fa0a0e7d307920e04b335"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a211f1db5c03fa0a0e7d307920e04b335">PMTK_SET_NMEA_OUTPUT_VTGONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
-<tr class="memdesc:a211f1db5c03fa0a0e7d307920e04b335"><td class="mdescLeft">&#160;</td><td class="mdescRight">turn on only the GPVTG <br /></td></tr>
+<tr class="memitem:a211f1db5c03fa0a0e7d307920e04b335"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a211f1db5c03fa0a0e7d307920e04b335">PMTK_SET_NMEA_OUTPUT_VTGONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
+<tr class="memdesc:a211f1db5c03fa0a0e7d307920e04b335"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPVTG.  <a href="#a211f1db5c03fa0a0e7d307920e04b335">More...</a><br /></td></tr>
 <tr class="separator:a211f1db5c03fa0a0e7d307920e04b335"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7bbd33aebbc2c55557ea9c1f1c8ef2f4"><td class="memItemLeft" align="right" valign="top"><a id="a7bbd33aebbc2c55557ea9c1f1c8ef2f4"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a7bbd33aebbc2c55557ea9c1f1c8ef2f4">PMTK_SET_NMEA_OUTPUT_GGAONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
-<tr class="memdesc:a7bbd33aebbc2c55557ea9c1f1c8ef2f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">turn on just the GPGGA <br /></td></tr>
+<tr class="memitem:a7bbd33aebbc2c55557ea9c1f1c8ef2f4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a7bbd33aebbc2c55557ea9c1f1c8ef2f4">PMTK_SET_NMEA_OUTPUT_GGAONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
+<tr class="memdesc:a7bbd33aebbc2c55557ea9c1f1c8ef2f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPGGA.  <a href="#a7bbd33aebbc2c55557ea9c1f1c8ef2f4">More...</a><br /></td></tr>
 <tr class="separator:a7bbd33aebbc2c55557ea9c1f1c8ef2f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a299d233ba1cfee1693132a63c1bc0d6c"><td class="memItemLeft" align="right" valign="top"><a id="a299d233ba1cfee1693132a63c1bc0d6c"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a299d233ba1cfee1693132a63c1bc0d6c">PMTK_SET_NMEA_OUTPUT_GSAONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
-<tr class="memdesc:a299d233ba1cfee1693132a63c1bc0d6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">turn on just the GPGSA <br /></td></tr>
+<tr class="memitem:a299d233ba1cfee1693132a63c1bc0d6c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a299d233ba1cfee1693132a63c1bc0d6c">PMTK_SET_NMEA_OUTPUT_GSAONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
+<tr class="memdesc:a299d233ba1cfee1693132a63c1bc0d6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPGSA.  <a href="#a299d233ba1cfee1693132a63c1bc0d6c">More...</a><br /></td></tr>
 <tr class="separator:a299d233ba1cfee1693132a63c1bc0d6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1ccddfffabbb66cf69872b728e1f69e"><td class="memItemLeft" align="right" valign="top"><a id="ab1ccddfffabbb66cf69872b728e1f69e"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#ab1ccddfffabbb66cf69872b728e1f69e">PMTK_SET_NMEA_OUTPUT_GSVONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
-<tr class="memdesc:ab1ccddfffabbb66cf69872b728e1f69e"><td class="mdescLeft">&#160;</td><td class="mdescRight">turn on just the GPGSV <br /></td></tr>
+<tr class="memitem:ab1ccddfffabbb66cf69872b728e1f69e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#ab1ccddfffabbb66cf69872b728e1f69e">PMTK_SET_NMEA_OUTPUT_GSVONLY</a>&#160;&#160;&#160;&quot;$PMTK314,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
+<tr class="memdesc:ab1ccddfffabbb66cf69872b728e1f69e"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPGSV.  <a href="#ab1ccddfffabbb66cf69872b728e1f69e">More...</a><br /></td></tr>
 <tr class="separator:ab1ccddfffabbb66cf69872b728e1f69e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af29abbfb3588c15b2b6cd6c8e96a34e9"><td class="memItemLeft" align="right" valign="top"><a id="af29abbfb3588c15b2b6cd6c8e96a34e9"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#af29abbfb3588c15b2b6cd6c8e96a34e9">PMTK_SET_NMEA_OUTPUT_RMCGGA</a>&#160;&#160;&#160;&quot;$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28&quot;</td></tr>
-<tr class="memdesc:af29abbfb3588c15b2b6cd6c8e96a34e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">turn on GPRMC and GPGGA <br /></td></tr>
+<tr class="memitem:af29abbfb3588c15b2b6cd6c8e96a34e9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#af29abbfb3588c15b2b6cd6c8e96a34e9">PMTK_SET_NMEA_OUTPUT_RMCGGA</a>&#160;&#160;&#160;&quot;$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28&quot;</td></tr>
+<tr class="memdesc:af29abbfb3588c15b2b6cd6c8e96a34e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPGGA.  <a href="#af29abbfb3588c15b2b6cd6c8e96a34e9">More...</a><br /></td></tr>
 <tr class="separator:af29abbfb3588c15b2b6cd6c8e96a34e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95ee80f53d11d05c6a593330679c89b2"><td class="memItemLeft" align="right" valign="top"><a id="a95ee80f53d11d05c6a593330679c89b2"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a95ee80f53d11d05c6a593330679c89b2">PMTK_SET_NMEA_OUTPUT_RMCGGAGSA</a>&#160;&#160;&#160;&quot;$PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
-<tr class="memdesc:a95ee80f53d11d05c6a593330679c89b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">turn on GPRMC, GPGGA and GPGSA <br /></td></tr>
+<tr class="memitem:a95ee80f53d11d05c6a593330679c89b2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#a95ee80f53d11d05c6a593330679c89b2">PMTK_SET_NMEA_OUTPUT_RMCGGAGSA</a>&#160;&#160;&#160;&quot;$PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td></tr>
+<tr class="memdesc:a95ee80f53d11d05c6a593330679c89b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">and GPGSA  <a href="#a95ee80f53d11d05c6a593330679c89b2">More...</a><br /></td></tr>
 <tr class="separator:a95ee80f53d11d05c6a593330679c89b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac31cfcc416ba69780e3894a559404914"><td class="memItemLeft" align="right" valign="top"><a id="ac31cfcc416ba69780e3894a559404914"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#ac31cfcc416ba69780e3894a559404914">PMTK_SET_NMEA_OUTPUT_ALLDATA</a>&#160;&#160;&#160;&quot;$PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28&quot;</td></tr>
@@ -227,9 +218,8 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#ac61d2228d947ef7e4999a21a99d4df2f">LOCUS_FULLSTOP</a>&#160;&#160;&#160;1</td></tr>
 <tr class="memdesc:ac61d2228d947ef7e4999a21a99d4df2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">If flash is full, logging will stop. <br /></td></tr>
 <tr class="separator:ac61d2228d947ef7e4999a21a99d4df2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af812234d17586abaa58c970c3186e047"><td class="memItemLeft" align="right" valign="top"><a id="af812234d17586abaa58c970c3186e047"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#af812234d17586abaa58c970c3186e047">PMTK_ENABLE_SBAS</a>&#160;&#160;&#160;&quot;$PMTK313,1*2E&quot;</td></tr>
-<tr class="memdesc:af812234d17586abaa58c970c3186e047"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable search for SBAS satellite (only works with 1Hz output rate) <br /></td></tr>
+<tr class="memitem:af812234d17586abaa58c970c3186e047"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#af812234d17586abaa58c970c3186e047">PMTK_ENABLE_SBAS</a>&#160;&#160;&#160;&quot;$PMTK313,1*2E&quot;</td></tr>
+<tr class="memdesc:af812234d17586abaa58c970c3186e047"><td class="mdescLeft">&#160;</td><td class="mdescRight">output rate)  <a href="#af812234d17586abaa58c970c3186e047">More...</a><br /></td></tr>
 <tr class="separator:af812234d17586abaa58c970c3186e047"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6a68543c991eb08e834186930c3f5b3"><td class="memItemLeft" align="right" valign="top"><a id="ad6a68543c991eb08e834186930c3f5b3"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___g_p_s_8h.html#ad6a68543c991eb08e834186930c3f5b3">PMTK_ENABLE_WAAS</a>&#160;&#160;&#160;&quot;$PMTK301,2*2E&quot;</td></tr>
@@ -286,6 +276,23 @@ Enumerations</h2></td></tr>
 <p>Adafruit invests time and resources providing this open source code, please support Adafruit and open-source hardware by purchasing products from Adafruit!</p>
 <p>Written by Limor Fried/Ladyada for Adafruit Industries. BSD license, check license.txt for more information All text above must be included in any redistribution </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a7d44b2886944eb862b51948f2acc8d23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d44b2886944eb862b51948f2acc8d23">&#9670;&nbsp;</a></span>USE_SW_SERIAL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define USE_SW_SERIAL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>software serial in the library </p>
+<p>comment this out if you don't want to include </p>
+
+</div>
+</div>
 <a id="a3ab791da4ee0f06f23113aeed47e80cf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3ab791da4ee0f06f23113aeed47e80cf">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_UPDATE_100_MILLIHERTZ</h2>
 
@@ -300,6 +307,159 @@ Enumerations</h2></td></tr>
 
 <p>Once every 10 seconds, 100 millihertz. </p>
 <p>Different commands to set the update rate from once a second (1 Hz) to 10 times a second (10Hz) Note that these only control the rate at which the position is echoed, to actually speed up the position fix you must also send one of the position fix rate commands below too. </p>
+
+</div>
+</div>
+<a id="a8354e3e8bdca1ad8dd4b4e356e79a822"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8354e3e8bdca1ad8dd4b4e356e79a822">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_OUTPUT_GLLONLY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_SET_NMEA_OUTPUT_GLLONLY&#160;&#160;&#160;&quot;$PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPGLL sentence. </p>
+<p>turn on only the </p>
+
+</div>
+</div>
+<a id="a4c352344763c1ae0f1293dc15c51a824"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c352344763c1ae0f1293dc15c51a824">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_OUTPUT_RMCONLY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_SET_NMEA_OUTPUT_RMCONLY&#160;&#160;&#160;&quot;$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPRMC sentence. </p>
+<p>turn on only the </p>
+
+</div>
+</div>
+<a id="a211f1db5c03fa0a0e7d307920e04b335"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a211f1db5c03fa0a0e7d307920e04b335">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_OUTPUT_VTGONLY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_SET_NMEA_OUTPUT_VTGONLY&#160;&#160;&#160;&quot;$PMTK314,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPVTG. </p>
+<p>turn on only the </p>
+
+</div>
+</div>
+<a id="a7bbd33aebbc2c55557ea9c1f1c8ef2f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bbd33aebbc2c55557ea9c1f1c8ef2f4">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_OUTPUT_GGAONLY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_SET_NMEA_OUTPUT_GGAONLY&#160;&#160;&#160;&quot;$PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPGGA. </p>
+<p>turn on just the </p>
+
+</div>
+</div>
+<a id="a299d233ba1cfee1693132a63c1bc0d6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a299d233ba1cfee1693132a63c1bc0d6c">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_OUTPUT_GSAONLY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_SET_NMEA_OUTPUT_GSAONLY&#160;&#160;&#160;&quot;$PMTK314,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPGSA. </p>
+<p>turn on just the </p>
+
+</div>
+</div>
+<a id="ab1ccddfffabbb66cf69872b728e1f69e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1ccddfffabbb66cf69872b728e1f69e">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_OUTPUT_GSVONLY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_SET_NMEA_OUTPUT_GSVONLY&#160;&#160;&#160;&quot;$PMTK314,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPGSV. </p>
+<p>turn on just the </p>
+
+</div>
+</div>
+<a id="af29abbfb3588c15b2b6cd6c8e96a34e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af29abbfb3588c15b2b6cd6c8e96a34e9">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_OUTPUT_RMCGGA</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_SET_NMEA_OUTPUT_RMCGGA&#160;&#160;&#160;&quot;$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPGGA. </p>
+<p>turn on GPRMC and </p>
+
+</div>
+</div>
+<a id="a95ee80f53d11d05c6a593330679c89b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95ee80f53d11d05c6a593330679c89b2">&#9670;&nbsp;</a></span>PMTK_SET_NMEA_OUTPUT_RMCGGAGSA</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_SET_NMEA_OUTPUT_RMCGGAGSA&#160;&#160;&#160;&quot;$PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>and GPGSA </p>
+<p>turn on GPRMC, GPGGA </p>
+
+</div>
+</div>
+<a id="af812234d17586abaa58c970c3186e047"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af812234d17586abaa58c970c3186e047">&#9670;&nbsp;</a></span>PMTK_ENABLE_SBAS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMTK_ENABLE_SBAS&#160;&#160;&#160;&quot;$PMTK313,1*2E&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>output rate) </p>
+<p>Enable search for SBAS satellite (only works with 1Hz </p>
 
 </div>
 </div>
