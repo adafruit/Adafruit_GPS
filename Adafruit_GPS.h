@@ -168,56 +168,56 @@ class Adafruit_GPS : public Print{
   char lastSource[NMEA_MAX_SOURCE_ID] = {0};        ///< the results of the check on the most recent successfully parsed sentence
   char lastSentence[NMEA_MAX_SENTENCE_ID] = {0};    ///< the next three letters of the most recent successfully parsed sentence, e.g. GLL, RMC
 
-  uint8_t hour;                                     ///< GMT hours
-  uint8_t minute;                                   ///< GMT minutes
-  uint8_t seconds;                                  ///< GMT seconds
-  uint16_t milliseconds;                            ///< GMT milliseconds
-  uint8_t year;                                     ///< GMT year
-  uint8_t month;                                    ///< GMT month
-  uint8_t day;                                      ///< GMT day
+  uint8_t hour = 0;                                 ///< GMT hours
+  uint8_t minute = 0;                               ///< GMT minutes
+  uint8_t seconds = 0;                              ///< GMT seconds
+  uint16_t milliseconds = 0;                        ///< GMT milliseconds
+  uint8_t year = 0;                                 ///< GMT year
+  uint8_t month = 0;                                ///< GMT month
+  uint8_t day = 0;                                  ///< GMT day
 
-  float latitude;   ///< Floating point latitude value in degrees/minutes as received from the GPS (DDMM.MMMM)
-  float longitude;  ///< Floating point longitude value in degrees/minutes as received from the GPS (DDDMM.MMMM)
+  float latitude = 0;   ///< Floating point latitude value in degrees/minutes as received from the GPS (DDMM.MMMM)
+  float longitude = 0;  ///< Floating point longitude value in degrees/minutes as received from the GPS (DDDMM.MMMM)
 
   /** Fixed point latitude and longitude value with degrees stored in units of 1/100000 degrees,
     and minutes stored in units of 1/100000 degrees.  See pull #13 for more details:
     https://github.com/adafruit/Adafruit-GPS-Library/pull/13 */
-  int32_t latitude_fixed;   ///< Fixed point latitude in decimal degrees
-  int32_t longitude_fixed;  ///< Fixed point longitude in decimal degrees
+  int32_t latitude_fixed = 0;   ///< Fixed point latitude in decimal degrees
+  int32_t longitude_fixed = 0;  ///< Fixed point longitude in decimal degrees
 
-  float latitudeDegrees;    ///< Latitude in decimal degrees
-  float longitudeDegrees;   ///< Longitude in decimal degrees
-  float geoidheight;        ///< Diff between geoid height and WGS84 height
-  float altitude;           ///< Altitude in meters above MSL
-  float speed;              ///< Current speed over ground in knots
-  float angle;              ///< Course in degrees from true north
-  float magvariation;       ///< Magnetic variation in degrees (vs. true north)
-  float HDOP;               ///< Horizontal Dilution of Precision - relative accuracy of horizontal position
-  float VDOP;               ///< Vertical Dilution of Precision - relative accuracy of vertical position
-  float PDOP;               ///< Position Dilution of Precision - Complex maths derives a simple, single number for each kind of DOP
-  char lat;                 ///< N/S
-  char lon;                 ///< E/W
-  char mag;                 ///< Magnetic variation direction
-  boolean fix;              ///< Have a fix?
-  uint8_t fixquality;       ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
-  uint8_t fixquality_3d;    ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
-  uint8_t satellites;       ///< Number of satellites in use
+  float latitudeDegrees = 0;    ///< Latitude in decimal degrees
+  float longitudeDegrees = 0;   ///< Longitude in decimal degrees
+  float geoidheight = 0;        ///< Diff between geoid height and WGS84 height
+  float altitude = 0;           ///< Altitude in meters above MSL
+  float speed = 0;              ///< Current speed over ground in knots
+  float angle = 0;              ///< Course in degrees from true north
+  float magvariation = 0;       ///< Magnetic variation in degrees (vs. true north)
+  float HDOP = 0;               ///< Horizontal Dilution of Precision - relative accuracy of horizontal position
+  float VDOP = 0;               ///< Vertical Dilution of Precision - relative accuracy of vertical position
+  float PDOP = 0;               ///< Position Dilution of Precision - Complex maths derives a simple, single number for each kind of DOP
+  char lat = 'X';               ///< N/S
+  char lon = 'X';               ///< E/W
+  char mag = 'X';               ///< Magnetic variation direction
+  boolean fix = false;          ///< Have a fix?
+  uint8_t fixquality = 0;       ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
+  uint8_t fixquality_3d = 0;    ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
+  uint8_t satellites = 0;       ///< Number of satellites in use
 
   boolean waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE, boolean usingInterrupts = false);
   boolean LOCUS_StartLogger(void);
   boolean LOCUS_StopLogger(void);
   boolean LOCUS_ReadStatus(void);
 
-  uint16_t LOCUS_serial;    ///< Log serial number
-  uint16_t LOCUS_records;   ///< Log number of data record
-  uint8_t LOCUS_type;       ///< Log type, 0: Overlap, 1: FullStop
-  uint8_t LOCUS_mode;       ///< Logging mode, 0x08 interval logger
-  uint8_t LOCUS_config;     ///< Contents of configuration
-  uint8_t LOCUS_interval;   ///< Interval setting
-  uint8_t LOCUS_distance;   ///< Distance setting
-  uint8_t LOCUS_speed;      ///< Speed setting
-  uint8_t LOCUS_status;     ///< 0: Logging, 1: Stop logging
-  uint8_t LOCUS_percent;    ///< Log life used percentage
+  uint16_t LOCUS_serial = 0;    ///< Log serial number
+  uint16_t LOCUS_records = 0;   ///< Log number of data record
+  uint8_t LOCUS_type = 0;       ///< Log type, 0: Overlap, 1: FullStop
+  uint8_t LOCUS_mode = 0;       ///< Logging mode, 0x08 interval logger
+  uint8_t LOCUS_config = 0;     ///< Contents of configuration
+  uint8_t LOCUS_interval = 0;   ///< Interval setting
+  uint8_t LOCUS_distance = 0;   ///< Distance setting
+  uint8_t LOCUS_speed = 0;      ///< Speed setting
+  uint8_t LOCUS_status = 0;     ///< 0: Logging, 1: Stop logging
+  uint8_t LOCUS_percent = 0;    ///< Log life used percentage
 
 #ifdef NMEA_EXTENSIONS
   // NMEA additional public functions
@@ -225,10 +225,10 @@ class Adafruit_GPS : public Print{
   void resetSentTime();
   
   // NMEA additional public variables
-  char txtTXT[63] = {0};                  ///< text content from most recent TXT sentence
-  int txtTot = 0;                         ///< total TXT sentences in group
-  int txtID = 0;                          ///< id of the text message
-  int txtN = 0;                           ///< the TXT sentence number
+  char txtTXT[63] = {0};        ///< text content from most recent TXT sentence
+  int txtTot = 0;               ///< total TXT sentences in group
+  int txtID = 0;                ///< id of the text message
+  int txtN = 0;                 ///< the TXT sentence number
 #endif    // NMEA_EXTENSIONS
 
  private:
@@ -254,30 +254,30 @@ class Adafruit_GPS : public Print{
   uint32_t lastDate = 2000000000L;    ///< millis() when last date received
   uint32_t recvdTime = 2000000000L;   ///< millis() when last full sentence received
   uint32_t sentTime = 2000000000L;    ///< millis() when first character of last full sentence received
-  boolean paused;
+  boolean paused = false;
 
   uint8_t parseResponse(char *response);
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-  SoftwareSerial *gpsSwSerial;
+  SoftwareSerial *gpsSwSerial = NULL;
 #endif
-  HardwareSerial *gpsHwSerial;
-  TwoWire *gpsI2C;
-  SPIClass *gpsSPI;
+  HardwareSerial *gpsHwSerial = NULL;
+  TwoWire *gpsI2C = NULL;
+  SPIClass *gpsSPI = NULL;
   int8_t gpsSPI_cs = -1;
   SPISettings gpsSPI_settings = SPISettings(1000000, MSBFIRST, SPI_MODE0); // default
-  char _spibuffer[GPS_MAX_SPI_TRANSFER]; // for when we write data, we need to read it too!
-  uint8_t _i2caddr;
-  char _i2cbuffer[GPS_MAX_I2C_TRANSFER];
+  char _spibuffer[GPS_MAX_SPI_TRANSFER] = {0}; // for when we write data, we need to read it too!
+  uint8_t _i2caddr = 0;
+  char _i2cbuffer[GPS_MAX_I2C_TRANSFER] = {0};
   int8_t _buff_max = -1, _buff_idx = 0;
   char last_char = 0;
   
-  volatile char line1[MAXLINELENGTH]; ///< We double buffer: read one line in and leave one for the main program
-  volatile char line2[MAXLINELENGTH]; ///< Second buffer
-  volatile uint8_t lineidx=0;         ///< our index into filling the current line
-  volatile char *currentline;         ///< Pointer to current line buffer
-  volatile char *lastline;            ///< Pointer to previous line buffer
-  volatile boolean recvdflag;         ///< Received flag
-  volatile boolean inStandbyMode;     ///< In standby flag
+  volatile char line1[MAXLINELENGTH] = {0}; ///< We double buffer: read one line in and leave one for the main program
+  volatile char line2[MAXLINELENGTH] = {0}; ///< Second buffer
+  volatile uint8_t lineidx=0;               ///< our index into filling the current line
+  volatile char *currentline = NULL;        ///< Pointer to current line buffer
+  volatile char *lastline = NULL;           ///< Pointer to previous line buffer
+  volatile boolean recvdflag = false;       ///< Received flag
+  volatile boolean inStandbyMode = false;   ///< In standby flag
 };
 /**************************************************************************/
 
