@@ -28,11 +28,11 @@
 
 /**************************************************************************/
 /**
- Comment out the definition of NMEA_EXTENSIONS to make the library use as 
- little memory as possible for GPS functionality only. The ARDUINO_ARCH_AVR 
+ Comment out the definition of NMEA_EXTENSIONS to make the library use as
+ little memory as possible for GPS functionality only. The ARDUINO_ARCH_AVR
  test should leave it out of any compilations for the UNO and similar. */
 #ifndef ARDUINO_ARCH_AVR
-#define NMEA_EXTENSIONS    ///< if defined will include more NMEA sentences
+#define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
 #endif
 
 #define USE_SW_SERIAL ///< comment this out if you don't want to include
@@ -235,16 +235,16 @@ public:
   float speed;            ///< Current speed over ground in knots
   float angle;            ///< Course in degrees from true north
   float magvariation;     ///< Magnetic variation in degrees (vs. true north)
-  float HDOP;  ///< Horizontal Dilution of Precision - relative accuracy of
-               ///< horizontal position
-  float VDOP;  ///< Vertical Dilution of Precision - relative accuracy of
-               ///< vertical position
-  float PDOP;  ///< Position Dilution of Precision - Complex maths derives a
-               ///< simple, single number for each kind of DOP
-  char lat = 'X';    ///< N/S
-  char lon = 'X';    ///< E/W
-  char mag = 'X';    ///< Magnetic variation direction
-  boolean fix; ///< Have a fix?
+  float HDOP;     ///< Horizontal Dilution of Precision - relative accuracy of
+                  ///< horizontal position
+  float VDOP;     ///< Vertical Dilution of Precision - relative accuracy of
+                  ///< vertical position
+  float PDOP;     ///< Position Dilution of Precision - Complex maths derives a
+                  ///< simple, single number for each kind of DOP
+  char lat = 'X'; ///< N/S
+  char lon = 'X'; ///< E/W
+  char mag = 'X'; ///< Magnetic variation direction
+  boolean fix;    ///< Have a fix?
   uint8_t fixquality;    ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
   uint8_t fixquality_3d; ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;    ///< Number of satellites in use
@@ -268,20 +268,21 @@ public:
 
 #ifdef NMEA_EXTENSIONS
   // NMEA additional public functions
-  char * build(char *nmea, const char *thisSource, const char *thisSentence, char ref = 'R');
+  char *build(char *nmea, const char *thisSource, const char *thisSentence,
+              char ref = 'R');
   void resetSentTime();
-  
+
   // NMEA additional public variables
-  char txtTXT[63] = {0};        ///< text content from most recent TXT sentence
-  int txtTot = 0;               ///< total TXT sentences in group
-  int txtID = 0;                ///< id of the text message
-  int txtN = 0;                 ///< the TXT sentence number
-#endif    // NMEA_EXTENSIONS
+  char txtTXT[63] = {0}; ///< text content from most recent TXT sentence
+  int txtTot = 0;        ///< total TXT sentences in group
+  int txtID = 0;         ///< id of the text message
+  int txtN = 0;          ///< the TXT sentence number
+#endif                   // NMEA_EXTENSIONS
 
 private:
   const char *tokenOnList(char *token, const char **list);
-  char * parseStr(char * buff, char *p, int n);
-  bool isEmpty(char *pStart);  
+  char *parseStr(char *buff, char *p, int n);
+  bool isEmpty(char *pStart);
   void parseTime(char *);
   void parseLat(char *);
   boolean parseLatDir(char *);
