@@ -5,6 +5,9 @@
 // received. This approach lets you keep an up to date clock based on GPS time at 
 // any time in between GPS fixes.
 //
+// It also shows how to take advantage of the build() function to generate test sentences.
+// The additional code is within #ifdef NMEA_EXTENSIONS and #endif tags.
+//
 // This code shows how to listen to the GPS module via polling. Best used with
 // Feathers or Flora where you have hardware Serial and no interrupt
 //
@@ -26,6 +29,13 @@
 
 // Connect to the GPS on the hardware port
 Adafruit_GPS GPS(&GPSSerial);
+
+#ifdef NMEA_EXTENSIONS
+// Create another GPS object to hold the state of the boat, with no communications, 
+// so don't call Boat.begin() in setup.
+// We will build some fake sentences from the Boat data to feed to GPS for testing.
+Adafruit_GPS Boat(&GPSSerial);
+#endif
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
 // Set to 'true' if you want to debug and listen to the raw GPS sentences
@@ -119,9 +129,9 @@ void loop() // run over and over again
     Serial.println(s, 3);
     Serial.print("Fix: "); Serial.print((int)GPS.fix);
     Serial.print(" quality: "); Serial.println((int)GPS.fixquality);
-    Serial.print("Times [s] since last fix: "); Serial.print(GPS.secondsSinceFix(),3); 
-    Serial.print(",  GPS time: "); Serial.print(GPS.secondsSinceTime(),3); 
-    Serial.print(",  GPS date: "); Serial.println(GPS.secondsSinceDate(),3); 
+    Serial.print("Time [s] since last fix: "); Serial.println(GPS.secondsSinceFix(),3); 
+    Serial.print("    since last GPS time: "); Serial.println(GPS.secondsSinceTime(),3); 
+    Serial.print("    since last GPS date: "); Serial.println(GPS.secondsSinceDate(),3); 
     if (GPS.fix) {
       Serial.print("Location: ");
       Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
@@ -132,5 +142,36 @@ void loop() // run over and over again
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     }
+#ifdef NMEA_EXTENSIONS
+    char latestBoat[200] = "";
+    updateBoat();                                 //create some test data in Boat
+    Boat.build(latestBoat,"GN","RMC");            //make a sentence from Boat data
+    Serial.print("\nbuild() test output -->");    //
+    Serial.print(latestBoat);                     //
+    GPS.resetSentTime();                          //make timing look like it came in on GPS
+    GPS.parse(latestBoat);                        //parse the test data and store in GPS
+#endif
   }
 }
+
+#ifdef NMEA_EXTENSIONS
+void updateBoat(){  //fill up the boat values with some test data to use in build()
+  double t = millis() / 1000.;
+  double theta = t / 100.;             //slow
+  double gamma = theta * 10;           //faster
+  Boat.latitude = 4400 + sin(theta)*60;
+  Boat.lat = 'N';
+  Boat.longitude = 7600 + cos(theta)*60;
+  Boat.lon = 'W';
+  Boat.fixquality = 2;
+  Boat.speed = 3 + sin(gamma);
+  Boat.hour = abs(cos(theta)) * 24;
+  Boat.minute = 30 + sin(theta/2) * 30;
+  Boat.seconds = 30 + sin(gamma) * 30;
+  Boat.milliseconds = 500+ sin(gamma) * 500;
+  Boat.year = 1+abs(sin(theta)) * 25;
+  Boat.month = 1+abs(sin(gamma)) * 11;
+  Boat.day = 1+ abs(sin(gamma)) * 26;
+  Boat.satellites = abs(cos(gamma)) * 10;
+}
+#endif
