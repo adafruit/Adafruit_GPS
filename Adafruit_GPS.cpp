@@ -205,10 +205,8 @@ boolean Adafruit_GPS::parse(char *nmea) {
     }
   }
 
-#ifdef NMEA_EXTENSIONS //********************************************Sentences
-                       //not required for basic GPS functionality
-  else if (!strcmp(thisSentence,
-                   "TXT")) { //********************************************TXT
+#ifdef NMEA_EXTENSIONS // Sentences not required for basic GPS functionality
+  else if (!strcmp(thisSentence,"TXT")) { //*******************************TXT
     if (!isEmpty(p))
       txtTot = atoi(p);
     p = strchr(p, ',') + 1;
