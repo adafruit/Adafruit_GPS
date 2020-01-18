@@ -26,6 +26,15 @@
 #ifndef _ADAFRUIT_GPS_H
 #define _ADAFRUIT_GPS_H
 
+/**************************************************************************/
+/**
+ Comment out the definition of NMEA_EXTENSIONS to make the library use as 
+ little memory as possible for GPS functionality only. The ARDUINO_ARCH_AVR 
+ test should leave it out of any compilations for the UNO and similar. */
+#ifndef ARDUINO_ARCH_AVR
+#define NMEA_EXTENSIONS    ///< if defined will include more NMEA sentences
+#endif
+
 #define USE_SW_SERIAL ///< comment this out if you don't want to include
                       ///< software serial in the library
 #define GPS_DEFAULT_I2C_ADDR                                                   \
@@ -232,9 +241,9 @@ public:
                ///< vertical position
   float PDOP;  ///< Position Dilution of Precision - Complex maths derives a
                ///< simple, single number for each kind of DOP
-  char lat;    ///< N/S
-  char lon;    ///< E/W
-  char mag;    ///< Magnetic variation direction
+  char lat = 'X';    ///< N/S
+  char lon = 'X';    ///< E/W
+  char mag = 'X';    ///< Magnetic variation direction
   boolean fix; ///< Have a fix?
   uint8_t fixquality;    ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
   uint8_t fixquality_3d; ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
@@ -257,8 +266,22 @@ public:
   uint8_t LOCUS_status;   ///< 0: Logging, 1: Stop logging
   uint8_t LOCUS_percent;  ///< Log life used percentage
 
+#ifdef NMEA_EXTENSIONS
+  // NMEA additional public functions
+  char * build(char *nmea, const char *thisSource, const char *thisSentence, char ref = 'R');
+  void resetSentTime();
+  
+  // NMEA additional public variables
+  char txtTXT[63] = {0};        ///< text content from most recent TXT sentence
+  int txtTot = 0;               ///< total TXT sentences in group
+  int txtID = 0;                ///< id of the text message
+  int txtN = 0;                 ///< the TXT sentence number
+#endif    // NMEA_EXTENSIONS
+
 private:
   const char *tokenOnList(char *token, const char **list);
+  char * parseStr(char * buff, char *p, int n);
+  bool isEmpty(char *pStart);  
   void parseTime(char *);
   void parseLat(char *);
   boolean parseLatDir(char *);
