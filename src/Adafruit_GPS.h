@@ -85,12 +85,12 @@ public:
   Adafruit_GPS(SPIClass *theSPI, int8_t cspin); // Constructor when using SPI
 
   char *lastNMEA(void);
-  boolean newNMEAreceived();
+  bool newNMEAreceived();
   void common_init(void);
 
   void sendCommand(const char *);
 
-  void pause(boolean b);
+  void pause(bool b);
 
   uint8_t parseHex(char c);
 
@@ -98,16 +98,16 @@ public:
   size_t write(uint8_t);
   size_t available(void);
 
-  boolean check(char *nmea);
-  boolean parse(char *);
+  bool check(char *nmea);
+  bool parse(char *);
   void addChecksum(char *buff);
   nmea_float_t secondsSinceFix();
   nmea_float_t secondsSinceTime();
   nmea_float_t secondsSinceDate();
   void resetSentTime();
 
-  boolean wakeup(void);
-  boolean standby(void);
+  bool wakeup(void);
+  bool standby(void);
 
   int thisCheck = 0; ///< the results of the check on the current sentence
   char thisSource[NMEA_MAX_SOURCE_ID] = {
@@ -157,16 +157,16 @@ public:
   char lat = 'X';    ///< N/S
   char lon = 'X';    ///< E/W
   char mag = 'X';    ///< Magnetic variation direction
-  boolean fix;       ///< Have a fix?
+  bool fix;          ///< Have a fix?
   uint8_t fixquality;    ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
   uint8_t fixquality_3d; ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;    ///< Number of satellites in use
 
-  boolean waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
-                          boolean usingInterrupts = false);
-  boolean LOCUS_StartLogger(void);
-  boolean LOCUS_StopLogger(void);
-  boolean LOCUS_ReadStatus(void);
+  bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
+                       bool usingInterrupts = false);
+  bool LOCUS_StartLogger(void);
+  bool LOCUS_StopLogger(void);
+  bool LOCUS_ReadStatus(void);
 
   uint16_t LOCUS_serial;  ///< Log serial number
   uint16_t LOCUS_records; ///< Log number of data record
@@ -197,10 +197,10 @@ private:
   bool isEmpty(char *pStart);
   void parseTime(char *);
   void parseLat(char *);
-  boolean parseLatDir(char *);
+  bool parseLatDir(char *);
   void parseLon(char *);
-  boolean parseLonDir(char *);
-  boolean parseFix(char *);
+  bool parseLonDir(char *);
+  bool parseFix(char *);
   // used by check() for validity tests, room for future expansion
   const char *sources[5] = {"II", "WI", "GP", "GN",
                             "ZZZ"}; ///< valid source ids
@@ -220,7 +220,7 @@ private:
       2000000000L; ///< millis() when last full sentence received
   uint32_t sentTime = 2000000000L; ///< millis() when first character of last
                                    ///< full sentence received
-  boolean paused;
+  bool paused;
 
   uint8_t parseResponse(char *response);
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
@@ -242,11 +242,11 @@ private:
   volatile char line1[MAXLINELENGTH]; ///< We double buffer: read one line in
                                       ///< and leave one for the main program
   volatile char line2[MAXLINELENGTH]; ///< Second buffer
-  volatile uint8_t lineidx = 0;   ///< our index into filling the current line
-  volatile char *currentline;     ///< Pointer to current line buffer
-  volatile char *lastline;        ///< Pointer to previous line buffer
-  volatile boolean recvdflag;     ///< Received flag
-  volatile boolean inStandbyMode; ///< In standby flag
+  volatile uint8_t lineidx = 0; ///< our index into filling the current line
+  volatile char *currentline;   ///< Pointer to current line buffer
+  volatile char *lastline;      ///< Pointer to previous line buffer
+  volatile bool recvdflag;      ///< Received flag
+  volatile bool inStandbyMode;  ///< In standby flag
 };
 /**************************************************************************/
 

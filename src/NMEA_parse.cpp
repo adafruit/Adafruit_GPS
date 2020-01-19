@@ -38,7 +38,7 @@
    data
 */
 /**************************************************************************/
-boolean Adafruit_GPS::parse(char *nmea) {
+bool Adafruit_GPS::parse(char *nmea) {
   // do checksum check
   if (!check(nmea))
     return false;
