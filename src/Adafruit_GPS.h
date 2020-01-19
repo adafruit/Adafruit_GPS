@@ -101,9 +101,9 @@ public:
   boolean check(char *nmea);
   boolean parse(char *);
   void addChecksum(char *buff);
-  float secondsSinceFix();
-  float secondsSinceTime();
-  float secondsSinceDate();
+  nmea_float_t secondsSinceFix();
+  nmea_float_t secondsSinceTime();
+  nmea_float_t secondsSinceDate();
   void resetSentTime();
   
   boolean wakeup(void);
@@ -129,9 +129,9 @@ public:
   uint8_t month;         ///< GMT month
   uint8_t day;           ///< GMT day
 
-  float latitude;  ///< Floating point latitude value in degrees/minutes as
+  nmea_float_t latitude;  ///< Floating point latitude value in degrees/minutes as
                    ///< received from the GPS (DDMM.MMMM)
-  float longitude; ///< Floating point longitude value in degrees/minutes as
+  nmea_float_t longitude; ///< Floating point longitude value in degrees/minutes as
                    ///< received from the GPS (DDDMM.MMMM)
 
   /** Fixed point latitude and longitude value with degrees stored in units of
@@ -141,18 +141,18 @@ public:
   int32_t latitude_fixed;  ///< Fixed point latitude in decimal degrees
   int32_t longitude_fixed; ///< Fixed point longitude in decimal degrees
 
-  float latitudeDegrees;  ///< Latitude in decimal degrees
-  float longitudeDegrees; ///< Longitude in decimal degrees
-  float geoidheight;      ///< Diff between geoid height and WGS84 height
-  float altitude;         ///< Altitude in meters above MSL
-  float speed;            ///< Current speed over ground in knots
-  float angle;            ///< Course in degrees from true north
-  float magvariation;     ///< Magnetic variation in degrees (vs. true north)
-  float HDOP;     ///< Horizontal Dilution of Precision - relative accuracy of
+  nmea_float_t latitudeDegrees;  ///< Latitude in decimal degrees
+  nmea_float_t longitudeDegrees; ///< Longitude in decimal degrees
+  nmea_float_t geoidheight;      ///< Diff between geoid height and WGS84 height
+  nmea_float_t altitude;         ///< Altitude in meters above MSL
+  nmea_float_t speed;            ///< Current speed over ground in knots
+  nmea_float_t angle;            ///< Course in degrees from true north
+  nmea_float_t magvariation;     ///< Magnetic variation in degrees (vs. true north)
+  nmea_float_t HDOP;     ///< Horizontal Dilution of Precision - relative accuracy of
                   ///< horizontal position
-  float VDOP;     ///< Vertical Dilution of Precision - relative accuracy of
+  nmea_float_t VDOP;     ///< Vertical Dilution of Precision - relative accuracy of
                   ///< vertical position
-  float PDOP;     ///< Position Dilution of Precision - Complex maths derives a
+  nmea_float_t PDOP;     ///< Position Dilution of Precision - Complex maths derives a
                   ///< simple, single number for each kind of DOP
   char lat = 'X'; ///< N/S
   char lon = 'X'; ///< E/W

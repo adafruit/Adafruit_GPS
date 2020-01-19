@@ -320,28 +320,28 @@ boolean Adafruit_GPS::parseFix(char *p) {
 /*!
     @brief Time in seconds since the last position fix was obtained. Will
     fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return float value in seconds since last fix.
+    @return nmea_float_t value in seconds since last fix.
 */
 /**************************************************************************/
-float Adafruit_GPS::secondsSinceFix() { return (millis() - lastFix) / 1000.; }
+nmea_float_t Adafruit_GPS::secondsSinceFix() { return (millis() - lastFix) / 1000.; }
 
 /**************************************************************************/
 /*!
     @brief Time in seconds since the last GPS time was obtained. Will fail
     by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return float value in seconds since last GPS time.
+    @return nmea_float_t value in seconds since last GPS time.
 */
 /**************************************************************************/
-float Adafruit_GPS::secondsSinceTime() { return (millis() - lastTime) / 1000.; }
+nmea_float_t Adafruit_GPS::secondsSinceTime() { return (millis() - lastTime) / 1000.; }
 
 /**************************************************************************/
 /*!
     @brief Time in seconds since the last GPS date was obtained. Will fail
     by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return float value in seconds since last GPS date.
+    @return nmea_float_t value in seconds since last GPS date.
 */
 /**************************************************************************/
-float Adafruit_GPS::secondsSinceDate() { return (millis() - lastDate) / 1000.; }
+nmea_float_t Adafruit_GPS::secondsSinceDate() { return (millis() - lastDate) / 1000.; }
 
 /**************************************************************************/
 /*!
@@ -598,7 +598,7 @@ void Adafruit_GPS::common_init(void) {
   fix = false;         // boolean
   milliseconds = 0;    // uint16_t
   latitude = longitude = geoidheight = altitude = speed = angle = magvariation =
-      HDOP = VDOP = PDOP = 0.0; // float
+      HDOP = VDOP = PDOP = 0.0; // nmea_float_t
 }
 
 /**************************************************************************/
