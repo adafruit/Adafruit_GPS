@@ -53,8 +53,8 @@
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
 #include <SoftwareSerial.h>
 #endif
-#include <NMEA_data.h>
 #include <Adafruit_PMTK.h>
+#include <NMEA_data.h>
 #include <SPI.h>
 #include <Wire.h>
 
@@ -130,9 +130,9 @@ public:
   uint8_t day;           ///< GMT day
 
   nmea_float_t latitude;  ///< Floating point latitude value in degrees/minutes
-                   ///< as received from the GPS (DDMM.MMMM)
+                          ///< as received from the GPS (DDMM.MMMM)
   nmea_float_t longitude; ///< Floating point longitude value in degrees/minutes
-                   ///< as received from the GPS (DDDMM.MMMM)
+                          ///< as received from the GPS (DDDMM.MMMM)
 
   /** Fixed point latitude and longitude value with degrees stored in units of
     1/100000 degrees, and minutes stored in units of 1/100000 degrees.  See pull
@@ -154,10 +154,10 @@ public:
                      ///< of vertical position
   nmea_float_t PDOP; ///< Position Dilution of Precision - Complex maths derives
                      ///< a simple, single number for each kind of DOP
-  char lat = 'X';        ///< N/S
-  char lon = 'X';        ///< E/W
-  char mag = 'X';        ///< Magnetic variation direction
-  boolean fix;           ///< Have a fix?
+  char lat = 'X';    ///< N/S
+  char lon = 'X';    ///< E/W
+  char mag = 'X';    ///< Magnetic variation direction
+  boolean fix;       ///< Have a fix?
   uint8_t fixquality;    ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
   uint8_t fixquality_3d; ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;    ///< Number of satellites in use
