@@ -108,8 +108,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 15) Checksum
     sprintf(p, "%09.2f,%09.4f,%c,%010.4f,%c,%d,%02d,%f,%f,M,%f,M,,",
             hour * 10000L + minute * 100L + seconds + milliseconds / 1000.,
-            latitude, lat, longitude, lon, fixquality, satellites, HDOP,
-            altitude, geoidheight);
+            (double)latitude, lat, (double)longitude, lon, fixquality,
+            satellites, (double)HDOP, (double)altitude, (double)geoidheight);
 
   } else if (!strcmp(thisSentence,
                      "GLL")) { //********************************************GLL
@@ -124,7 +124,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 5) Time (UTC)
     // 6) Status A - Data Valid, V - Data Invalid
     // 7) Checksum
-    sprintf(p, "%09.4f,%c,%010.4f,%c,%09.2f,A", latitude, lat, longitude, lon,
+    sprintf(p, "%09.4f,%c,%010.4f,%c,%09.2f,A", (double)latitude, lat,
+            (double)longitude, lon,
             hour * 10000L + minute * 100L + seconds + milliseconds / 1000.);
 
   } else if (!strcmp(thisSentence,
@@ -166,8 +167,9 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 12) Checksum
     sprintf(p, "%09.2f,A,%09.4f,%c,%010.4f,%c,%f,%f,%06d,%f,%c",
             hour * 10000L + minute * 100L + seconds + milliseconds / 1000.,
-            latitude, lat, longitude, lon, speed, angle,
-            day * 10000 + month * 100 + year, magvariation, mag);
+            (double)latitude, lat, (double)longitude, lon, (double)speed,
+            (double)angle, day * 10000 + month * 100 + year,
+            (double)magvariation, mag);
 
   } else if (!strcmp(thisSentence,
                      "TXT")) { //********************************************TXT

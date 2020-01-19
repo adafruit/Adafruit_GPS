@@ -218,7 +218,7 @@ void Adafruit_GPS::parseLat(char *p) {
     long minutes = 50 * atol(degreebuff) / 3;
     latitude_fixed = degree + minutes;
     latitude = degree / 100000 + minutes * 0.000006F;
-    latitudeDegrees = (latitude - 100 * int(latitude / 100)) / 60.0;
+    latitudeDegrees = (latitude - 100 * int(latitude / 100)) / 60.0f;
     latitudeDegrees += int(latitude / 100);
   }
 }
@@ -233,7 +233,7 @@ void Adafruit_GPS::parseLat(char *p) {
 bool Adafruit_GPS::parseLatDir(char *p) {
   if (p[0] == 'S') {
     lat = 'S';
-    latitudeDegrees *= -1.0;
+    latitudeDegrees *= -1.0f;
     latitude_fixed *= -1;
   } else if (p[0] == 'N') {
     lat = 'N';
@@ -267,7 +267,7 @@ void Adafruit_GPS::parseLon(char *p) {
     minutes = 50 * atol(degreebuff) / 3;
     longitude_fixed = degree + minutes;
     longitude = degree / 100000 + minutes * 0.000006F;
-    longitudeDegrees = (longitude - 100 * int(longitude / 100)) / 60.0;
+    longitudeDegrees = (longitude - 100 * int(longitude / 100)) / 60.0f;
     longitudeDegrees += int(longitude / 100);
   }
 }
@@ -283,7 +283,7 @@ bool Adafruit_GPS::parseLonDir(char *p) {
   if (!isEmpty(p)) {
     if (p[0] == 'W') {
       lon = 'W';
-      longitudeDegrees *= -1.0;
+      longitudeDegrees *= -1.0f;
       longitude_fixed *= -1;
     } else if (p[0] == 'E') {
       lon = 'E';
