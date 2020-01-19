@@ -14,7 +14,7 @@
 #define NMEA_MAX_SOURCE_ID                                                     \
   3 ///< maximum length of a source ID name, including terminating 0
 
-/************************************************************************* 
+/*************************************************************************
   doubles and floats are identical on AVR processors like the UNO where space
   is tight. doubles avoid the roundoff errors that led to the fixed point mods
   in https://github.com/adafruit/Adafruit-GPS-Library/pull/13, provided the
@@ -40,18 +40,18 @@ typedef double
   can be converted back to an approximate float value with
   X = I / scale + offset
 
-  Only some tags have history in order to save memory. Most of the memory 
+  Only some tags have history in order to save memory. Most of the memory
   cost is directly in the array.
 
   192 history values taken every 20 seconds covers just over an hour.
  **************************************************************************/
 typedef struct {
-  int16_t *data = NULL;           ///< array of ints, oldest first
-  unsigned n = 0;                 ///< number of history array elements
-  uint32_t lastHistory = 0;       ///< millis() when history was last updated
-  uint16_t historyInterval = 20;  ///< seconds between history updates
-  nmea_float_t scale = 1.0;       ///< history = (smoothed - offset) * scale
-  nmea_float_t offset = 0.0;      ///< value = (float) history / scale + offset
+  int16_t *data = NULL;          ///< array of ints, oldest first
+  unsigned n = 0;                ///< number of history array elements
+  uint32_t lastHistory = 0;      ///< millis() when history was last updated
+  uint16_t historyInterval = 20; ///< seconds between history updates
+  nmea_float_t scale = 1.0;      ///< history = (smoothed - offset) * scale
+  nmea_float_t offset = 0.0;     ///< value = (float) history / scale + offset
 } nmea_history_t;
 
 /**************************************************************************/
@@ -85,7 +85,7 @@ typedef enum {
 /**************************************************************************/
 /*!
     Struct to contain all the details associated with an NMEA data value that
-    can be tracked through time to see how it changes, carries a label, units, 
+    can be tracked through time to see how it changes, carries a label, units,
     and a format string to determine how it is displayed. Memory footprint
     of about 32 bytes per data value, so not tenable in small memory spaces.
 */
@@ -93,18 +93,16 @@ typedef enum {
 typedef struct {
   nmea_float_t latest = 0.0; ///< the most recently obtained value
   nmea_float_t smoothed =
-      0.0; ///< smoothed value based on weight of dt/response
-  uint32_t lastUpdate = 0; ///< millis() when latest was last set
-  uint16_t response =
-      1000; ///< time constant in millis for smoothing
+      0.0;                  ///< smoothed value based on weight of dt/response
+  uint32_t lastUpdate = 0;  ///< millis() when latest was last set
+  uint16_t response = 1000; ///< time constant in millis for smoothing
   nmea_value_type_t type =
       NMEA_SIMPLE_FLOAT; ///< type of float data value represented
-  byte ockam =
-      0; ///< the corresponding Ockam Instruments tag number, 0-128
+  byte ockam = 0; ///< the corresponding Ockam Instruments tag number, 0-128
   nmea_history_t *hist = NULL; ///< pointer to history, if any
-  char *label = NULL; ///< pointer to quantity label, if any
-  char *unit = NULL;  ///< pointer to units label, if any
-  char *fmt = NULL;   ///< pointer to format string, if any
+  char *label = NULL;          ///< pointer to quantity label, if any
+  char *unit = NULL;           ///< pointer to units label, if any
+  char *fmt = NULL;            ///< pointer to format string, if any
 } nmea_datavalue_t;
 
 /**************************************************************************/

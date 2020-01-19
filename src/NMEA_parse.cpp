@@ -229,4 +229,3 @@ boolean Adafruit_GPS::parse(char *nmea) {
   lastUpdate = millis();
   return true;
 }
-
