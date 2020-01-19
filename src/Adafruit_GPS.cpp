@@ -323,7 +323,7 @@ boolean Adafruit_GPS::parseFix(char *p) {
     @return nmea_float_t value in seconds since last fix.
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceFix() { 
+nmea_float_t Adafruit_GPS::secondsSinceFix() {
   return (millis() - lastFix) / 1000.; 
 }
 
@@ -334,7 +334,7 @@ nmea_float_t Adafruit_GPS::secondsSinceFix() {
     @return nmea_float_t value in seconds since last GPS time.
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceTime() { 
+nmea_float_t Adafruit_GPS::secondsSinceTime() {
   return (millis() - lastTime) / 1000.; 
 }
 
@@ -345,7 +345,7 @@ nmea_float_t Adafruit_GPS::secondsSinceTime() {
     @return nmea_float_t value in seconds since last GPS date.
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceDate() { 
+nmea_float_t Adafruit_GPS::secondsSinceDate() {
   return (millis() - lastDate) / 1000.; 
 }
 
