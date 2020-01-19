@@ -345,6 +345,14 @@ float Adafruit_GPS::secondsSinceDate() { return (millis() - lastDate) / 1000.; }
 
 /**************************************************************************/
 /*!
+    @brief Fakes time of receipt of a sentence. Use between build() and parse()
+    to make the timing look like the sentence arrived from the GPS.
+*/
+/**************************************************************************/
+void Adafruit_GPS::resetSentTime() { sentTime = millis(); }
+
+/**************************************************************************/
+/*!
     @brief How many bytes are available to read - part of 'Print'-class
    functionality
     @return Bytes available, 0 if none
@@ -845,14 +853,3 @@ static boolean strStartsWith(const char *str, const char *prefix) {
   }
   return true;
 }
-
-#ifdef NMEA_EXTENSIONS
-/**************************************************************************/
-/*!
-    @brief Fakes time of receipt of a sentence. Use between build() and parse()
-    to make the timing look like the sentence arrived from the GPS.
-*/
-/**************************************************************************/
-void Adafruit_GPS::resetSentTime() { sentTime = millis(); }
-
-#endif // NMEA_EXTENSIONS

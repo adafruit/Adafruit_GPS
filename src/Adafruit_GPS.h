@@ -104,7 +104,8 @@ public:
   float secondsSinceFix();
   float secondsSinceTime();
   float secondsSinceDate();
-
+  void resetSentTime();
+  
   boolean wakeup(void);
   boolean standby(void);
 
@@ -182,7 +183,6 @@ public:
   // NMEA additional public functions
   char *build(char *nmea, const char *thisSource, const char *thisSentence,
               char ref = 'R');
-  void resetSentTime();
 
   // NMEA additional public variables
   char txtTXT[63] = {0}; ///< text content from most recent TXT sentence
