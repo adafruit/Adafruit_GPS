@@ -28,7 +28,7 @@
   hit, and closer than needed for navigation, so floats can be used to save a
   little storage.
  **************************************************************************/
-typedef single
+typedef float
     nmea_float_t; ///< the type of variables to use for floating point
 
 /**************************************************************************/
