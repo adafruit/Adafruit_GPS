@@ -28,7 +28,12 @@
   hit, and closer than needed for navigation, so floats can be used to save a
   little storage.
  **************************************************************************/
-typedef float nmea_float_t; ///< the type of variables to use for floating point
+#ifndef NMEA_FLOAT_T
+#define NMEA_FLOAT_T float ///< let float be overidden on command line
+#endif
+typedef NMEA_FLOAT_T
+    nmea_float_t; ///< the type of variables to use for floating point
+
 
 /**************************************************************************/
 /*!
