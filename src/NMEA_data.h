@@ -20,7 +20,7 @@
   in https://github.com/adafruit/Adafruit-GPS-Library/pull/13, provided the
   processor supports actual doubles like the SAMD series with more storage. The
   total penalty for going all double is under a few hundred bytes / instance or
-  0 bytes / instance on an UNO.  This typedef allows a switch to lower precision
+  0 bytes / instance on an UNO. This typedef allows a switch to lower precision
   to save some storage if needed. A float carries 23 bits of fractional
   resolution, giving a resolution of at least 9 significant digits, thus 6
   significant digits in the decimal place of an angular value like latitude, and
@@ -33,7 +33,6 @@
 #endif
 typedef NMEA_FLOAT_T
     nmea_float_t; ///< the type of variables to use for floating point
-
 
 /**************************************************************************/
 /*!
