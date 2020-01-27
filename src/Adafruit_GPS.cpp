@@ -30,7 +30,7 @@
 
 #include <Adafruit_GPS.h>
 
-static boolean strStartsWith(const char *str, const char *prefix);
+static bool strStartsWith(const char *str, const char *prefix);
 
 /**************************************************************************/
 /*!
@@ -41,7 +41,7 @@ static boolean strStartsWith(const char *str, const char *prefix);
     @return True if well formed, false if it has problems
 */
 /**************************************************************************/
-boolean Adafruit_GPS::check(char *nmea) {
+bool Adafruit_GPS::check(char *nmea) {
   thisCheck = 0; // new check
   if (*nmea != '$')
     return false; // doesn't start with $
@@ -205,8 +205,6 @@ void Adafruit_GPS::parseTime(char *p) {
 */
 /**************************************************************************/
 void Adafruit_GPS::parseLat(char *p) {
-  int32_t degree;
-  long minutes;
   char degreebuff[10];
   if (!isEmpty(p)) {
     strncpy(degreebuff, p, 2);
@@ -220,7 +218,7 @@ void Adafruit_GPS::parseLat(char *p) {
     long minutes = 50 * atol(degreebuff) / 3;
     latitude_fixed = degree + minutes;
     latitude = degree / 100000 + minutes * 0.000006F;
-    latitudeDegrees = (latitude - 100 * int(latitude / 100)) / 60.0;
+    latitudeDegrees = (latitude - 100 * int(latitude / 100)) / 60.0f;
     latitudeDegrees += int(latitude / 100);
   }
 }
@@ -232,10 +230,10 @@ void Adafruit_GPS::parseLat(char *p) {
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-boolean Adafruit_GPS::parseLatDir(char *p) {
+bool Adafruit_GPS::parseLatDir(char *p) {
   if (p[0] == 'S') {
     lat = 'S';
-    latitudeDegrees *= -1.0;
+    latitudeDegrees *= -1.0f;
     latitude_fixed *= -1;
   } else if (p[0] == 'N') {
     lat = 'N';
@@ -269,7 +267,7 @@ void Adafruit_GPS::parseLon(char *p) {
     minutes = 50 * atol(degreebuff) / 3;
     longitude_fixed = degree + minutes;
     longitude = degree / 100000 + minutes * 0.000006F;
-    longitudeDegrees = (longitude - 100 * int(longitude / 100)) / 60.0;
+    longitudeDegrees = (longitude - 100 * int(longitude / 100)) / 60.0f;
     longitudeDegrees += int(longitude / 100);
   }
 }
@@ -281,11 +279,11 @@ void Adafruit_GPS::parseLon(char *p) {
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-boolean Adafruit_GPS::parseLonDir(char *p) {
+bool Adafruit_GPS::parseLonDir(char *p) {
   if (!isEmpty(p)) {
     if (p[0] == 'W') {
       lon = 'W';
-      longitudeDegrees *= -1.0;
+      longitudeDegrees *= -1.0f;
       longitude_fixed *= -1;
     } else if (p[0] == 'E') {
       lon = 'E';
@@ -305,7 +303,7 @@ boolean Adafruit_GPS::parseLonDir(char *p) {
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-boolean Adafruit_GPS::parseFix(char *p) {
+bool Adafruit_GPS::parseFix(char *p) {
   if (p[0] == 'A') {
     fix = true;
     lastFix = sentTime;
@@ -601,7 +599,7 @@ void Adafruit_GPS::common_init(void) {
   hour = minute = seconds = year = month = day = fixquality = fixquality_3d =
       satellites = 0;  // uint8_t
   lat = lon = mag = 0; // char
-  fix = false;         // boolean
+  fix = false;         // bool
   milliseconds = 0;    // uint16_t
   latitude = longitude = geoidheight = altitude = speed = angle = magvariation =
       HDOP = VDOP = PDOP = 0.0; // nmea_float_t
@@ -661,7 +659,7 @@ void Adafruit_GPS::sendCommand(const char *str) { println(str); }
     @return True if received, false if not
 */
 /**************************************************************************/
-boolean Adafruit_GPS::newNMEAreceived(void) { return recvdflag; }
+bool Adafruit_GPS::newNMEAreceived(void) { return recvdflag; }
 
 /**************************************************************************/
 /*!
@@ -669,7 +667,7 @@ boolean Adafruit_GPS::newNMEAreceived(void) { return recvdflag; }
     @param p True = pause, false = unpause
 */
 /**************************************************************************/
-void Adafruit_GPS::pause(boolean p) { paused = p; }
+void Adafruit_GPS::pause(bool p) { paused = p; }
 
 /**************************************************************************/
 /*!
@@ -714,8 +712,8 @@ uint8_t Adafruit_GPS::parseHex(char c) {
     @return True if we got what we wanted, false otherwise
 */
 /**************************************************************************/
-boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
-                                      boolean usingInterrupts) {
+bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
+                                   bool usingInterrupts) {
   uint8_t i = 0;
   while (i < max) {
     if (!usingInterrupts)
@@ -739,7 +737,7 @@ boolean Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
     @return True on success, false if it failed
 */
 /**************************************************************************/
-boolean Adafruit_GPS::LOCUS_StartLogger(void) {
+bool Adafruit_GPS::LOCUS_StartLogger(void) {
   sendCommand(PMTK_LOCUS_STARTLOG);
   recvdflag = false;
   return waitForSentence(PMTK_LOCUS_STARTSTOPACK);
@@ -751,7 +749,7 @@ boolean Adafruit_GPS::LOCUS_StartLogger(void) {
     @return True on success, false if it failed
 */
 /**************************************************************************/
-boolean Adafruit_GPS::LOCUS_StopLogger(void) {
+bool Adafruit_GPS::LOCUS_StopLogger(void) {
   sendCommand(PMTK_LOCUS_STOPLOG);
   recvdflag = false;
   return waitForSentence(PMTK_LOCUS_STARTSTOPACK);
@@ -763,7 +761,7 @@ boolean Adafruit_GPS::LOCUS_StopLogger(void) {
     @return True if we read the data, false if there was no response
 */
 /**************************************************************************/
-boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
+bool Adafruit_GPS::LOCUS_ReadStatus(void) {
   sendCommand(PMTK_LOCUS_QUERY_STATUS);
 
   if (!waitForSentence("$PMTKLOG"))
@@ -815,7 +813,7 @@ boolean Adafruit_GPS::LOCUS_ReadStatus(void) {
     @return False if already in standby, true if it entered standby
 */
 /**************************************************************************/
-boolean Adafruit_GPS::standby(void) {
+bool Adafruit_GPS::standby(void) {
   if (inStandbyMode) {
     return false; // Returns false if already in standby mode, so that you do
                   // not wake it up by sending commands to GPS
@@ -834,7 +832,7 @@ boolean Adafruit_GPS::standby(void) {
     @return True if woken up, false if not in standby or failed to wake
 */
 /**************************************************************************/
-boolean Adafruit_GPS::wakeup(void) {
+bool Adafruit_GPS::wakeup(void) {
   if (inStandbyMode) {
     inStandbyMode = false;
     sendCommand(""); // send byte to wake it up
@@ -852,7 +850,7 @@ boolean Adafruit_GPS::wakeup(void) {
     @return True if str starts with prefix, false otherwise
 */
 /**************************************************************************/
-static boolean strStartsWith(const char *str, const char *prefix) {
+static bool strStartsWith(const char *str, const char *prefix) {
   while (*prefix) {
     if (*prefix++ != *str++)
       return false;

@@ -29,7 +29,7 @@ Adafruit_GPS GPS(&mySerial);
 // this keeps track of whether we're using the interrupt
 // off by default!
 #ifndef ESP8266 // Sadly not on ESP8266
-boolean usingInterrupt = false;
+bool usingInterrupt = false;
 #endif
 
 void setup()
@@ -89,7 +89,7 @@ ISR(TIMER0_COMPA_vect) {
   }
 }
 
-void useInterrupt(boolean v) {
+void useInterrupt(bool v) {
   if (v) {
     // Timer0 is already used for millis() - we'll just interrupt somewhere
     // in the middle and call the "Compare A" function above
