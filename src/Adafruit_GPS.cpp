@@ -434,7 +434,7 @@ char Adafruit_GPS::read(void) {
   uint32_t tStart = millis();    // as close as we can get to time char was sent
   char c = 0;
 
-  if (paused)
+  if (paused || noComms)
     return c;
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
@@ -580,6 +580,16 @@ Adafruit_GPS::Adafruit_GPS(SPIClass *theSPI, int8_t cspin) {
 
 /**************************************************************************/
 /*!
+    @brief Constructor when there are no communications attached
+*/
+/**************************************************************************/
+Adafruit_GPS::Adafruit_GPS() {
+  common_init(); // Set everything to common state, then...
+  noComms = true;
+}
+
+/**************************************************************************/
+/*!
     @brief Initialization code used by all constructor types
 */
 /**************************************************************************/
@@ -603,6 +613,19 @@ void Adafruit_GPS::common_init(void) {
   milliseconds = 0;    // uint16_t
   latitude = longitude = geoidheight = altitude = speed = angle = magvariation =
       HDOP = VDOP = PDOP = 0.0; // nmea_float_t
+}
+
+/**************************************************************************/
+/*!
+    @brief    Destroy the object.
+    @return   none
+*/
+/**************************************************************************/
+Adafruit_GPS::~Adafruit_GPS() {
+#ifdef NMEA_EXTENSIONS
+  for (int i = 0; i < (int)NMEA_MAX_INDEX; i++)
+    removeHistory((nmea_index_t)i); // to free any history mallocs
+#endif
 }
 
 /**************************************************************************/

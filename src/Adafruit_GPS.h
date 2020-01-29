@@ -83,7 +83,9 @@ public:
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
   Adafruit_GPS(TwoWire *theWire);    // Constructor when using I2C
   Adafruit_GPS(SPIClass *theSPI, int8_t cspin); // Constructor when using SPI
-
+  Adafruit_GPS(); // Constructor for no communications, just data storage
+  virtual ~Adafruit_GPS();
+  
   char *lastNMEA(void);
   bool newNMEAreceived();
   void common_init(void);
@@ -100,7 +102,6 @@ public:
 
   bool check(char *nmea);
   bool parse(char *);
-  void addChecksum(char *buff);
   nmea_float_t secondsSinceFix();
   nmea_float_t secondsSinceTime();
   nmea_float_t secondsSinceDate();
@@ -108,6 +109,32 @@ public:
 
   bool wakeup(void);
   bool standby(void);
+
+  // NMEA_build.cpp
+#ifdef NMEA_EXTENSIONS
+  char *build(char *nmea, const char *thisSource, const char *thisSentence,
+              char ref = 'R');
+#endif
+  void addChecksum(char *buff);
+  
+  // NMEA_data.cpp
+  void newDataValue(nmea_index_t tag, nmea_float_t v);
+#ifdef NMEA_EXTENSIONS
+  nmea_float_t get(nmea_index_t idx);
+  nmea_float_t getSmoothed(nmea_index_t idx);
+  void initDataValue(nmea_index_t idx, char *label = NULL, char *fmt = NULL,
+                     char *unit = NULL, unsigned long response = 0,
+                     nmea_value_type_t type = NMEA_SIMPLE_FLOAT);
+  nmea_history_t *initHistory(nmea_index_t idx, nmea_float_t scale = 10.0,
+                              nmea_float_t offset = 0.0,
+                              unsigned historyInterval = 20,
+                              unsigned historyN = 192);
+  void removeHistory(nmea_index_t idx);
+  void showDataValue(nmea_index_t idx, int n = 7);
+  bool isCompoundAngle(nmea_index_t idx);
+#endif
+  nmea_float_t boatAngle(nmea_float_t s, nmea_float_t c);
+  nmea_float_t compassAngle(nmea_float_t s, nmea_float_t c);
 
   int thisCheck = 0; ///< the results of the check on the current sentence
   char thisSource[NMEA_MAX_SOURCE_ID] = {
@@ -180,11 +207,20 @@ public:
   uint8_t LOCUS_percent;  ///< Log life used percentage
 
 #ifdef NMEA_EXTENSIONS
-  // NMEA additional public functions
-  char *build(char *nmea, const char *thisSource, const char *thisSentence,
-              char ref = 'R');
-
   // NMEA additional public variables
+  nmea_datavalue_t
+      val[NMEA_MAX_INDEX]; ///< an array of data value structs, val[0] = most
+                           ///< recent HDOP so that ockam indexing works
+  nmea_float_t depthToKeel =
+      2.4; ///< depth from surface to bottom of keel in metres
+  nmea_float_t depthToTransducer =
+      0.0; ///< depth of transducer below the surface in metres
+
+  char toID[NMEA_MAX_WP_ID] = {
+      0}; ///< id of waypoint going to on this segment of the route
+  char fromID[NMEA_MAX_WP_ID] = {
+      0}; ///< id of waypoint coming from on this segment of the route
+
   char txtTXT[63] = {0}; ///< text content from most recent TXT sentence
   int txtTot = 0;        ///< total TXT sentences in group
   int txtID = 0;         ///< id of the text message
@@ -200,6 +236,8 @@ private:
   bool parseLatDir(char *);
   void parseLon(char *);
   bool parseLonDir(char *);
+  // NMEA_data.cpp
+  void data_init();
   bool parseFix(char *);
   // used by check() for validity tests, room for future expansion
   const char *sources[5] = {"II", "WI", "GP", "GN",
@@ -226,6 +264,7 @@ private:
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   SoftwareSerial *gpsSwSerial;
 #endif
+  bool noComms = false;
   HardwareSerial *gpsHwSerial;
   TwoWire *gpsI2C;
   SPIClass *gpsSPI;
