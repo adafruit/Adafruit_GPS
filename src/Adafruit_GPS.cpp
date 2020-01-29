@@ -161,27 +161,6 @@ bool Adafruit_GPS::isEmpty(char *pStart) {
 
 /**************************************************************************/
 /*!
-    @brief Add *CS where CS is the two character hex checksum for all but
-    the first character in the string. The checksum is the result of an
-    exclusive or of all the characters in the string. Also useful if you
-    are creating new PMTK strings for controlling a GPS module and need a
-    checksum added.
-    @param buff Pointer to the string, which must be long enough
-    @return none
-*/
-/**************************************************************************/
-void Adafruit_GPS::addChecksum(char *buff) {
-  char cs = 0;
-  int i = 1;
-  while (buff[i]) {
-    cs ^= buff[i];
-    i++;
-  }
-  sprintf(buff, "%s*%02X", buff, cs);
-}
-
-/**************************************************************************/
-/*!
     @brief Parse a part of an NMEA string for time
     @param p Pointer to the location of the token in the NMEA string
 */
