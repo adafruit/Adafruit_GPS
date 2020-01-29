@@ -31,8 +31,14 @@
  Comment out the definition of NMEA_EXTENSIONS to make the library use as
  little memory as possible for GPS functionality only. The ARDUINO_ARCH_AVR
  test should leave it out of any compilations for the UNO and similar. */
-#ifndef ARDUINO_ARCH_AVR
-#define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
+#ifndef NMEA_EXTRAS // inject on the compile command line to force extensions
+  #ifndef ARDUINO_ARCH_AVR
+  #define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
+  #endif
+#else
+  #if(NMEA_EXTRAS > 0)
+    #define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
+  #endif
 #endif
 
 #define USE_SW_SERIAL ///< comment this out if you don't want to include
