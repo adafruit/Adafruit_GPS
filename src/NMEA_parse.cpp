@@ -700,9 +700,9 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
 
     // reject angles that are out of range
     if (nsew == 'N' || nsew == 'S')
-      if (abs(deg) > 90) 
+      if (abs(deg) > 90)
         return false;
-    if (abs(deg) > 180) 
+    if (abs(deg) > 180)
       return false;
 
     // store in locations passed as args
