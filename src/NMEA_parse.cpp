@@ -41,8 +41,8 @@
    build() function and http://fort21.ru/download/NMEAdescription.pdf for
    sentence descriptions.
 
-   Encapsulated data sentences are supported by NMEA-183, and start with ! 
-   instead of $. https://gpsd.gitlab.io/gpsd/AIVDM.html provides details 
+   Encapsulated data sentences are supported by NMEA-183, and start with !
+   instead of $. https://gpsd.gitlab.io/gpsd/AIVDM.html provides details
    about encapsulated data sentences used in AIS.
 
     parse() permits, but does not require Carriage Return and Line Feed at the
@@ -641,7 +641,7 @@ bool Adafruit_GPS::onList(char *nmea, const char **list) {
     Works for either DDMM.mmmm,N (latitude) or DDDMM.mmmm,W (longitude) format.
     Insensitive to number of decimal places present. Only fills the variables
     if it succeeds and the variable pointer is not NULL. This allows calling
-    to fill only the variables of interest. Does rudimentary validation on 
+    to fill only the variables of interest. Does rudimentary validation on
     angle range.
 
     Supersedes private functions parseLat(), parseLon(), parseLatDir(),
@@ -652,7 +652,7 @@ bool Adafruit_GPS::onList(char *nmea, const char **list) {
     @param angle_fixed Pointer to the fix point version latitude in decimal
       degrees * 10000000, signed
     @param angleDegrees Pointer to the angle to fill with decimal degrees,
-      signed. As actual double on SAMD, etc. resolution is better than the 
+      signed. As actual double on SAMD, etc. resolution is better than the
       fixed point version.
     @param dir Pointer to character to fill the direction N/S/E/W
     @return true if successful, false if failed or no value
@@ -662,7 +662,7 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
                               nmea_float_t *angle, int32_t *angle_fixed,
                               char *dir) {
   char *p = pStart;
-  if (!isEmpty(p)) { 
+  if (!isEmpty(p)) {
     // get the number in DDDMM.mmmm format and break into components
     char degreebuff[10];
     char *e = strchr(p, '.');
@@ -674,7 +674,7 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
     long minutes = dddmm - degrees * 100; // remove the degrees
     p = e;                                // start from the decimal point
     nmea_float_t decminutes = atof(e); // the fraction after the decimal point
-    p = strchr(p, ',') + 1; // go to the next field
+    p = strchr(p, ',') + 1;            // go to the next field
 
     // get the NSEW direction as a character
     char nsew = 'X';
@@ -697,11 +697,13 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
     // reject directions that are not NSEW
     if (nsew != 'N' && nsew != 'S' && nsew != 'E' && nsew != 'W')
       return false;
-    
+
     // reject angles that are out of range
     if (nsew == 'N' || nsew == 'S')
-      if(abs(deg) > 90) return false;
-    if(abs(deg) > 180) return false;
+      if(abs(deg) > 90) 
+        return false;
+    if(abs(deg) > 180) 
+      return false;
 
     // store in locations passed as args
     if (angle != NULL)

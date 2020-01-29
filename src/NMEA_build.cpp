@@ -44,8 +44,8 @@
     extension to building proprietary sentences like $PMTK220,100*2F.
 
     build() will not work properly in an environment that does not support
-    the %f floating point formatter in sprintf(), and will return NULL. 
-    Floating point arguments to sprintf() are explicitly cast to double to 
+    the %f floating point formatter in sprintf(), and will return NULL.
+    Floating point arguments to sprintf() are explicitly cast to double to
     avoid warnings in some compilers.
 
     build() adds Carriage Return and Line Feed to sentences to conform to
@@ -72,7 +72,8 @@
 /**************************************************************************/
 char *Adafruit_GPS::build(char *nmea, const char *thisSource,
                           const char *thisSentence, char ref) {
-  sprintf(nmea, "%6.2f", (double)123.45); // fail if sprintf() doesn't handle floats
+  sprintf(nmea, "%6.2f",
+          (double)123.45); // fail if sprintf() doesn't handle floats
   if (strcmp(nmea, "123.45"))
     return NULL;
   *nmea = '$';
@@ -112,9 +113,10 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 14) Differential reference station ID, 0000-1023
     // 15) Checksum
     sprintf(p, "%09.2f,%09.4f,%c,%010.4f,%c,%d,%02d,%f,%f,M,%f,M,,",
-            (double)hour * 10000L + minute * 100L + seconds + milliseconds / 1000.,
-            (double)latitude, lat, (double)longitude, lon, fixquality, satellites,
-            (double)HDOP, (double)altitude, (double)geoidheight);
+            (double)hour * 10000L + minute * 100L + seconds +
+                milliseconds / 1000.,
+            (double)latitude, lat, (double)longitude, lon, fixquality,
+            satellites, (double)HDOP, (double)altitude, (double)geoidheight);
 
   } else if (!strcmp(thisSentence, "GLL")) { //*****************************GLL
     // GLL Geographic Position – Latitude/Longitude
@@ -129,8 +131,9 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 6) Status A - Data Valid, V - Data Invalid
     // 7) Checksum
     sprintf(p, "%09.4f,%c,%010.4f,%c,%09.2f,A", (double)latitude, lat,
-            (double)longitude, lon, (double)hour * 10000L + minute * 100L + 
-            seconds + milliseconds / 1000.);
+            (double)longitude, lon,
+            (double)hour * 10000L + minute * 100L + seconds +
+                milliseconds / 1000.);
 
   } else if (!strcmp(thisSentence, "GSA")) { //*****************************GSA
     // GSA GPS DOP and active satellites
@@ -168,9 +171,11 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 11) E or W
     // 12) Checksum
     sprintf(p, "%09.2f,A,%09.4f,%c,%010.4f,%c,%f,%f,%06d,%f,%c",
-            (double)hour * 10000L + minute * 100L + seconds + milliseconds / 1000.,
-            (double)latitude, lat, (double)longitude, lon, (double)speed, 
-            (double)angle, day * 10000 + month * 100 + year, (double)magvariation, mag);
+            (double)hour * 10000L + minute * 100L + seconds +
+                milliseconds / 1000.,
+            (double)latitude, lat, (double)longitude, lon, (double)speed,
+            (double)angle, day * 10000 + month * 100 + year,
+            (double)magvariation, mag);
 
   } else if (!strcmp(thisSentence, "APB")) { //*****************************APB
     // APB Autopilot Sentence "B"

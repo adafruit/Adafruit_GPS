@@ -30,13 +30,13 @@
  little memory as possible for GPS functionality only. The ARDUINO_ARCH_AVR
  test should leave it out of any compilations for the UNO and similar. */
 #ifndef NMEA_EXTRAS // inject on the compile command line to force extensions
-  #ifndef ARDUINO_ARCH_AVR
-  #define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
-  #endif
+#ifndef ARDUINO_ARCH_AVR
+#define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
+#endif
 #else
-  #if(NMEA_EXTRAS > 0)
-    #define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
-  #endif
+#if(NMEA_EXTRAS > 0)
+#define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
+#endif
 #endif
 
 #define USE_SW_SERIAL ///< comment this out if you don't want to include
@@ -64,8 +64,9 @@
 
 /// type for resulting code from running check()
 typedef enum {
-  NMEA_BAD = 0,            ///< passed none of the checks
-  NMEA_HAS_DOLLAR = 1,     ///< has a dollar sign or exclamation mark in the first position
+  NMEA_BAD = 0, ///< passed none of the checks
+  NMEA_HAS_DOLLAR =
+      1, ///< has a dollar sign or exclamation mark in the first position
   NMEA_HAS_CHECKSUM = 2,   ///< has a valid checksum at the end
   NMEA_HAS_NAME = 4,       ///< there is a token after the $ followed by a comma
   NMEA_HAS_SOURCE = 10,    ///< has a recognized source ID
@@ -91,7 +92,7 @@ public:
   Adafruit_GPS(); // Constructor for no communications, just data storage
   void common_init(void);
   virtual ~Adafruit_GPS();
-  
+
   size_t available(void);
   size_t write(uint8_t);
   char read(void);
@@ -100,7 +101,7 @@ public:
   void pause(bool b);
   char *lastNMEA(void);
   bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
-                          bool usingInterrupts = false);
+                       bool usingInterrupts = false);
   bool LOCUS_StartLogger(void);
   bool LOCUS_StopLogger(void);
   bool LOCUS_ReadStatus(void);
@@ -110,7 +111,7 @@ public:
   nmea_float_t secondsSinceTime();
   nmea_float_t secondsSinceDate();
   void resetSentTime();
-  
+
   // NMEA_parse.cpp
   bool parse(char *);
   bool check(char *nmea);
@@ -123,7 +124,7 @@ public:
               char ref = 'R');
 #endif
   void addChecksum(char *buff);
-  
+
   // NMEA_data.cpp
   void newDataValue(nmea_index_t tag, nmea_float_t v);
 #ifdef NMEA_EXTENSIONS
@@ -229,10 +230,10 @@ public:
 #endif                   // NMEA_EXTENSIONS
 
 private:
-//   void parseLat(char *);
-//   bool parseLatDir(char *);
-//   void parseLon(char *);
-//   bool parseLonDir(char *);
+  //   void parseLat(char *);
+  //   bool parseLatDir(char *);
+  //   void parseLon(char *);
+  //   bool parseLonDir(char *);
   // NMEA_data.cpp
   void data_init();
   // NMEA_parse.cpp
@@ -246,8 +247,8 @@ private:
   bool isEmpty(char *pStart);
 
   // used by check() for validity tests, room for future expansion
-  const char *sources[6] = {"II", "WI",  "GP", "GN",
-                            "P", "ZZZ"}; ///< valid source ids
+  const char *sources[6] = {"II", "WI",  "GP", 
+                            "GN", "P",   "ZZZ"}; ///< valid source ids
 #ifdef NMEA_EXTENSIONS
   const char
       *sentences_parsed[20] =
@@ -260,11 +261,10 @@ private:
       "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"}; ///< known, but not parseable
 #else // make the lists short to save memory
   const char
-      *sentences_parsed[5] =
-          {
-              "GGA", "GLL", "GSA", "RMC", "ZZZ"}; ///< parseable sentence ids
-  const char *sentences_known[4] = {
-      "DBT", "HDM", "HDT", "ZZZ"}; ///< known, but not parseable
+      *sentences_parsed[5] = {"GGA", "GLL", "GSA", "RMC",
+                              "ZZZ"}; ///< parseable sentence ids
+  const char *sentences_known[4] = {"DBT", "HDM", "HDT",
+                                    "ZZZ"}; ///< known, but not parseable
 #endif
 
   // Make all of these times far in the past by setting them near the middle of
