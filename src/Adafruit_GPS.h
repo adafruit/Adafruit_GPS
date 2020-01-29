@@ -100,14 +100,10 @@ public:
 
   void pause(bool b);
 
-  uint8_t parseHex(char c);
-
   char read(void);
   size_t write(uint8_t);
   size_t available(void);
 
-  bool check(char *nmea);
-  bool parse(char *);
   nmea_float_t secondsSinceFix();
   nmea_float_t secondsSinceTime();
   nmea_float_t secondsSinceDate();
@@ -115,6 +111,12 @@ public:
 
   bool wakeup(void);
   bool standby(void);
+
+  // NMEA_parse.cpp
+  bool parse(char *);
+  bool check(char *nmea);
+  bool onList(char *nmea, const char **list);
+  uint8_t parseHex(char c);
 
   // NMEA_build.cpp
 #ifdef NMEA_EXTENSIONS
@@ -234,17 +236,22 @@ public:
 #endif                   // NMEA_EXTENSIONS
 
 private:
-  const char *tokenOnList(char *token, const char **list);
-  char *parseStr(char *buff, char *p, int n);
-  bool isEmpty(char *pStart);
-  void parseTime(char *);
   void parseLat(char *);
   bool parseLatDir(char *);
   void parseLon(char *);
   bool parseLonDir(char *);
   // NMEA_data.cpp
   void data_init();
+  // NMEA_parse.cpp
+  const char *tokenOnList(char *token, const char **list);
+  bool parseCoord(char *p, nmea_float_t *angleDegrees = NULL,
+                  nmea_float_t *angle = NULL, int32_t *angle_fixed = NULL,
+                  char *dir = NULL);
+  char *parseStr(char *buff, char *p, int n);
+  bool parseTime(char *);
   bool parseFix(char *);
+  bool isEmpty(char *pStart);
+
   // used by check() for validity tests, room for future expansion
   const char *sources[6] = {"II", "WI",  "GP", "GN",
                             "P", "ZZZ"}; ///< valid source ids

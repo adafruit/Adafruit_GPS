@@ -34,149 +34,12 @@ static bool strStartsWith(const char *str, const char *prefix);
 
 /**************************************************************************/
 /*!
-    @brief Check an NMEA string for basic format, valid source ID and valid
-    and valid sentence ID. Update the values of thisCheck, thisSource and
-    thisSentence.
-    @param nmea Pointer to the NMEA string
-    @return True if well formed, false if it has problems
-*/
-/**************************************************************************/
-bool Adafruit_GPS::check(char *nmea) {
-  thisCheck = 0; // new check
-  if (*nmea != '$')
-    return false; // doesn't start with $
-  else
-    thisCheck += NMEA_HAS_DOLLAR;
-  // do checksum check -- first look if we even have one -- ignore all but last
-  // *
-  char *ast = nmea; // not strchr(nmea,'*'); for first *
-  while (*ast)
-    ast++; // go to the end
-  while (*ast != '*' && ast > nmea)
-    ast--; // then back to * if it's there
-  if (*ast != '*')
-    return false; // there is no asterisk
-  else {
-    uint16_t sum = parseHex(*(ast + 1)) * 16; // extract checksum
-    sum += parseHex(*(ast + 2));
-    char *p = nmea; // check checksum
-    for (char *p1 = p + 1; p1 < ast; p1++)
-      sum ^= *p1;
-    if (sum != 0)
-      return false; // bad checksum :(
-    else
-      thisCheck += NMEA_HAS_CHECKSUM;
-  }
-  // extract source of variable length
-  char *p = nmea + 1;
-  const char *src = tokenOnList(p, sources);
-  if (src) {
-    strcpy(thisSource, src);
-    thisCheck += NMEA_HAS_SOURCE;
-  } else
-    return false;
-  p += strlen(src);
-  // extract sentence id and check if parsed
-  const char *snc = tokenOnList(p, sentences_parsed);
-  if (snc) {
-    strcpy(thisSentence, snc);
-    thisCheck += NMEA_HAS_SENTENCE_P + NMEA_HAS_SENTENCE;
-  } else { // check if known
-    snc = tokenOnList(p, sentences_known);
-    if (snc) {
-      strcpy(thisSentence, snc);
-      thisCheck += NMEA_HAS_SENTENCE;
-      return false;
-    }
-  }
-  return true; // passed all the tests
-}
-
-/**************************************************************************/
-/*!
-    @brief Check if a token at the start of a string is on a list.
-    @param token Pointer to the string
-    @param list A list of strings, with the final entry starting "ZZ"
-    @return Pointer to the found token, or NULL if it fails
-*/
-/**************************************************************************/
-const char *Adafruit_GPS::tokenOnList(char *token, const char **list) {
-  int i = 0; // index in the list
-  while (strncmp(list[i], "ZZ", 2) &&
-         i < 1000) { // stop at terminator and don't crash without it
-    // test for a match on the sentence name
-    if (!strncmp((const char *)list[i], (const char *)token, strlen(list[i])))
-      return list[i];
-    i++;
-  }
-  return NULL; // couldn't find a match
-}
-
-/**************************************************************************/
-/*!
-    @brief Parse a string token from pointer p to the next comma, asterisk
-    or end of string.
-    @param buff Pointer to the buffer to store the string in
-    @param p Pointer into a string
-    @param n Max permitted size of string including terminating 0
-    @return Pointer to the string buffer
-*/
-/**************************************************************************/
-char *Adafruit_GPS::parseStr(char *buff, char *p, int n) {
-  char *e = strchr(p, ',');
-  int len = 0;
-  if (e) {
-    len = min(e - p, n - 1);
-    strncpy(buff, p, len); // copy up to the comma
-    buff[len] = 0;
-  } else {
-    e = strchr(p, '*');
-    if (e) {
-      len = min(e - p, n - 1);
-      strncpy(buff, p, len); // or up to the *
-      buff[e - p] = 0;
-    } else {
-      len = min((int)strlen(p), n - 1);
-      strncpy(buff, p, len); // or to the end or max capacity
-    }
-  }
-  return buff;
-}
-
-/**************************************************************************/
-/*!
     @brief Is the field empty, or should we try conversion? Won't work
     for a text field that starts with an asterisk or a comma, but that
     probably violates the NMEA-183 standard.
     @param pStart Pointer to the location of the token in the NMEA string
     @return true if empty field, false if something there
 */
-/**************************************************************************/
-bool Adafruit_GPS::isEmpty(char *pStart) {
-  if (',' != *pStart && '*' != *pStart && pStart != NULL)
-    return false;
-  else
-    return true;
-}
-
-/**************************************************************************/
-/*!
-    @brief Parse a part of an NMEA string for time
-    @param p Pointer to the location of the token in the NMEA string
-*/
-/**************************************************************************/
-void Adafruit_GPS::parseTime(char *p) {
-  // get time
-  uint32_t time = atol(p);
-  hour = time / 10000;
-  minute = (time % 10000) / 100;
-  seconds = (time % 100);
-
-  p = strchr(p, '.') + 1;
-  milliseconds = atoi(p);
-  lastTime = sentTime;
-}
-
 /**************************************************************************/
 /*!
     @brief Parse a part of an NMEA string for latitude angle
@@ -272,24 +135,6 @@ bool Adafruit_GPS::parseLonDir(char *p) {
       return false;
     }
   }
-  return true;
-}
-
-/**************************************************************************/
-/*!
-    @brief Parse a part of an NMEA string for whether there is a fix
-    @param p Pointer to the location of the token in the NMEA string
-    @return True if we parsed it, false if it has invalid data
-*/
-/**************************************************************************/
-bool Adafruit_GPS::parseFix(char *p) {
-  if (p[0] == 'A') {
-    fix = true;
-    lastFix = sentTime;
-  } else if (p[0] == 'V')
-    fix = false;
-  else
-    return false;
   return true;
 }
 
@@ -680,28 +525,6 @@ void Adafruit_GPS::pause(bool p) { paused = p; }
 char *Adafruit_GPS::lastNMEA(void) {
   recvdflag = false;
   return (char *)lastline;
-}
-
-/**************************************************************************/
-/*!
-    @brief Parse a hex character and return the appropriate decimal value
-    @param c Hex character, e.g. '0' or 'B'
-    @return Integer value of the hex character. Returns 0 if c is not a proper
-   character
-*/
-/**************************************************************************/
-// read a Hex value and return the decimal equivalent
-uint8_t Adafruit_GPS::parseHex(char c) {
-  if (c < '0')
-    return 0;
-  if (c <= '9')
-    return c - '0';
-  if (c < 'A')
-    return 0;
-  if (c <= 'F')
-    return (c - 'A') + 10;
-  // if (c > 'F')
-  return 0;
 }
 
 /**************************************************************************/
