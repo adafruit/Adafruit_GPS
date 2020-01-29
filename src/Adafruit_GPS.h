@@ -240,12 +240,26 @@ private:
   void data_init();
   bool parseFix(char *);
   // used by check() for validity tests, room for future expansion
-  const char *sources[5] = {"II", "WI", "GP", "GN",
-                            "ZZZ"}; ///< valid source ids
-  const char *sentences_parsed[5] = {"GGA", "GLL", "GSA", "RMC",
-                                     "ZZZ"}; ///< parseable sentence ids
-  const char *sentences_known[1] = {
-      "ZZZ"}; ///< known, but not parseable sentence ids
+  const char *sources[6] = {"II", "WI",  "GP", "GN",
+                            "P", "ZZZ"}; ///< valid source ids
+#ifdef NMEA_EXTENSIONS
+  const char
+      *sentences_parsed[20] =
+          {
+              "GGA", "GLL", "GSA", "RMC", "DBT", "HDM", "HDT",
+              "MDA", "MTW", "MWV", "RMB", "TXT", "VHW", "VLW",
+              "VPW", "VWR", "WCV", "XTE", "ZZZ"}; ///< parseable sentence ids
+  const char *sentences_known[15] = {
+      "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
+      "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"}; ///< known, but not parseable
+#else // make the lists short to save memory
+  const char
+      *sentences_parsed[5] =
+          {
+              "GGA", "GLL", "GSA", "RMC", "ZZZ"}; ///< parseable sentence ids
+  const char *sentences_known[4] = {
+      "DBT", "HDM", "HDT", "ZZZ"}; ///< known, but not parseable
+#endif
 
   // Make all of these times far in the past by setting them near the middle of
   // the millis() range. Timing assumes that sentences are parsed promptly.
