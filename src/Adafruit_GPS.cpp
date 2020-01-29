@@ -437,6 +437,9 @@ void Adafruit_GPS::common_init(void) {
   milliseconds = 0;    // uint16_t
   latitude = longitude = geoidheight = altitude = speed = angle = magvariation =
       HDOP = VDOP = PDOP = 0.0; // nmea_float_t
+#ifdef NMEA_EXTENSIONS
+  data_init();
+#endif
 }
 
 /**************************************************************************/
