@@ -58,7 +58,7 @@ void Adafruit_GPS::newDataValue(nmea_index_t idx, nmea_float_t v) {
     newDataValue((nmea_index_t)(idx + 2), cos(v / RAD_TO_DEG));
   }
   // weighting factor for smoothing depends on delta t / tau
-  nmea_float_t w = 
+  nmea_float_t w =
       min((nmea_float_t)1.0,
           ((nmea_float_t)millis() - val[idx].lastUpdate) / val[idx].response);
   // default smoothing
@@ -438,7 +438,7 @@ void Adafruit_GPS::removeHistory(nmea_index_t idx) {
 /**************************************************************************/
 void Adafruit_GPS::showDataValue(nmea_index_t idx, int n) {
   Serial.print("idx: ");
-  if(idx < 10) 
+  if (idx < 10)
     Serial.print(" ");
   Serial.print(idx);
   Serial.print(", ");
@@ -461,8 +461,8 @@ void Adafruit_GPS::showDataValue(nmea_index_t idx, int n) {
     Serial.print(" second intervals:  ");
     Serial.print(val[idx].hist->data[val[idx].hist->n - 1]);
     for (unsigned i = val[idx].hist->n - 2;
-        i >= max(val[idx].hist->n - n, (unsigned)0);
-        i--) { // most recent first
+         i >= max(val[idx].hist->n - n, (unsigned)0);
+         i--) { // most recent first
       Serial.print(", ");
       Serial.print(val[idx].hist->data[i]);
     }

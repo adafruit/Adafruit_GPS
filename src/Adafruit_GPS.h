@@ -34,7 +34,7 @@
 #define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
 #endif
 #else
-#if(NMEA_EXTRAS > 0)
+#if (NMEA_EXTRAS > 0)
 #define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
 #endif
 #endif
@@ -247,8 +247,8 @@ private:
   bool isEmpty(char *pStart);
 
   // used by check() for validity tests, room for future expansion
-  const char *sources[6] = {"II", "WI",  "GP", 
-                            "GN", "P",   "ZZZ"}; ///< valid source ids
+  const char *sources[6] = {"II", "WI", "GP",
+                            "GN", "P",  "ZZZ"}; ///< valid source ids
 #ifdef NMEA_EXTENSIONS
   const char
       *sentences_parsed[20] =
@@ -260,9 +260,8 @@ private:
       "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
       "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"}; ///< known, but not parseable
 #else // make the lists short to save memory
-  const char
-      *sentences_parsed[5] = {"GGA", "GLL", "GSA", "RMC",
-                              "ZZZ"}; ///< parseable sentence ids
+  const char *sentences_parsed[5] = {"GGA", "GLL", "GSA", "RMC",
+                                     "ZZZ"}; ///< parseable sentence ids
   const char *sentences_known[4] = {"DBT", "HDM", "HDT",
                                     "ZZZ"}; ///< known, but not parseable
 #endif
