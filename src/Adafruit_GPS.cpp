@@ -140,44 +140,144 @@ static bool strStartsWith(const char *str, const char *prefix);
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last position fix was obtained. Will
-    fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return nmea_float_t value in seconds since last fix.
+    @brief Start the HW or SW serial port
+    @param baud_or_i2caddr Baud rate if using serial, I2C address if using I2C
+    @returns True on successful hardware init, False on failure
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceFix() {
-  return (millis() - lastFix) / 1000.;
+bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr) {
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  if (gpsSwSerial) {
+    gpsSwSerial->begin(baud_or_i2caddr);
+  }
+#endif
+  if (gpsHwSerial) {
+    gpsHwSerial->begin(baud_or_i2caddr);
+  }
+  if (gpsI2C) {
+    gpsI2C->begin();
+    if (baud_or_i2caddr > 0x7F) {
+      _i2caddr = GPS_DEFAULT_I2C_ADDR;
+    } else {
+      _i2caddr = baud_or_i2caddr;
+    }
+    // A basic scanner, see if it ACK's
+    gpsI2C->beginTransmission(_i2caddr);
+    return (gpsI2C->endTransmission() == 0);
+  }
+  if (gpsSPI) {
+    gpsSPI->begin();
+    gpsSPI_settings = SPISettings(baud_or_i2caddr, MSBFIRST, SPI_MODE0);
+    if (gpsSPI_cs >= 0) {
+      pinMode(gpsSPI_cs, OUTPUT);
+      digitalWrite(gpsSPI_cs, HIGH);
+    }
+  }
+
+  delay(10);
+  return true;
 }
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last GPS time was obtained. Will fail
-    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return nmea_float_t value in seconds since last GPS time.
+    @brief Constructor when using SoftwareSerial
+    @param ser Pointer to SoftwareSerial device
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceTime() {
-  return (millis() - lastTime) / 1000.;
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser) {
+  common_init();     // Set everything to common state, then...
+  gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
+}
+#endif
+
+/**************************************************************************/
+/*!
+    @brief Constructor when using HardwareSerial
+    @param ser Pointer to a HardwareSerial object
+*/
+/**************************************************************************/
+Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
+  common_init();     // Set everything to common state, then...
+  gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
 }
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last GPS date was obtained. Will fail
-    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return nmea_float_t value in seconds since last GPS date.
+    @brief Constructor when using I2C
+    @param theWire Pointer to an I2C TwoWire object
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceDate() {
-  return (millis() - lastDate) / 1000.;
+Adafruit_GPS::Adafruit_GPS(TwoWire *theWire) {
+  common_init();    // Set everything to common state, then...
+  gpsI2C = theWire; // ...override gpsI2C
 }
 
 /**************************************************************************/
 /*!
-    @brief Fakes time of receipt of a sentence. Use between build() and parse()
-    to make the timing look like the sentence arrived from the GPS.
+    @brief Constructor when using SPI
+    @param theSPI Pointer to an SPI device object
+    @param cspin The pin connected to the GPS CS, can be -1 if unused
 */
 /**************************************************************************/
-void Adafruit_GPS::resetSentTime() { sentTime = millis(); }
+Adafruit_GPS::Adafruit_GPS(SPIClass *theSPI, int8_t cspin) {
+  common_init();   // Set everything to common state, then...
+  gpsSPI = theSPI; // ...override gpsSPI
+  gpsSPI_cs = cspin;
+}
+
+/**************************************************************************/
+/*!
+    @brief Constructor when there are no communications attached
+*/
+/**************************************************************************/
+Adafruit_GPS::Adafruit_GPS() {
+  common_init(); // Set everything to common state, then...
+  noComms = true;
+}
+
+/**************************************************************************/
+/*!
+    @brief Initialization code used by all constructor types
+*/
+/**************************************************************************/
+void Adafruit_GPS::common_init(void) {
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  gpsSwSerial = NULL; // Set both to NULL, then override correct
+#endif
+  gpsHwSerial = NULL; // port pointer in corresponding constructor
+  gpsI2C = NULL;
+  gpsSPI = NULL;
+  recvdflag = false;
+  paused = false;
+  lineidx = 0;
+  currentline = line1;
+  lastline = line2;
+
+  hour = minute = seconds = year = month = day = fixquality = fixquality_3d =
+      satellites = 0;  // uint8_t
+  lat = lon = mag = 0; // char
+  fix = false;         // bool
+  milliseconds = 0;    // uint16_t
+  latitude = longitude = geoidheight = altitude = speed = angle = magvariation =
+      HDOP = VDOP = PDOP = 0.0; // nmea_float_t
+#ifdef NMEA_EXTENSIONS
+  data_init();
+#endif
+}
+
+/**************************************************************************/
+/*!
+    @brief    Destroy the object.
+    @return   none
+*/
+/**************************************************************************/
+Adafruit_GPS::~Adafruit_GPS() {
+#ifdef NMEA_EXTENSIONS
+  for (int i = 0; i < (int)NMEA_MAX_INDEX; i++)
+    removeHistory((nmea_index_t)i); // to free any history mallocs
+#endif
+}
 
 /**************************************************************************/
 /*!
@@ -356,147 +456,6 @@ char Adafruit_GPS::read(void) {
 
 /**************************************************************************/
 /*!
-    @brief Constructor when using SoftwareSerial
-    @param ser Pointer to SoftwareSerial device
-*/
-/**************************************************************************/
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser) {
-  common_init();     // Set everything to common state, then...
-  gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
-}
-#endif
-
-/**************************************************************************/
-/*!
-    @brief Constructor when using HardwareSerial
-    @param ser Pointer to a HardwareSerial object
-*/
-/**************************************************************************/
-Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
-  common_init();     // Set everything to common state, then...
-  gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
-}
-
-/**************************************************************************/
-/*!
-    @brief Constructor when using I2C
-    @param theWire Pointer to an I2C TwoWire object
-*/
-/**************************************************************************/
-Adafruit_GPS::Adafruit_GPS(TwoWire *theWire) {
-  common_init();    // Set everything to common state, then...
-  gpsI2C = theWire; // ...override gpsI2C
-}
-
-/**************************************************************************/
-/*!
-    @brief Constructor when using SPI
-    @param theSPI Pointer to an SPI device object
-    @param cspin The pin connected to the GPS CS, can be -1 if unused
-*/
-/**************************************************************************/
-Adafruit_GPS::Adafruit_GPS(SPIClass *theSPI, int8_t cspin) {
-  common_init();   // Set everything to common state, then...
-  gpsSPI = theSPI; // ...override gpsSPI
-  gpsSPI_cs = cspin;
-}
-
-/**************************************************************************/
-/*!
-    @brief Constructor when there are no communications attached
-*/
-/**************************************************************************/
-Adafruit_GPS::Adafruit_GPS() {
-  common_init(); // Set everything to common state, then...
-  noComms = true;
-}
-
-/**************************************************************************/
-/*!
-    @brief Initialization code used by all constructor types
-*/
-/**************************************************************************/
-void Adafruit_GPS::common_init(void) {
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-  gpsSwSerial = NULL; // Set both to NULL, then override correct
-#endif
-  gpsHwSerial = NULL; // port pointer in corresponding constructor
-  gpsI2C = NULL;
-  gpsSPI = NULL;
-  recvdflag = false;
-  paused = false;
-  lineidx = 0;
-  currentline = line1;
-  lastline = line2;
-
-  hour = minute = seconds = year = month = day = fixquality = fixquality_3d =
-      satellites = 0;  // uint8_t
-  lat = lon = mag = 0; // char
-  fix = false;         // bool
-  milliseconds = 0;    // uint16_t
-  latitude = longitude = geoidheight = altitude = speed = angle = magvariation =
-      HDOP = VDOP = PDOP = 0.0; // nmea_float_t
-#ifdef NMEA_EXTENSIONS
-  data_init();
-#endif
-}
-
-/**************************************************************************/
-/*!
-    @brief    Destroy the object.
-    @return   none
-*/
-/**************************************************************************/
-Adafruit_GPS::~Adafruit_GPS() {
-#ifdef NMEA_EXTENSIONS
-  for (int i = 0; i < (int)NMEA_MAX_INDEX; i++)
-    removeHistory((nmea_index_t)i); // to free any history mallocs
-#endif
-}
-
-/**************************************************************************/
-/*!
-    @brief Start the HW or SW serial port
-    @param baud_or_i2caddr Baud rate if using serial, I2C address if using I2C
-    @returns True on successful hardware init, False on failure
-*/
-/**************************************************************************/
-bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr) {
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-  if (gpsSwSerial) {
-    gpsSwSerial->begin(baud_or_i2caddr);
-  }
-#endif
-  if (gpsHwSerial) {
-    gpsHwSerial->begin(baud_or_i2caddr);
-  }
-  if (gpsI2C) {
-    gpsI2C->begin();
-    if (baud_or_i2caddr > 0x7F) {
-      _i2caddr = GPS_DEFAULT_I2C_ADDR;
-    } else {
-      _i2caddr = baud_or_i2caddr;
-    }
-    // A basic scanner, see if it ACK's
-    gpsI2C->beginTransmission(_i2caddr);
-    return (gpsI2C->endTransmission() == 0);
-  }
-  if (gpsSPI) {
-    gpsSPI->begin();
-    gpsSPI_settings = SPISettings(baud_or_i2caddr, MSBFIRST, SPI_MODE0);
-    if (gpsSPI_cs >= 0) {
-      pinMode(gpsSPI_cs, OUTPUT);
-      digitalWrite(gpsSPI_cs, HIGH);
-    }
-  }
-
-  delay(10);
-  return true;
-}
-
-/**************************************************************************/
-/*!
     @brief Send a command to the GPS device
     @param str Pointer to a string holding the command to send
 */
@@ -669,6 +628,47 @@ bool Adafruit_GPS::wakeup(void) {
     return false; // Returns false if not in standby mode, nothing to wakeup
   }
 }
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last position fix was obtained. Will
+    fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return nmea_float_t value in seconds since last fix.
+*/
+/**************************************************************************/
+nmea_float_t Adafruit_GPS::secondsSinceFix() {
+  return (millis() - lastFix) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last GPS time was obtained. Will fail
+    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return nmea_float_t value in seconds since last GPS time.
+*/
+/**************************************************************************/
+nmea_float_t Adafruit_GPS::secondsSinceTime() {
+  return (millis() - lastTime) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last GPS date was obtained. Will fail
+    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return nmea_float_t value in seconds since last GPS date.
+*/
+/**************************************************************************/
+nmea_float_t Adafruit_GPS::secondsSinceDate() {
+  return (millis() - lastDate) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Fakes time of receipt of a sentence. Use between build() and parse()
+    to make the timing look like the sentence arrived from the GPS.
+*/
+/**************************************************************************/
+void Adafruit_GPS::resetSentTime() { sentTime = millis(); }
 
 /**************************************************************************/
 /*!

@@ -21,8 +21,6 @@
 */
 /**************************************************************************/
 
-// Fllybob added lines 34,35 and 40,41 to add 100mHz logging capability
-
 #ifndef _ADAFRUIT_GPS_H
 #define _ADAFRUIT_GPS_H
 
@@ -67,7 +65,7 @@
 /// type for resulting code from running check()
 typedef enum {
   NMEA_BAD = 0,            ///< passed none of the checks
-  NMEA_HAS_DOLLAR = 1,     ///< has a dollar sign in the first position
+  NMEA_HAS_DOLLAR = 1,     ///< has a dollar sign or exclamation mark in the first position
   NMEA_HAS_CHECKSUM = 2,   ///< has a valid checksum at the end
   NMEA_HAS_NAME = 4,       ///< there is a token after the $ followed by a comma
   NMEA_HAS_SOURCE = 10,    ///< has a recognized source ID
@@ -81,6 +79,7 @@ typedef enum {
 */
 class Adafruit_GPS : public Print {
 public:
+  // Adafruit_GPS.cpp
   bool begin(uint32_t baud_or_i2caddr);
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
@@ -90,28 +89,28 @@ public:
   Adafruit_GPS(TwoWire *theWire);    // Constructor when using I2C
   Adafruit_GPS(SPIClass *theSPI, int8_t cspin); // Constructor when using SPI
   Adafruit_GPS(); // Constructor for no communications, just data storage
+  void common_init(void);
   virtual ~Adafruit_GPS();
   
-  char *lastNMEA(void);
-  bool newNMEAreceived();
-  void common_init(void);
-
-  void sendCommand(const char *);
-
-  void pause(bool b);
-
-  char read(void);
-  size_t write(uint8_t);
   size_t available(void);
-
+  size_t write(uint8_t);
+  char read(void);
+  void sendCommand(const char *);
+  bool newNMEAreceived();
+  void pause(bool b);
+  char *lastNMEA(void);
+  bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
+                          bool usingInterrupts = false);
+  bool LOCUS_StartLogger(void);
+  bool LOCUS_StopLogger(void);
+  bool LOCUS_ReadStatus(void);
+  bool standby(void);
+  bool wakeup(void);
   nmea_float_t secondsSinceFix();
   nmea_float_t secondsSinceTime();
   nmea_float_t secondsSinceDate();
   void resetSentTime();
-
-  bool wakeup(void);
-  bool standby(void);
-
+  
   // NMEA_parse.cpp
   bool parse(char *);
   bool check(char *nmea);
@@ -196,12 +195,6 @@ public:
   uint8_t fixquality;    ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
   uint8_t fixquality_3d; ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;    ///< Number of satellites in use
-
-  bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
-                       bool usingInterrupts = false);
-  bool LOCUS_StartLogger(void);
-  bool LOCUS_StopLogger(void);
-  bool LOCUS_ReadStatus(void);
 
   uint16_t LOCUS_serial;  ///< Log serial number
   uint16_t LOCUS_records; ///< Log number of data record
