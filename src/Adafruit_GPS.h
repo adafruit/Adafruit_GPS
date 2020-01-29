@@ -21,8 +21,6 @@
 */
 /**************************************************************************/
 
-// Fllybob added lines 34,35 and 40,41 to add 100mHz logging capability
-
 #ifndef _ADAFRUIT_GPS_H
 #define _ADAFRUIT_GPS_H
 
@@ -31,8 +29,14 @@
  Comment out the definition of NMEA_EXTENSIONS to make the library use as
  little memory as possible for GPS functionality only. The ARDUINO_ARCH_AVR
  test should leave it out of any compilations for the UNO and similar. */
+#ifndef NMEA_EXTRAS // inject on the compile command line to force extensions
 #ifndef ARDUINO_ARCH_AVR
 #define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
+#endif
+#else
+#if (NMEA_EXTRAS > 0)
+#define NMEA_EXTENSIONS ///< if defined will include more NMEA sentences
+#endif
 #endif
 
 #define USE_SW_SERIAL ///< comment this out if you don't want to include
@@ -60,8 +64,9 @@
 
 /// type for resulting code from running check()
 typedef enum {
-  NMEA_BAD = 0,            ///< passed none of the checks
-  NMEA_HAS_DOLLAR = 1,     ///< has a dollar sign in the first position
+  NMEA_BAD = 0, ///< passed none of the checks
+  NMEA_HAS_DOLLAR =
+      1, ///< has a dollar sign or exclamation mark in the first position
   NMEA_HAS_CHECKSUM = 2,   ///< has a valid checksum at the end
   NMEA_HAS_NAME = 4,       ///< there is a token after the $ followed by a comma
   NMEA_HAS_SOURCE = 10,    ///< has a recognized source ID
@@ -75,6 +80,7 @@ typedef enum {
 */
 class Adafruit_GPS : public Print {
 public:
+  // Adafruit_GPS.cpp
   bool begin(uint32_t baud_or_i2caddr);
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
@@ -83,31 +89,60 @@ public:
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
   Adafruit_GPS(TwoWire *theWire);    // Constructor when using I2C
   Adafruit_GPS(SPIClass *theSPI, int8_t cspin); // Constructor when using SPI
-
-  char *lastNMEA(void);
-  bool newNMEAreceived();
+  Adafruit_GPS(); // Constructor for no communications, just data storage
   void common_init(void);
+  virtual ~Adafruit_GPS();
 
-  void sendCommand(const char *);
-
-  void pause(bool b);
-
-  uint8_t parseHex(char c);
-
-  char read(void);
-  size_t write(uint8_t);
   size_t available(void);
-
-  bool check(char *nmea);
-  bool parse(char *);
-  void addChecksum(char *buff);
+  size_t write(uint8_t);
+  char read(void);
+  void sendCommand(const char *);
+  bool newNMEAreceived();
+  void pause(bool b);
+  char *lastNMEA(void);
+  bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
+                       bool usingInterrupts = false);
+  bool LOCUS_StartLogger(void);
+  bool LOCUS_StopLogger(void);
+  bool LOCUS_ReadStatus(void);
+  bool standby(void);
+  bool wakeup(void);
   nmea_float_t secondsSinceFix();
   nmea_float_t secondsSinceTime();
   nmea_float_t secondsSinceDate();
   void resetSentTime();
 
-  bool wakeup(void);
-  bool standby(void);
+  // NMEA_parse.cpp
+  bool parse(char *);
+  bool check(char *nmea);
+  bool onList(char *nmea, const char **list);
+  uint8_t parseHex(char c);
+
+  // NMEA_build.cpp
+#ifdef NMEA_EXTENSIONS
+  char *build(char *nmea, const char *thisSource, const char *thisSentence,
+              char ref = 'R');
+#endif
+  void addChecksum(char *buff);
+
+  // NMEA_data.cpp
+  void newDataValue(nmea_index_t tag, nmea_float_t v);
+#ifdef NMEA_EXTENSIONS
+  nmea_float_t get(nmea_index_t idx);
+  nmea_float_t getSmoothed(nmea_index_t idx);
+  void initDataValue(nmea_index_t idx, char *label = NULL, char *fmt = NULL,
+                     char *unit = NULL, unsigned long response = 0,
+                     nmea_value_type_t type = NMEA_SIMPLE_FLOAT);
+  nmea_history_t *initHistory(nmea_index_t idx, nmea_float_t scale = 10.0,
+                              nmea_float_t offset = 0.0,
+                              unsigned historyInterval = 20,
+                              unsigned historyN = 192);
+  void removeHistory(nmea_index_t idx);
+  void showDataValue(nmea_index_t idx, int n = 7);
+  bool isCompoundAngle(nmea_index_t idx);
+#endif
+  nmea_float_t boatAngle(nmea_float_t s, nmea_float_t c);
+  nmea_float_t compassAngle(nmea_float_t s, nmea_float_t c);
 
   int thisCheck = 0; ///< the results of the check on the current sentence
   char thisSource[NMEA_MAX_SOURCE_ID] = {
@@ -162,12 +197,6 @@ public:
   uint8_t fixquality_3d; ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;    ///< Number of satellites in use
 
-  bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
-                       bool usingInterrupts = false);
-  bool LOCUS_StartLogger(void);
-  bool LOCUS_StopLogger(void);
-  bool LOCUS_ReadStatus(void);
-
   uint16_t LOCUS_serial;  ///< Log serial number
   uint16_t LOCUS_records; ///< Log number of data record
   uint8_t LOCUS_type;     ///< Log type, 0: Overlap, 1: FullStop
@@ -180,11 +209,20 @@ public:
   uint8_t LOCUS_percent;  ///< Log life used percentage
 
 #ifdef NMEA_EXTENSIONS
-  // NMEA additional public functions
-  char *build(char *nmea, const char *thisSource, const char *thisSentence,
-              char ref = 'R');
-
   // NMEA additional public variables
+  nmea_datavalue_t
+      val[NMEA_MAX_INDEX]; ///< an array of data value structs, val[0] = most
+                           ///< recent HDOP so that ockam indexing works
+  nmea_float_t depthToKeel =
+      2.4; ///< depth from surface to bottom of keel in metres
+  nmea_float_t depthToTransducer =
+      0.0; ///< depth of transducer below the surface in metres
+
+  char toID[NMEA_MAX_WP_ID] = {
+      0}; ///< id of waypoint going to on this segment of the route
+  char fromID[NMEA_MAX_WP_ID] = {
+      0}; ///< id of waypoint coming from on this segment of the route
+
   char txtTXT[63] = {0}; ///< text content from most recent TXT sentence
   int txtTot = 0;        ///< total TXT sentences in group
   int txtID = 0;         ///< id of the text message
@@ -192,22 +230,41 @@ public:
 #endif                   // NMEA_EXTENSIONS
 
 private:
+  //   void parseLat(char *);
+  //   bool parseLatDir(char *);
+  //   void parseLon(char *);
+  //   bool parseLonDir(char *);
+  // NMEA_data.cpp
+  void data_init();
+  // NMEA_parse.cpp
   const char *tokenOnList(char *token, const char **list);
+  bool parseCoord(char *p, nmea_float_t *angleDegrees = NULL,
+                  nmea_float_t *angle = NULL, int32_t *angle_fixed = NULL,
+                  char *dir = NULL);
   char *parseStr(char *buff, char *p, int n);
-  bool isEmpty(char *pStart);
-  void parseTime(char *);
-  void parseLat(char *);
-  bool parseLatDir(char *);
-  void parseLon(char *);
-  bool parseLonDir(char *);
+  bool parseTime(char *);
   bool parseFix(char *);
+  bool isEmpty(char *pStart);
+
   // used by check() for validity tests, room for future expansion
-  const char *sources[5] = {"II", "WI", "GP", "GN",
-                            "ZZZ"}; ///< valid source ids
+  const char *sources[6] = {"II", "WI", "GP",
+                            "GN", "P",  "ZZZ"}; ///< valid source ids
+#ifdef NMEA_EXTENSIONS
+  const char
+      *sentences_parsed[20] =
+          {
+              "GGA", "GLL", "GSA", "RMC", "DBT", "HDM", "HDT",
+              "MDA", "MTW", "MWV", "RMB", "TXT", "VHW", "VLW",
+              "VPW", "VWR", "WCV", "XTE", "ZZZ"}; ///< parseable sentence ids
+  const char *sentences_known[15] = {
+      "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
+      "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"}; ///< known, but not parseable
+#else // make the lists short to save memory
   const char *sentences_parsed[5] = {"GGA", "GLL", "GSA", "RMC",
                                      "ZZZ"}; ///< parseable sentence ids
-  const char *sentences_known[1] = {
-      "ZZZ"}; ///< known, but not parseable sentence ids
+  const char *sentences_known[4] = {"DBT", "HDM", "HDT",
+                                    "ZZZ"}; ///< known, but not parseable
+#endif
 
   // Make all of these times far in the past by setting them near the middle of
   // the millis() range. Timing assumes that sentences are parsed promptly.
@@ -226,6 +283,7 @@ private:
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   SoftwareSerial *gpsSwSerial;
 #endif
+  bool noComms = false;
   HardwareSerial *gpsHwSerial;
   TwoWire *gpsI2C;
   SPIClass *gpsSPI;

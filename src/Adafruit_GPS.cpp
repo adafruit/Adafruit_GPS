@@ -34,117 +34,6 @@ static bool strStartsWith(const char *str, const char *prefix);
 
 /**************************************************************************/
 /*!
-    @brief Check an NMEA string for basic format, valid source ID and valid
-    and valid sentence ID. Update the values of thisCheck, thisSource and
-    thisSentence.
-    @param nmea Pointer to the NMEA string
-    @return True if well formed, false if it has problems
-*/
-/**************************************************************************/
-bool Adafruit_GPS::check(char *nmea) {
-  thisCheck = 0; // new check
-  if (*nmea != '$')
-    return false; // doesn't start with $
-  else
-    thisCheck += NMEA_HAS_DOLLAR;
-  // do checksum check -- first look if we even have one -- ignore all but last
-  // *
-  char *ast = nmea; // not strchr(nmea,'*'); for first *
-  while (*ast)
-    ast++; // go to the end
-  while (*ast != '*' && ast > nmea)
-    ast--; // then back to * if it's there
-  if (*ast != '*')
-    return false; // there is no asterisk
-  else {
-    uint16_t sum = parseHex(*(ast + 1)) * 16; // extract checksum
-    sum += parseHex(*(ast + 2));
-    char *p = nmea; // check checksum
-    for (char *p1 = p + 1; p1 < ast; p1++)
-      sum ^= *p1;
-    if (sum != 0)
-      return false; // bad checksum :(
-    else
-      thisCheck += NMEA_HAS_CHECKSUM;
-  }
-  // extract source of variable length
-  char *p = nmea + 1;
-  const char *src = tokenOnList(p, sources);
-  if (src) {
-    strcpy(thisSource, src);
-    thisCheck += NMEA_HAS_SOURCE;
-  } else
-    return false;
-  p += strlen(src);
-  // extract sentence id and check if parsed
-  const char *snc = tokenOnList(p, sentences_parsed);
-  if (snc) {
-    strcpy(thisSentence, snc);
-    thisCheck += NMEA_HAS_SENTENCE_P + NMEA_HAS_SENTENCE;
-  } else { // check if known
-    snc = tokenOnList(p, sentences_known);
-    if (snc) {
-      strcpy(thisSentence, snc);
-      thisCheck += NMEA_HAS_SENTENCE;
-      return false;
-    }
-  }
-  return true; // passed all the tests
-}
-
-/**************************************************************************/
-/*!
-    @brief Check if a token at the start of a string is on a list.
-    @param token Pointer to the string
-    @param list A list of strings, with the final entry starting "ZZ"
-    @return Pointer to the found token, or NULL if it fails
-*/
-/**************************************************************************/
-const char *Adafruit_GPS::tokenOnList(char *token, const char **list) {
-  int i = 0; // index in the list
-  while (strncmp(list[i], "ZZ", 2) &&
-         i < 1000) { // stop at terminator and don't crash without it
-    // test for a match on the sentence name
-    if (!strncmp((const char *)list[i], (const char *)token, strlen(list[i])))
-      return list[i];
-    i++;
-  }
-  return NULL; // couldn't find a match
-}
-
-/**************************************************************************/
-/*!
-    @brief Parse a string token from pointer p to the next comma, asterisk
-    or end of string.
-    @param buff Pointer to the buffer to store the string in
-    @param p Pointer into a string
-    @param n Max permitted size of string including terminating 0
-    @return Pointer to the string buffer
-*/
-/**************************************************************************/
-char *Adafruit_GPS::parseStr(char *buff, char *p, int n) {
-  char *e = strchr(p, ',');
-  int len = 0;
-  if (e) {
-    len = min(e - p, n - 1);
-    strncpy(buff, p, len); // copy up to the comma
-    buff[len] = 0;
-  } else {
-    e = strchr(p, '*');
-    if (e) {
-      len = min(e - p, n - 1);
-      strncpy(buff, p, len); // or up to the *
-      buff[e - p] = 0;
-    } else {
-      len = min((int)strlen(p), n - 1);
-      strncpy(buff, p, len); // or to the end or max capacity
-    }
-  }
-  return buff;
-}
-
-/**************************************************************************/
-/*!
     @brief Is the field empty, or should we try conversion? Won't work
     for a text field that starts with an asterisk or a comma, but that
     probably violates the NMEA-183 standard.
@@ -152,76 +41,29 @@ char *Adafruit_GPS::parseStr(char *buff, char *p, int n) {
     @return true if empty field, false if something there
 */
 /**************************************************************************/
-bool Adafruit_GPS::isEmpty(char *pStart) {
-  if (',' != *pStart && '*' != *pStart && pStart != NULL)
-    return false;
-  else
-    return true;
-}
-
-/**************************************************************************/
-/*!
-    @brief Add *CS where CS is the two character hex checksum for all but
-    the first character in the string. The checksum is the result of an
-    exclusive or of all the characters in the string. Also useful if you
-    are creating new PMTK strings for controlling a GPS module and need a
-    checksum added.
-    @param buff Pointer to the string, which must be long enough
-    @return none
-*/
-/**************************************************************************/
-void Adafruit_GPS::addChecksum(char *buff) {
-  char cs = 0;
-  int i = 1;
-  while (buff[i]) {
-    cs ^= buff[i];
-    i++;
-  }
-  sprintf(buff, "%s*%02X", buff, cs);
-}
-
-/**************************************************************************/
-/*!
-    @brief Parse a part of an NMEA string for time
-    @param p Pointer to the location of the token in the NMEA string
-*/
-/**************************************************************************/
-void Adafruit_GPS::parseTime(char *p) {
-  // get time
-  uint32_t time = atol(p);
-  hour = time / 10000;
-  minute = (time % 10000) / 100;
-  seconds = (time % 100);
-
-  p = strchr(p, '.') + 1;
-  milliseconds = atoi(p);
-  lastTime = sentTime;
-}
-
-/**************************************************************************/
 /*!
     @brief Parse a part of an NMEA string for latitude angle
     @param p Pointer to the location of the token in the NMEA string
 */
 /**************************************************************************/
-void Adafruit_GPS::parseLat(char *p) {
-  char degreebuff[10];
-  if (!isEmpty(p)) {
-    strncpy(degreebuff, p, 2);
-    p += 2;
-    degreebuff[2] = '\0';
-    long degree = atol(degreebuff) * 10000000;
-    strncpy(degreebuff, p, 2); // minutes
-    p += 3;                    // skip decimal point
-    strncpy(degreebuff + 2, p, 4);
-    degreebuff[6] = '\0';
-    long minutes = 50 * atol(degreebuff) / 3;
-    latitude_fixed = degree + minutes;
-    latitude = degree / 100000 + minutes * 0.000006F;
-    latitudeDegrees = (latitude - 100 * int(latitude / 100)) / 60.0f;
-    latitudeDegrees += int(latitude / 100);
-  }
-}
+// void Adafruit_GPS::parseLat(char *p) {
+//   char degreebuff[10];
+//   if (!isEmpty(p)) {
+//     strncpy(degreebuff, p, 2);
+//     p += 2;
+//     degreebuff[2] = '\0';
+//     long degree = atol(degreebuff) * 10000000;
+//     strncpy(degreebuff, p, 2); // minutes
+//     p += 3;                    // skip decimal point
+//     strncpy(degreebuff + 2, p, 4);
+//     degreebuff[6] = '\0';
+//     long minutes = 50 * atol(degreebuff) / 3;
+//     latitude_fixed = degree + minutes;
+//     latitude = degree / 100000 + minutes * 0.000006F;
+//     latitudeDegrees = (latitude - 100 * int(latitude / 100)) / 60.0f;
+//     latitudeDegrees += int(latitude / 100);
+//   }
+// }
 
 /**************************************************************************/
 /*!
@@ -230,20 +72,20 @@ void Adafruit_GPS::parseLat(char *p) {
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-bool Adafruit_GPS::parseLatDir(char *p) {
-  if (p[0] == 'S') {
-    lat = 'S';
-    latitudeDegrees *= -1.0f;
-    latitude_fixed *= -1;
-  } else if (p[0] == 'N') {
-    lat = 'N';
-  } else if (p[0] == ',') {
-    lat = 0;
-  } else {
-    return false;
-  }
-  return true;
-}
+// bool Adafruit_GPS::parseLatDir(char *p) {
+//   if (p[0] == 'S') {
+//     lat = 'S';
+//     latitudeDegrees *= -1.0f;
+//     latitude_fixed *= -1;
+//   } else if (p[0] == 'N') {
+//     lat = 'N';
+//   } else if (p[0] == ',') {
+//     lat = 0;
+//   } else {
+//     return false;
+//   }
+//   return true;
+// }
 
 /**************************************************************************/
 /*!
@@ -251,26 +93,26 @@ bool Adafruit_GPS::parseLatDir(char *p) {
     @param p Pointer to the location of the token in the NMEA string
 */
 /**************************************************************************/
-void Adafruit_GPS::parseLon(char *p) {
-  int32_t degree;
-  long minutes;
-  char degreebuff[10];
-  if (!isEmpty(p)) {
-    strncpy(degreebuff, p, 3);
-    p += 3;
-    degreebuff[3] = '\0';
-    degree = atol(degreebuff) * 10000000;
-    strncpy(degreebuff, p, 2); // minutes
-    p += 3;                    // skip decimal point
-    strncpy(degreebuff + 2, p, 4);
-    degreebuff[6] = '\0';
-    minutes = 50 * atol(degreebuff) / 3;
-    longitude_fixed = degree + minutes;
-    longitude = degree / 100000 + minutes * 0.000006F;
-    longitudeDegrees = (longitude - 100 * int(longitude / 100)) / 60.0f;
-    longitudeDegrees += int(longitude / 100);
-  }
-}
+// void Adafruit_GPS::parseLon(char *p) {
+//   int32_t degree;
+//   long minutes;
+//   char degreebuff[10];
+//   if (!isEmpty(p)) {
+//     strncpy(degreebuff, p, 3);
+//     p += 3;
+//     degreebuff[3] = '\0';
+//     degree = atol(degreebuff) * 10000000;
+//     strncpy(degreebuff, p, 2); // minutes
+//     p += 3;                    // skip decimal point
+//     strncpy(degreebuff + 2, p, 4);
+//     degreebuff[6] = '\0';
+//     minutes = 50 * atol(degreebuff) / 3;
+//     longitude_fixed = degree + minutes;
+//     longitude = degree / 100000 + minutes * 0.000006F;
+//     longitudeDegrees = (longitude - 100 * int(longitude / 100)) / 60.0f;
+//     longitudeDegrees += int(longitude / 100);
+//   }
+// }
 
 /**************************************************************************/
 /*!
@@ -279,81 +121,163 @@ void Adafruit_GPS::parseLon(char *p) {
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-bool Adafruit_GPS::parseLonDir(char *p) {
-  if (!isEmpty(p)) {
-    if (p[0] == 'W') {
-      lon = 'W';
-      longitudeDegrees *= -1.0f;
-      longitude_fixed *= -1;
-    } else if (p[0] == 'E') {
-      lon = 'E';
-    } else if (p[0] == ',') {
-      lon = 0;
+// bool Adafruit_GPS::parseLonDir(char *p) {
+//   if (!isEmpty(p)) {
+//     if (p[0] == 'W') {
+//       lon = 'W';
+//       longitudeDegrees *= -1.0f;
+//       longitude_fixed *= -1;
+//     } else if (p[0] == 'E') {
+//       lon = 'E';
+//     } else if (p[0] == ',') {
+//       lon = 0;
+//     } else {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
+
+/**************************************************************************/
+/*!
+    @brief Start the HW or SW serial port
+    @param baud_or_i2caddr Baud rate if using serial, I2C address if using I2C
+    @returns True on successful hardware init, False on failure
+*/
+/**************************************************************************/
+bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr) {
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  if (gpsSwSerial) {
+    gpsSwSerial->begin(baud_or_i2caddr);
+  }
+#endif
+  if (gpsHwSerial) {
+    gpsHwSerial->begin(baud_or_i2caddr);
+  }
+  if (gpsI2C) {
+    gpsI2C->begin();
+    if (baud_or_i2caddr > 0x7F) {
+      _i2caddr = GPS_DEFAULT_I2C_ADDR;
     } else {
-      return false;
+      _i2caddr = baud_or_i2caddr;
+    }
+    // A basic scanner, see if it ACK's
+    gpsI2C->beginTransmission(_i2caddr);
+    return (gpsI2C->endTransmission() == 0);
+  }
+  if (gpsSPI) {
+    gpsSPI->begin();
+    gpsSPI_settings = SPISettings(baud_or_i2caddr, MSBFIRST, SPI_MODE0);
+    if (gpsSPI_cs >= 0) {
+      pinMode(gpsSPI_cs, OUTPUT);
+      digitalWrite(gpsSPI_cs, HIGH);
     }
   }
+
+  delay(10);
   return true;
 }
 
 /**************************************************************************/
 /*!
-    @brief Parse a part of an NMEA string for whether there is a fix
-    @param p Pointer to the location of the token in the NMEA string
-    @return True if we parsed it, false if it has invalid data
+    @brief Constructor when using SoftwareSerial
+    @param ser Pointer to SoftwareSerial device
 */
 /**************************************************************************/
-bool Adafruit_GPS::parseFix(char *p) {
-  if (p[0] == 'A') {
-    fix = true;
-    lastFix = sentTime;
-  } else if (p[0] == 'V')
-    fix = false;
-  else
-    return false;
-  return true;
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser) {
+  common_init();     // Set everything to common state, then...
+  gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
+}
+#endif
+
+/**************************************************************************/
+/*!
+    @brief Constructor when using HardwareSerial
+    @param ser Pointer to a HardwareSerial object
+*/
+/**************************************************************************/
+Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
+  common_init();     // Set everything to common state, then...
+  gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
 }
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last position fix was obtained. Will
-    fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return nmea_float_t value in seconds since last fix.
+    @brief Constructor when using I2C
+    @param theWire Pointer to an I2C TwoWire object
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceFix() {
-  return (millis() - lastFix) / 1000.;
+Adafruit_GPS::Adafruit_GPS(TwoWire *theWire) {
+  common_init();    // Set everything to common state, then...
+  gpsI2C = theWire; // ...override gpsI2C
 }
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last GPS time was obtained. Will fail
-    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return nmea_float_t value in seconds since last GPS time.
+    @brief Constructor when using SPI
+    @param theSPI Pointer to an SPI device object
+    @param cspin The pin connected to the GPS CS, can be -1 if unused
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceTime() {
-  return (millis() - lastTime) / 1000.;
+Adafruit_GPS::Adafruit_GPS(SPIClass *theSPI, int8_t cspin) {
+  common_init();   // Set everything to common state, then...
+  gpsSPI = theSPI; // ...override gpsSPI
+  gpsSPI_cs = cspin;
 }
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last GPS date was obtained. Will fail
-    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
-    @return nmea_float_t value in seconds since last GPS date.
+    @brief Constructor when there are no communications attached
 */
 /**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceDate() {
-  return (millis() - lastDate) / 1000.;
+Adafruit_GPS::Adafruit_GPS() {
+  common_init(); // Set everything to common state, then...
+  noComms = true;
 }
 
 /**************************************************************************/
 /*!
-    @brief Fakes time of receipt of a sentence. Use between build() and parse()
-    to make the timing look like the sentence arrived from the GPS.
+    @brief Initialization code used by all constructor types
 */
 /**************************************************************************/
-void Adafruit_GPS::resetSentTime() { sentTime = millis(); }
+void Adafruit_GPS::common_init(void) {
+#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+  gpsSwSerial = NULL; // Set both to NULL, then override correct
+#endif
+  gpsHwSerial = NULL; // port pointer in corresponding constructor
+  gpsI2C = NULL;
+  gpsSPI = NULL;
+  recvdflag = false;
+  paused = false;
+  lineidx = 0;
+  currentline = line1;
+  lastline = line2;
+
+  hour = minute = seconds = year = month = day = fixquality = fixquality_3d =
+      satellites = 0;  // uint8_t
+  lat = lon = mag = 0; // char
+  fix = false;         // bool
+  milliseconds = 0;    // uint16_t
+  latitude = longitude = geoidheight = altitude = speed = angle = magvariation =
+      HDOP = VDOP = PDOP = 0.0; // nmea_float_t
+#ifdef NMEA_EXTENSIONS
+  data_init();
+#endif
+}
+
+/**************************************************************************/
+/*!
+    @brief    Destroy the object.
+    @return   none
+*/
+/**************************************************************************/
+Adafruit_GPS::~Adafruit_GPS() {
+#ifdef NMEA_EXTENSIONS
+  for (int i = 0; i < (int)NMEA_MAX_INDEX; i++)
+    removeHistory((nmea_index_t)i); // to free any history mallocs
+#endif
+}
 
 /**************************************************************************/
 /*!
@@ -434,7 +358,7 @@ char Adafruit_GPS::read(void) {
   uint32_t tStart = millis();    // as close as we can get to time char was sent
   char c = 0;
 
-  if (paused)
+  if (paused || noComms)
     return c;
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
@@ -532,121 +456,6 @@ char Adafruit_GPS::read(void) {
 
 /**************************************************************************/
 /*!
-    @brief Constructor when using SoftwareSerial
-    @param ser Pointer to SoftwareSerial device
-*/
-/**************************************************************************/
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser) {
-  common_init();     // Set everything to common state, then...
-  gpsSwSerial = ser; // ...override gpsSwSerial with value passed.
-}
-#endif
-
-/**************************************************************************/
-/*!
-    @brief Constructor when using HardwareSerial
-    @param ser Pointer to a HardwareSerial object
-*/
-/**************************************************************************/
-Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
-  common_init();     // Set everything to common state, then...
-  gpsHwSerial = ser; // ...override gpsHwSerial with value passed.
-}
-
-/**************************************************************************/
-/*!
-    @brief Constructor when using I2C
-    @param theWire Pointer to an I2C TwoWire object
-*/
-/**************************************************************************/
-Adafruit_GPS::Adafruit_GPS(TwoWire *theWire) {
-  common_init();    // Set everything to common state, then...
-  gpsI2C = theWire; // ...override gpsI2C
-}
-
-/**************************************************************************/
-/*!
-    @brief Constructor when using SPI
-    @param theSPI Pointer to an SPI device object
-    @param cspin The pin connected to the GPS CS, can be -1 if unused
-*/
-/**************************************************************************/
-Adafruit_GPS::Adafruit_GPS(SPIClass *theSPI, int8_t cspin) {
-  common_init();   // Set everything to common state, then...
-  gpsSPI = theSPI; // ...override gpsSPI
-  gpsSPI_cs = cspin;
-}
-
-/**************************************************************************/
-/*!
-    @brief Initialization code used by all constructor types
-*/
-/**************************************************************************/
-void Adafruit_GPS::common_init(void) {
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-  gpsSwSerial = NULL; // Set both to NULL, then override correct
-#endif
-  gpsHwSerial = NULL; // port pointer in corresponding constructor
-  gpsI2C = NULL;
-  gpsSPI = NULL;
-  recvdflag = false;
-  paused = false;
-  lineidx = 0;
-  currentline = line1;
-  lastline = line2;
-
-  hour = minute = seconds = year = month = day = fixquality = fixquality_3d =
-      satellites = 0;  // uint8_t
-  lat = lon = mag = 0; // char
-  fix = false;         // bool
-  milliseconds = 0;    // uint16_t
-  latitude = longitude = geoidheight = altitude = speed = angle = magvariation =
-      HDOP = VDOP = PDOP = 0.0; // nmea_float_t
-}
-
-/**************************************************************************/
-/*!
-    @brief Start the HW or SW serial port
-    @param baud_or_i2caddr Baud rate if using serial, I2C address if using I2C
-    @returns True on successful hardware init, False on failure
-*/
-/**************************************************************************/
-bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr) {
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
-  if (gpsSwSerial) {
-    gpsSwSerial->begin(baud_or_i2caddr);
-  }
-#endif
-  if (gpsHwSerial) {
-    gpsHwSerial->begin(baud_or_i2caddr);
-  }
-  if (gpsI2C) {
-    gpsI2C->begin();
-    if (baud_or_i2caddr > 0x7F) {
-      _i2caddr = GPS_DEFAULT_I2C_ADDR;
-    } else {
-      _i2caddr = baud_or_i2caddr;
-    }
-    // A basic scanner, see if it ACK's
-    gpsI2C->beginTransmission(_i2caddr);
-    return (gpsI2C->endTransmission() == 0);
-  }
-  if (gpsSPI) {
-    gpsSPI->begin();
-    gpsSPI_settings = SPISettings(baud_or_i2caddr, MSBFIRST, SPI_MODE0);
-    if (gpsSPI_cs >= 0) {
-      pinMode(gpsSPI_cs, OUTPUT);
-      digitalWrite(gpsSPI_cs, HIGH);
-    }
-  }
-
-  delay(10);
-  return true;
-}
-
-/**************************************************************************/
-/*!
     @brief Send a command to the GPS device
     @param str Pointer to a string holding the command to send
 */
@@ -678,28 +487,6 @@ void Adafruit_GPS::pause(bool p) { paused = p; }
 char *Adafruit_GPS::lastNMEA(void) {
   recvdflag = false;
   return (char *)lastline;
-}
-
-/**************************************************************************/
-/*!
-    @brief Parse a hex character and return the appropriate decimal value
-    @param c Hex character, e.g. '0' or 'B'
-    @return Integer value of the hex character. Returns 0 if c is not a proper
-   character
-*/
-/**************************************************************************/
-// read a Hex value and return the decimal equivalent
-uint8_t Adafruit_GPS::parseHex(char c) {
-  if (c < '0')
-    return 0;
-  if (c <= '9')
-    return c - '0';
-  if (c < 'A')
-    return 0;
-  if (c <= 'F')
-    return (c - 'A') + 10;
-  // if (c > 'F')
-  return 0;
 }
 
 /**************************************************************************/
@@ -841,6 +628,47 @@ bool Adafruit_GPS::wakeup(void) {
     return false; // Returns false if not in standby mode, nothing to wakeup
   }
 }
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last position fix was obtained. Will
+    fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return nmea_float_t value in seconds since last fix.
+*/
+/**************************************************************************/
+nmea_float_t Adafruit_GPS::secondsSinceFix() {
+  return (millis() - lastFix) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last GPS time was obtained. Will fail
+    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return nmea_float_t value in seconds since last GPS time.
+*/
+/**************************************************************************/
+nmea_float_t Adafruit_GPS::secondsSinceTime() {
+  return (millis() - lastTime) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Time in seconds since the last GPS date was obtained. Will fail
+    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @return nmea_float_t value in seconds since last GPS date.
+*/
+/**************************************************************************/
+nmea_float_t Adafruit_GPS::secondsSinceDate() {
+  return (millis() - lastDate) / 1000.;
+}
+
+/**************************************************************************/
+/*!
+    @brief Fakes time of receipt of a sentence. Use between build() and parse()
+    to make the timing look like the sentence arrived from the GPS.
+*/
+/**************************************************************************/
+void Adafruit_GPS::resetSentTime() { sentTime = millis(); }
 
 /**************************************************************************/
 /*!
