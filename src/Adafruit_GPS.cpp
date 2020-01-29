@@ -46,24 +46,24 @@ static bool strStartsWith(const char *str, const char *prefix);
     @param p Pointer to the location of the token in the NMEA string
 */
 /**************************************************************************/
-void Adafruit_GPS::parseLat(char *p) {
-  char degreebuff[10];
-  if (!isEmpty(p)) {
-    strncpy(degreebuff, p, 2);
-    p += 2;
-    degreebuff[2] = '\0';
-    long degree = atol(degreebuff) * 10000000;
-    strncpy(degreebuff, p, 2); // minutes
-    p += 3;                    // skip decimal point
-    strncpy(degreebuff + 2, p, 4);
-    degreebuff[6] = '\0';
-    long minutes = 50 * atol(degreebuff) / 3;
-    latitude_fixed = degree + minutes;
-    latitude = degree / 100000 + minutes * 0.000006F;
-    latitudeDegrees = (latitude - 100 * int(latitude / 100)) / 60.0f;
-    latitudeDegrees += int(latitude / 100);
-  }
-}
+// void Adafruit_GPS::parseLat(char *p) {
+//   char degreebuff[10];
+//   if (!isEmpty(p)) {
+//     strncpy(degreebuff, p, 2);
+//     p += 2;
+//     degreebuff[2] = '\0';
+//     long degree = atol(degreebuff) * 10000000;
+//     strncpy(degreebuff, p, 2); // minutes
+//     p += 3;                    // skip decimal point
+//     strncpy(degreebuff + 2, p, 4);
+//     degreebuff[6] = '\0';
+//     long minutes = 50 * atol(degreebuff) / 3;
+//     latitude_fixed = degree + minutes;
+//     latitude = degree / 100000 + minutes * 0.000006F;
+//     latitudeDegrees = (latitude - 100 * int(latitude / 100)) / 60.0f;
+//     latitudeDegrees += int(latitude / 100);
+//   }
+// }
 
 /**************************************************************************/
 /*!
@@ -72,20 +72,20 @@ void Adafruit_GPS::parseLat(char *p) {
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-bool Adafruit_GPS::parseLatDir(char *p) {
-  if (p[0] == 'S') {
-    lat = 'S';
-    latitudeDegrees *= -1.0f;
-    latitude_fixed *= -1;
-  } else if (p[0] == 'N') {
-    lat = 'N';
-  } else if (p[0] == ',') {
-    lat = 0;
-  } else {
-    return false;
-  }
-  return true;
-}
+// bool Adafruit_GPS::parseLatDir(char *p) {
+//   if (p[0] == 'S') {
+//     lat = 'S';
+//     latitudeDegrees *= -1.0f;
+//     latitude_fixed *= -1;
+//   } else if (p[0] == 'N') {
+//     lat = 'N';
+//   } else if (p[0] == ',') {
+//     lat = 0;
+//   } else {
+//     return false;
+//   }
+//   return true;
+// }
 
 /**************************************************************************/
 /*!
@@ -93,26 +93,26 @@ bool Adafruit_GPS::parseLatDir(char *p) {
     @param p Pointer to the location of the token in the NMEA string
 */
 /**************************************************************************/
-void Adafruit_GPS::parseLon(char *p) {
-  int32_t degree;
-  long minutes;
-  char degreebuff[10];
-  if (!isEmpty(p)) {
-    strncpy(degreebuff, p, 3);
-    p += 3;
-    degreebuff[3] = '\0';
-    degree = atol(degreebuff) * 10000000;
-    strncpy(degreebuff, p, 2); // minutes
-    p += 3;                    // skip decimal point
-    strncpy(degreebuff + 2, p, 4);
-    degreebuff[6] = '\0';
-    minutes = 50 * atol(degreebuff) / 3;
-    longitude_fixed = degree + minutes;
-    longitude = degree / 100000 + minutes * 0.000006F;
-    longitudeDegrees = (longitude - 100 * int(longitude / 100)) / 60.0f;
-    longitudeDegrees += int(longitude / 100);
-  }
-}
+// void Adafruit_GPS::parseLon(char *p) {
+//   int32_t degree;
+//   long minutes;
+//   char degreebuff[10];
+//   if (!isEmpty(p)) {
+//     strncpy(degreebuff, p, 3);
+//     p += 3;
+//     degreebuff[3] = '\0';
+//     degree = atol(degreebuff) * 10000000;
+//     strncpy(degreebuff, p, 2); // minutes
+//     p += 3;                    // skip decimal point
+//     strncpy(degreebuff + 2, p, 4);
+//     degreebuff[6] = '\0';
+//     minutes = 50 * atol(degreebuff) / 3;
+//     longitude_fixed = degree + minutes;
+//     longitude = degree / 100000 + minutes * 0.000006F;
+//     longitudeDegrees = (longitude - 100 * int(longitude / 100)) / 60.0f;
+//     longitudeDegrees += int(longitude / 100);
+//   }
+// }
 
 /**************************************************************************/
 /*!
@@ -121,22 +121,22 @@ void Adafruit_GPS::parseLon(char *p) {
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-bool Adafruit_GPS::parseLonDir(char *p) {
-  if (!isEmpty(p)) {
-    if (p[0] == 'W') {
-      lon = 'W';
-      longitudeDegrees *= -1.0f;
-      longitude_fixed *= -1;
-    } else if (p[0] == 'E') {
-      lon = 'E';
-    } else if (p[0] == ',') {
-      lon = 0;
-    } else {
-      return false;
-    }
-  }
-  return true;
-}
+// bool Adafruit_GPS::parseLonDir(char *p) {
+//   if (!isEmpty(p)) {
+//     if (p[0] == 'W') {
+//       lon = 'W';
+//       longitudeDegrees *= -1.0f;
+//       longitude_fixed *= -1;
+//     } else if (p[0] == 'E') {
+//       lon = 'E';
+//     } else if (p[0] == ',') {
+//       lon = 0;
+//     } else {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 
 /**************************************************************************/
 /*!

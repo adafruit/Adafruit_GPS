@@ -236,10 +236,10 @@ public:
 #endif                   // NMEA_EXTENSIONS
 
 private:
-  void parseLat(char *);
-  bool parseLatDir(char *);
-  void parseLon(char *);
-  bool parseLonDir(char *);
+//   void parseLat(char *);
+//   bool parseLatDir(char *);
+//   void parseLon(char *);
+//   bool parseLonDir(char *);
   // NMEA_data.cpp
   void data_init();
   // NMEA_parse.cpp
