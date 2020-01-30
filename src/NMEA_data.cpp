@@ -367,7 +367,11 @@ void Adafruit_GPS::initDataValue(nmea_index_t idx, char *label, char *fmt,
 /*!
     @brief Attempt to add history to a data value table entry. If it fails
     to malloc the space, history will not be added. Test the pointer for a
-    check if needed.
+    check if needed. Select scale and offset values carefully so that
+    operations and results will fit inside 16 bit integer limits. For example
+    a scale of 1.0 and an offset of 100000.0 would be a good choice for
+    atmospheric pressure in Pa with values ranging ~ +/- 3500, while a scale
+    of 10.0 would be pushing the integer limits.
     @param idx The data index for the value to have history recorded
     @param scale Value for scaling the integer history list
     @param offset Value for scaling the integer history list
