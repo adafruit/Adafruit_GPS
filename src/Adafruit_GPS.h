@@ -121,7 +121,7 @@ public:
   // NMEA_build.cpp
 #ifdef NMEA_EXTENSIONS
   char *build(char *nmea, const char *thisSource, const char *thisSentence,
-              char ref = 'R');
+              char ref = 'R', bool noCRLF = false);
 #endif
   void addChecksum(char *buff);
 
