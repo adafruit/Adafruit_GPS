@@ -545,6 +545,7 @@ bool Adafruit_GPS::parse(char *nmea) {
 /**************************************************************************/
 boolean Adafruit_GPS::check(char *nmea) {
   thisCheck = 0; // new check
+  *thisSentence = *thisSource = 0;
   if (*nmea != '$' && *nmea != '!')
     return false; // doesn't start with $ or !
   else
