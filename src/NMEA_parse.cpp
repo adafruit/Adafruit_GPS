@@ -588,7 +588,10 @@ boolean Adafruit_GPS::check(char *nmea) {
     if (snc) {
       strcpy(thisSentence, snc);
       thisCheck += NMEA_HAS_SENTENCE;
-      return false;
+      return false; // known but not parsed
+    } else {
+      parseStr(thisSentence, p, NMEA_MAX_SENTENCE_ID);
+      return false; // unknown
     }
   }
   return true; // passed all the tests
