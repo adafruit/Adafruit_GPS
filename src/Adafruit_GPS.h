@@ -170,11 +170,12 @@ public:
                           ///< as received from the GPS (DDDMM.MMMM)
 
   /** Fixed point latitude and longitude value with degrees stored in units of
-    1/100000 degrees, and minutes stored in units of 1/100000 degrees.  See pull
-    #13 for more details:
+    1/10000000 of a degree. See pull #13 for more details:
     https://github.com/adafruit/Adafruit-GPS-Library/pull/13 */
-  int32_t latitude_fixed;  ///< Fixed point latitude in decimal degrees
+  int32_t latitude_fixed;  ///< Fixed point latitude in decimal degrees.
+                           ///< Divide by 10000000.0 to get a double.
   int32_t longitude_fixed; ///< Fixed point longitude in decimal degrees
+                           ///< Divide by 10000000.0 to get a double.
 
   nmea_float_t latitudeDegrees;  ///< Latitude in decimal degrees
   nmea_float_t longitudeDegrees; ///< Longitude in decimal degrees
