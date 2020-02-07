@@ -768,8 +768,11 @@ bool Adafruit_GPS::parseTime(char *p) {
     hour = time / 10000;
     minute = (time % 10000) / 100;
     seconds = (time % 100);
-    p = strchr(p, '.');
-    milliseconds = atof(p) * 1000;
+    char *dec = strchr(p, '.');
+    char *comstar = min(strchr(p, ','), strchr(p, '*'));
+    if(dec != NULL && comstar != NULL && dec < comstar)
+      milliseconds = atof(p) * 1000;
+    else milliseconds = 0;
     lastTime = sentTime;
     return true;
   }
