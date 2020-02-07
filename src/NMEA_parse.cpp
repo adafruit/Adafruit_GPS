@@ -319,6 +319,21 @@ bool Adafruit_GPS::parse(char *nmea) {
 
   } else if (!strcmp(thisSentence, "RMB")) { //*****************************RMB
     // from Actisense NGW-1 from SH CP150C
+    // RMB Recommended Minimum Navigation Information
+    //       1 2   3 4    5    6       7 8        9 10  11 12  13 14
+    //       | |   | |    |    |       | |        | |   |   |   | |
+    //$--RMB,A,x.x,a,c--c,c--c,llll.ll,a,yyyyy.yy,a,x.x,x.x,x.x,A*hh
+    // 1) Status, V = Navigation receiver warning
+    // 2) Cross Track error - nautical miles
+    // 3) Direction to Steer, Left or Right
+    // 4) TO Waypoint ID
+    // 5) FROM Waypoint ID
+    // 6) Destination Waypoint Latitude 7) N or S
+    // 8) Destination Waypoint Longitude 9) E or W
+    // 10) Range to destination in nautical miles
+    // 11) Bearing to destination in degrees True
+    // 12) Destination closing velocity in knots
+    // 13) Arrival Status, A = Arrival Circle Entered 14) Checksum
     p = strchr(p, ',') + 1; // skip status
     nmea_float_t xte = 100000.;
     char xteDir = 'X';
@@ -339,15 +354,14 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       parseStr(fromID, p, NMEA_MAX_WP_ID);
     p = strchr(p, ',') + 1;
-    nmea_float_t latitudeWP =
-        0; // All the same position data for the next way point
+    nmea_float_t latitudeWP = 0;
     nmea_float_t longitudeWP = 0;
     int32_t latitude_fixedWP = 0;
     int32_t longitude_fixedWP = 0;
     nmea_float_t latitudeDegreesWP = 0;
     nmea_float_t longitudeDegreesWP = 0;
-    char latWP = 'N';
-    char lonWP = 'W';
+    char latWP = 'X';
+    char lonWP = 'X';
 
     // parse out both latitude and direction for WayPoint, then go to next
     // field, or fail
@@ -369,8 +383,6 @@ bool Adafruit_GPS::parse(char *nmea) {
       else
         newDataValue(NMEA_LONWP, longitudeDegreesWP);
     }
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
     if (!isEmpty(p))
