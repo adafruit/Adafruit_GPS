@@ -570,9 +570,9 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
 
   addChecksum(nmea); // Successful completion
   if (!noCRLF) { // Add Carriage Return and Line Feed to comply with NMEA-183
-    sprintf(nmea, "%s\r\n", nmea); 
+    sprintf(nmea, "%s\r\n", nmea);
   }
-  return nmea;   // return pointer to finished product
+  return nmea; // return pointer to finished product
 }
 
 #endif // NMEA_EXTENSIONS
