@@ -349,7 +349,13 @@ size_t Adafruit_GPS::write(uint8_t c) {
 
 /**************************************************************************/
 /*!
-    @brief Read one character from the GPS device
+    @brief Read one character from the GPS device.
+
+    Call very frequently and multiple times per opportunity or the buffer
+    may overflow if there are frequent NMEA sentences. An 82 character NMEA
+    sentence 10 times per second will require 820 calls per second, and
+    once a loop() may not be enough. Check for newNMEAreceived() after at
+    least every 10 calls, or you may miss some short sentences.
     @return The character that we received, or 0 if nothing was available
 */
 /**************************************************************************/
@@ -379,8 +385,8 @@ char Adafruit_GPS::read(void) {
       _buff_idx++;
     } else {
       // refill the buffer!
-      if (gpsI2C->requestFrom(0x10, GPS_MAX_I2C_TRANSFER, true) ==
-          GPS_MAX_I2C_TRANSFER) {
+      if (gpsI2C->requestFrom((uint8_t)0x10, (uint8_t)GPS_MAX_I2C_TRANSFER,
+                              (uint8_t) true) == GPS_MAX_I2C_TRANSFER) {
         // got data!
         _buff_max = 0;
         char curr_char = 0;

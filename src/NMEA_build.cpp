@@ -71,7 +71,7 @@
 */
 /**************************************************************************/
 char *Adafruit_GPS::build(char *nmea, const char *thisSource,
-                          const char *thisSentence, char ref) {
+                          const char *thisSentence, char ref, bool noCRLF) {
   sprintf(nmea, "%6.2f",
           (double)123.45); // fail if sprintf() doesn't handle floats
   if (strcmp(nmea, "123.45"))
@@ -569,9 +569,10 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
   }
 
   addChecksum(nmea); // Successful completion
-  sprintf(nmea, "%s\r\n",
-          nmea); // Add Carriage Return and Line Feed to comply with NMEA-183
-  return nmea;   // return pointer to finished product
+  if (!noCRLF) { // Add Carriage Return and Line Feed to comply with NMEA-183
+    sprintf(nmea, "%s\r\n", nmea);
+  }
+  return nmea; // return pointer to finished product
 }
 
 #endif // NMEA_EXTENSIONS
