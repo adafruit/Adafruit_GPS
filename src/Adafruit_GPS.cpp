@@ -637,8 +637,7 @@ bool Adafruit_GPS::wakeup(void) {
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last position fix was obtained. Will
-    fail by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @brief Time in seconds since the last position fix was obtained.
     @return nmea_float_t value in seconds since last fix.
 */
 /**************************************************************************/
@@ -648,8 +647,7 @@ nmea_float_t Adafruit_GPS::secondsSinceFix() {
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last GPS time was obtained. Will fail
-    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @brief Time in seconds since the last GPS time was obtained.
     @return nmea_float_t value in seconds since last GPS time.
 */
 /**************************************************************************/
@@ -659,8 +657,7 @@ nmea_float_t Adafruit_GPS::secondsSinceTime() {
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last GPS date was obtained. Will fail
-    by rolling over to zero after one millis() cycle, about 6-1/2 weeks.
+    @brief Time in seconds since the last GPS date was obtained.
     @return nmea_float_t value in seconds since last GPS date.
 */
 /**************************************************************************/
