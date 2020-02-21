@@ -637,7 +637,10 @@ bool Adafruit_GPS::wakeup(void) {
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last position fix was obtained.
+    @brief Time in seconds since the last position fix was obtained. The
+    time returned is limited to 2^32 milliseconds, which is about 49.7 days.
+    It will wrap around to zero if no position fix is received
+    for this long.
     @return nmea_float_t value in seconds since last fix.
 */
 /**************************************************************************/
@@ -647,7 +650,9 @@ nmea_float_t Adafruit_GPS::secondsSinceFix() {
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last GPS time was obtained.
+    @brief Time in seconds since the last GPS time was obtained. The time
+    returned is limited to 2^32 milliseconds, which is about 49.7 days. It
+    will wrap around to zero if no GPS time is received for this long.
     @return nmea_float_t value in seconds since last GPS time.
 */
 /**************************************************************************/
@@ -657,7 +662,9 @@ nmea_float_t Adafruit_GPS::secondsSinceTime() {
 
 /**************************************************************************/
 /*!
-    @brief Time in seconds since the last GPS date was obtained.
+    @brief Time in seconds since the last GPS date was obtained. The time
+    returned is limited to 2^32 milliseconds, which is about 49.7 days. It
+    will wrap around to zero if no GPS date is received for this long.
     @return nmea_float_t value in seconds since last GPS date.
 */
 /**************************************************************************/
