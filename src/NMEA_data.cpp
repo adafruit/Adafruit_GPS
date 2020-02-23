@@ -54,15 +54,15 @@ void Adafruit_GPS::newDataValue(nmea_index_t idx, nmea_float_t v) {
 
   // update the smoothed verion
   if (isCompoundAngle(idx)) { // angle with sin/cos component recording
-    newDataValue((nmea_index_t)(idx + 1), sin(v / RAD_TO_DEG));
-    newDataValue((nmea_index_t)(idx + 2), cos(v / RAD_TO_DEG));
+    newDataValue((nmea_index_t)(idx + 1), sin(v / (nmea_float_t)RAD_TO_DEG));
+    newDataValue((nmea_index_t)(idx + 2), cos(v / (nmea_float_t)RAD_TO_DEG));
   }
   // weighting factor for smoothing depends on delta t / tau
   nmea_float_t w =
       min((nmea_float_t)1.0,
           ((nmea_float_t)millis() - val[idx].lastUpdate) / val[idx].response);
   // default smoothing
-  val[idx].smoothed = (1.0 - w) * val[idx].smoothed + w * v;
+  val[idx].smoothed = (1.0f - w) * val[idx].smoothed + w * v;
   // special smoothing for some angle types
   if (val[idx].type == NMEA_COMPASS_ANGLE_SIN)
     val[idx].smoothed =
@@ -403,7 +403,7 @@ nmea_history_t *Adafruit_GPS::initHistory(nmea_index_t idx, nmea_float_t scale,
     }
     if (val[idx].hist != NULL) {
       val[idx].hist->n = historyN;
-      if (scale > 0.0)
+      if (scale > 0.0f)
         val[idx].hist->scale = scale;
       val[idx].hist->offset = offset;
       if (historyInterval > 0)
@@ -518,17 +518,17 @@ bool Adafruit_GPS::isCompoundAngle(nmea_index_t idx) {
 /**************************************************************************/
 nmea_float_t Adafruit_GPS::boatAngle(nmea_float_t s, nmea_float_t c) {
   nmea_float_t sAng =
-      asin(s) * RAD_TO_DEG; // put the sin angle in -90 to 90 range
+      asin(s) * (nmea_float_t)RAD_TO_DEG; // put the sin angle in -90 to 90 range
   while (sAng < -90)
-    sAng += 180.;
+    sAng += 180.0f;
   while (sAng > 90)
-    sAng -= 180.;
+    sAng -= 180.0f;
   nmea_float_t cAng =
-      acos(c) * RAD_TO_DEG; // put the cos angle in 0 to 180 range
+      acos(c) * (nmea_float_t)RAD_TO_DEG; // put the cos angle in 0 to 180 range
   while (cAng < 0)
-    cAng += 180.;
+    cAng += 180.0f;
   while (cAng > 180)
-    cAng -= 180.;
+    cAng -= 180.0f;
   // Pick the most accurate representation and translate
   if (cAng < 45)
     return sAng; //            Close hauled
@@ -561,9 +561,9 @@ nmea_float_t Adafruit_GPS::compassAngle(nmea_float_t s, nmea_float_t c) {
   nmea_float_t ang = boatAngle(s, c);
   if (ang < 5000) { // if reasonable range
     while (ang < 0)
-      ang += 360.; // round up
+      ang += 360.0f; // round up
     while (ang > 360)
-      ang -= 360.; // round down
+      ang -= 360.0f; // round down
   }
   return ang;
 }
