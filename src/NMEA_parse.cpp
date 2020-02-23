@@ -184,7 +184,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     // feet, metres, fathoms below transducer coerced to water depth from
     // surface in metres
     if (!isEmpty(p))
-      newDataValue(NMEA_DEPTH, (nmea_float_t)atof(p) * 0.3048f + depthToTransducer);
+      newDataValue(NMEA_DEPTH,
+                   (nmea_float_t)atof(p) * 0.3048f + depthToTransducer);
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
     if (!isEmpty(p))
@@ -192,7 +193,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
     if (!isEmpty(p))
-      newDataValue(NMEA_DEPTH, (nmea_float_t)atof(p) * 6 * 0.3048f + depthToTransducer);
+      newDataValue(NMEA_DEPTH,
+                   (nmea_float_t)atof(p) * 6 * 0.3048f + depthToTransducer);
 
   } else if (!strcmp(thisSentence, "DPT")) { //*****************************DPT
     // from Actisense NGW-1

@@ -517,14 +517,14 @@ bool Adafruit_GPS::isCompoundAngle(nmea_index_t idx) {
 */
 /**************************************************************************/
 nmea_float_t Adafruit_GPS::boatAngle(nmea_float_t s, nmea_float_t c) {
-  nmea_float_t sAng =
-      asin(s) * (nmea_float_t)RAD_TO_DEG; // put the sin angle in -90 to 90 range
+  // put the sin angle in -90 to 90 range
+  nmea_float_t sAng = asin(s) * (nmea_float_t)RAD_TO_DEG;
   while (sAng < -90)
     sAng += 180.0f;
   while (sAng > 90)
     sAng -= 180.0f;
-  nmea_float_t cAng =
-      acos(c) * (nmea_float_t)RAD_TO_DEG; // put the cos angle in 0 to 180 range
+  // put the cos angle in 0 to 180 range
+  nmea_float_t cAng = acos(c) * (nmea_float_t)RAD_TO_DEG;
   while (cAng < 0)
     cAng += 180.0f;
   while (cAng > 180)
