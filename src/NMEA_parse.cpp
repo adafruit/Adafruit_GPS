@@ -184,15 +184,17 @@ bool Adafruit_GPS::parse(char *nmea) {
     // feet, metres, fathoms below transducer coerced to water depth from
     // surface in metres
     if (!isEmpty(p))
-      newDataValue(NMEA_DEPTH, atof(p) * 0.3048 + depthToTransducer);
+      newDataValue(NMEA_DEPTH,
+                   (nmea_float_t)atof(p) * 0.3048f + depthToTransducer);
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
     if (!isEmpty(p))
-      newDataValue(NMEA_DEPTH, atof(p) + depthToTransducer);
+      newDataValue(NMEA_DEPTH, (nmea_float_t)atof(p) + depthToTransducer);
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
     if (!isEmpty(p))
-      newDataValue(NMEA_DEPTH, atof(p) * 6 * 0.3048 + depthToTransducer);
+      newDataValue(NMEA_DEPTH,
+                   (nmea_float_t)atof(p) * 6 * 0.3048f + depthToTransducer);
 
   } else if (!strcmp(thisSentence, "DPT")) { //*****************************DPT
     // from Actisense NGW-1
@@ -233,7 +235,7 @@ bool Adafruit_GPS::parse(char *nmea) {
       u = *p;
     p = strchr(p, ',') + 1;
     if (u != 'C') {
-      T = (T - 32) / 1.8;
+      T = (T - 32) / 1.8f;
       u = 'C';
     } // coerce to C
     if (T < 1000)
@@ -247,7 +249,7 @@ bool Adafruit_GPS::parse(char *nmea) {
       u = *p;
     p = strchr(p, ',') + 1;
     if (u != 'C') {
-      T = (T - 32) / 1.8;
+      T = (T - 32) / 1.8f;
       u = 'C';
     }
     if (T < 1000)
@@ -264,7 +266,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       u = *p; // last before checksum
     if (u != 'C') {
-      T = (T - 32) / 1.8;
+      T = (T - 32) / 1.8f;
       u = 'C';
     }
     if (T < 1000)
@@ -296,24 +298,24 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       stat = *p; // last before checksum
     if (units == 'K') {
-      spd /= 1.6;
+      spd /= 1.6f;
       units = 'M';
     }
     if (units == 'M') {
-      spd *= 5280. / 6000.;
+      spd *= 5280.0f / 6000.0f;
       units = 'N';
     }
-    if (ang > 180.)
-      ang -= 360.;
+    if (ang > 180.0f)
+      ang -= 360.0f;
     if (ref == 'R') {
-      if (ang < 1000. && stat == 'A')
+      if (ang < 1000.0f && stat == 'A')
         newDataValue(NMEA_AWA, ang);
-      if (spd < 1000. && stat == 'A')
+      if (spd < 1000.0f && stat == 'A')
         newDataValue(NMEA_AWS, spd);
     } else {
-      if (ang < 1000. && stat == 'A')
+      if (ang < 1000.0f && stat == 'A')
         newDataValue(NMEA_TWA, ang);
-      if (spd < 1000. && stat == 'A')
+      if (spd < 1000.0f && stat == 'A')
         newDataValue(NMEA_TWS, spd);
     }
 
@@ -343,9 +345,9 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       xteDir = *p;
     p = strchr(p, ',') + 1;
-    if (xte < 10000. && xteDir != 'X') {
+    if (xte < 10000.0f && xteDir != 'X') {
       if (xteDir == 'L')
-        xte *= -1.;
+        xte *= -1.0f;
       newDataValue(NMEA_XTE, xte);
     }
     if (!isEmpty(p))
@@ -452,7 +454,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     p = strchr(p, ',') + 1;
     if (!isEmpty(p))
       vmg = atof(p) * 0.3048 * 3600. / 6000.; // skip units
-    if (vmg < 1000.)
+    if (vmg < 1000.0f)
       newDataValue(NMEA_VMG, vmg);
   } else if (!strcmp(thisSentence, "VTG")) { //*****************************VTG
     // from Actisense NGW-1 from SH CP150C
@@ -470,7 +472,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     p = strchr(p, ',') + 1;
     if (ref == 'L')
       ang *= -1;
-    if (ang < 1000.)
+    if (ang < 1000.0f)
       newDataValue(NMEA_AWA, ang);
     nmea_float_t ws = 0.0;
     char units = 'X';
@@ -492,15 +494,15 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       units = *p; // last before checksum
     if (units == 'M') {
-      ws *= 3.6;
+      ws *= 3.6f;
       units = 'K';
     } // convert m/s to km/h
     if (units == 'K') {
-      ws /= 1.6;
+      ws /= 1.6f;
       units = 'M';
     } // convert km/h to miles / h
     if (units == 'M') {
-      ws *= 5280. / 6000.;
+      ws *= 5280.0f / 6000.0f;
       units = 'N';
     } // convert miles / hr to knots
     if (units == 'N')
@@ -523,9 +525,9 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       xteDir = *p;
     p = strchr(p, ',') + 1;
-    if (xte < 10000. && xteDir != 'X') {
+    if (xte < 10000.0f && xteDir != 'X') {
       if (xteDir == 'L')
-        xte *= -1.;
+        xte *= -1.0f;
       newDataValue(NMEA_XTE, xte);
     } // skip units
 
@@ -555,7 +557,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     @return True if well formed, false if it has problems
 */
 /**************************************************************************/
-boolean Adafruit_GPS::check(char *nmea) {
+bool Adafruit_GPS::check(char *nmea) {
   thisCheck = 0; // new check
   *thisSentence = *thisSource = 0;
   if (*nmea != '$' && *nmea != '!')
@@ -799,7 +801,7 @@ bool Adafruit_GPS::parseTime(char *p) {
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-boolean Adafruit_GPS::parseFix(char *p) {
+bool Adafruit_GPS::parseFix(char *p) {
   if (!isEmpty(p)) {
     if (p[0] == 'A') {
       fix = true;
