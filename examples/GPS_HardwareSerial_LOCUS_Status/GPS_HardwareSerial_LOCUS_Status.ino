@@ -58,7 +58,7 @@ void setup()
     Serial.println(" no response :(");
 }
 
-uint32_t updateTime = 1000;
+uint32_t timer = 0;
 
 void loop()                     // run over and over again
 {
@@ -67,9 +67,9 @@ void loop()                     // run over and over again
   if ((c) && (GPSECHO))
     Serial.write(c);
 
-  if (millis() > updateTime)
+  if (millis() - timer > 1000)
   {
-    updateTime = millis() + 1000;
+    timer = millis();
     if (GPS.LOCUS_ReadStatus()) {
        Serial.print("\n\nLog #");
        Serial.print(GPS.LOCUS_serial, DEC);
@@ -98,5 +98,5 @@ void loop()                     // run over and over again
       Serial.print((int)GPS.LOCUS_percent); Serial.print("% Used ");
 
     }//if (GPS.LOCUS_ReadStatus())
-  }//if (millis() > updateTime)
+  }//if (millis() - timer > 1000)
 }//loop

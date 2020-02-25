@@ -60,7 +60,7 @@ void Adafruit_GPS::newDataValue(nmea_index_t idx, nmea_float_t v) {
   // weighting factor for smoothing depends on delta t / tau
   nmea_float_t w =
       min((nmea_float_t)1.0,
-          ((nmea_float_t)millis() - val[idx].lastUpdate) / val[idx].response);
+          (nmea_float_t)(millis() - val[idx].lastUpdate) / val[idx].response);
   // default smoothing
   val[idx].smoothed = (1.0 - w) * val[idx].smoothed + w * v;
   // special smoothing for some angle types
