@@ -682,7 +682,7 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
   char *p = pStart;
   if (!isEmpty(p)) {
     // get the number in DDDMM.mmmm format and break into components
-    char degreebuff[10];
+    char degreebuff[10] = {0}; // Ensure string is terminated after strncpy
     char *e = strchr(p, '.');
     if (e == NULL || e - p > 6)
       return false;                // no decimal point in range
