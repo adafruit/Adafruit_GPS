@@ -87,6 +87,7 @@ public:
   Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
 #endif
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
+  Adafruit_GPS(Stream *data);        // Constructor when using Stream
   Adafruit_GPS(TwoWire *theWire);    // Constructor when using I2C
   Adafruit_GPS(SPIClass *theSPI, int8_t cspin); // Constructor when using SPI
   Adafruit_GPS(); // Constructor for no communications, just data storage
@@ -286,6 +287,7 @@ private:
 #endif
   bool noComms = false;
   HardwareSerial *gpsHwSerial;
+  Stream *gpsStream;
   TwoWire *gpsI2C;
   SPIClass *gpsSPI;
   int8_t gpsSPI_cs = -1;

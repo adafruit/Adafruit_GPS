@@ -204,6 +204,17 @@ Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
 
 /**************************************************************************/
 /*!
+    @brief Constructor when using Stream
+    @param data Pointer to a Stream object
+*/
+/**************************************************************************/
+Adafruit_GPS::Adafruit_GPS(Stream *data) {
+  common_init();     // Set everything to common state, then...
+  gpsStream = data;  // ...override gpsStream with value passed.
+}
+
+/**************************************************************************/
+/*!
     @brief Constructor when using I2C
     @param theWire Pointer to an I2C TwoWire object
 */
@@ -246,6 +257,7 @@ void Adafruit_GPS::common_init(void) {
   gpsSwSerial = NULL; // Set both to NULL, then override correct
 #endif
   gpsHwSerial = NULL; // port pointer in corresponding constructor
+  gpsStream = NULL;   // port pointer in corresponding constructor
   gpsI2C = NULL;
   gpsSPI = NULL;
   recvdflag = false;
@@ -298,6 +310,9 @@ size_t Adafruit_GPS::available(void) {
   if (gpsHwSerial) {
     return gpsHwSerial->available();
   }
+  if (gpsStream) {
+    return gpsStream->available();
+  }
   if (gpsI2C || gpsSPI) {
     return 1; // I2C/SPI doesnt have 'availability' so always has a byte at
               // least to read!
@@ -321,6 +336,9 @@ size_t Adafruit_GPS::write(uint8_t c) {
 #endif
   if (gpsHwSerial) {
     return gpsHwSerial->write(c);
+  }
+  if (gpsStream) {
+    return gpsStream->write(c);
   }
   if (gpsI2C) {
     gpsI2C->beginTransmission(_i2caddr);
@@ -378,6 +396,11 @@ char Adafruit_GPS::read(void) {
     if (!gpsHwSerial->available())
       return c;
     c = gpsHwSerial->read();
+  }
+  if (gpsStream) {
+    if (!gpsStream->available())
+      return c;
+    c = gpsStream->read();
   }
   if (gpsI2C) {
     if (_buff_idx <= _buff_max) {
