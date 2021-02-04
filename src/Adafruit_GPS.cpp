@@ -255,7 +255,7 @@ void Adafruit_GPS::common_init(void) {
   lastline = line2;
 
   hour = minute = seconds = year = month = day = fixquality = fixquality_3d =
-      satellites = 0;  // uint8_t
+      satellites = antenna = 0;  // uint8_t
   lat = lon = mag = 0; // char
   fix = false;         // bool
   milliseconds = 0;    // uint16_t
