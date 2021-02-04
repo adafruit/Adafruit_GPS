@@ -829,9 +829,7 @@ bool Adafruit_GPS::parseFix(char *p) {
 /*!
     @brief Parse a part of an NMEA string for antenna that is used
     @param p Pointer to the location of the token in the NMEA string
-    @return 3: external antenna  
-            2: internal antenna  
-            1: there was an antenna short or problem
+    @return 3=external 2=internal 1=there was an antenna short or problem
 */
 /**************************************************************************/
 bool Adafruit_GPS::parseAntenna(char *p) {
