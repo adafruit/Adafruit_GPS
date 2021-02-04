@@ -108,6 +108,7 @@ void loop() // run over and over again
       Serial.print("Angle: "); Serial.println(GPS.angle);
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+      Serial.print("Antenna status: "); Serial.println((int)GPS.antenna);
     }
   }
 }
