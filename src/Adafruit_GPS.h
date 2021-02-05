@@ -253,12 +253,10 @@ private:
   const char *sources[7] = {"II", "WI", "GP", "PG",
                             "GN", "P",  "ZZZ"}; ///< valid source ids
 #ifdef NMEA_EXTENSIONS
-  const char
-      *sentences_parsed[21] =
-          {
-              "GGA", "GLL", "GSA", "RMC", "DBT", "HDM", "HDT",
-              "MDA", "MTW", "MWV", "RMB", "TOP", "TXT", "VHW",
-              "VLW", "VPW", "VWR", "WCV", "XTE", "ZZZ"}; ///< parseable sentence ids
+  const char *sentences_parsed[21] = {"GGA", "GLL", "GSA", "RMC", "DBT", "HDM",
+                                      "HDT", "MDA", "MTW", "MWV", "RMB", "TOP",
+                                      "TXT", "VHW", "VLW", "VPW", "VWR", "WCV",
+                                      "XTE", "ZZZ"}; ///< parseable sentence ids
   const char *sentences_known[15] = {
       "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
       "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"}; ///< known, but not parseable
