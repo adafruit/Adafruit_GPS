@@ -38,17 +38,19 @@ SoftwareSerial mySerial(8, 7);
 void setup() {
   while (!Serial); // wait for Serial to be ready
 
-  Serial.begin(57600); // this baud rate doesn't actually matter!
+  Serial.begin(115200); // The serial port for the Arduino IDE port output
   mySerial.begin(9600);
   delay(2000);
-  Serial.println("Get version!");
-  mySerial.println(PMTK_Q_RELEASE);
 
+  Serial.println("Software Serial GPS Test Echo Test");
   // you can send various commands to get it started
   //mySerial.println(PMTK_SET_NMEA_OUTPUT_RMCGGA);
   mySerial.println(PMTK_SET_NMEA_OUTPUT_ALLDATA);
 
   mySerial.println(PMTK_SET_NMEA_UPDATE_1HZ);
+
+  Serial.println("Get version!");
+  mySerial.println(PMTK_Q_RELEASE);
  }
 
 
