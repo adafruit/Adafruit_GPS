@@ -209,8 +209,8 @@ Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) {
 */
 /**************************************************************************/
 Adafruit_GPS::Adafruit_GPS(Stream *data) {
-  common_init();     // Set everything to common state, then...
-  gpsStream = data;  // ...override gpsStream with value passed.
+  common_init();    // Set everything to common state, then...
+  gpsStream = data; // ...override gpsStream with value passed.
 }
 
 /**************************************************************************/
