@@ -41,8 +41,8 @@
 
 #if (defined(__AVR__) || defined(ESP8266)) && !defined(NO_SW_SERIAL)
 #define USE_SW_SERIAL ///< insert line `#define NO_SW_SERIAL` before this header
-                      ///< if you don't want to include software serial in the library
-#endif
+                      ///< if you don't want to include software serial in the
+#endif                ///< library
 #define GPS_DEFAULT_I2C_ADDR                                                   \
   0x10 ///< The default address for I2C transport of GPS data
 #define GPS_MAX_I2C_TRANSFER                                                   \
