@@ -39,8 +39,10 @@
 #endif
 #endif
 
-#define USE_SW_SERIAL ///< comment this out if you don't want to include
-                      ///< software serial in the library
+#if (defined(__AVR__) || defined(ESP8266)) && !defined(NO_SW_SERIAL)
+#define USE_SW_SERIAL ///< insert line `#define NO_SW_SERIAL` before this header
+                      ///< if you don't want to include software serial in the
+#endif                ///< library
 #define GPS_DEFAULT_I2C_ADDR                                                   \
   0x10 ///< The default address for I2C transport of GPS data
 #define GPS_MAX_I2C_TRANSFER                                                   \
@@ -54,7 +56,7 @@
   3 ///< maximum length of a source ID name, including terminating 0
 
 #include "Arduino.h"
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+#ifdef USE_SW_SERIAL
 #include <SoftwareSerial.h>
 #endif
 #include <Adafruit_PMTK.h>
@@ -83,7 +85,7 @@ public:
   // Adafruit_GPS.cpp
   bool begin(uint32_t baud_or_i2caddr);
 
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+#ifdef USE_SW_SERIAL
   Adafruit_GPS(SoftwareSerial *ser); // Constructor when using SoftwareSerial
 #endif
   Adafruit_GPS(HardwareSerial *ser); // Constructor when using HardwareSerial
@@ -281,7 +283,7 @@ private:
   bool paused;
 
   uint8_t parseResponse(char *response);
-#if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
+#ifdef USE_SW_SERIAL
   SoftwareSerial *gpsSwSerial;
 #endif
   bool noComms = false;
