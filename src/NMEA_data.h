@@ -4,7 +4,7 @@
 */
 /**************************************************************************/
 #ifndef _NMEA_DATA_H
-#define _NMEA__DATA_H
+#define _NMEA_DATA_H
 #include "Arduino.h"
 
 #define NMEA_MAX_WP_ID                                                         \
