@@ -751,13 +751,13 @@ char *Adafruit_GPS::parseStr(char *buff, char *p, int n) {
   char *e = strchr(p, ',');
   int len = 0;
   if (e) {
-    len = min(e - p, n - 1);
+    len = min(int(e - p), n - 1);
     strncpy(buff, p, len); // copy up to the comma
     buff[len] = 0;
   } else {
     e = strchr(p, '*');
     if (e) {
-      len = min(e - p, n - 1);
+      len = min(int(e - p), n - 1);
       strncpy(buff, p, len); // or up to the *
       buff[e - p] = 0;
     } else {
