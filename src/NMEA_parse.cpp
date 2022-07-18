@@ -173,7 +173,16 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       VDOP = atof(p); // last before checksum
 
+  } else if (!strcmp(thisSentence, "TOP")) { //*****************************TOP
+    // See:
+    // https://learn.adafruit.com/adafruit-ultimate-gps-featherwing/antenna-options
+    // There is an output sentence that will tell you the status of the
+    // antenna. $PGTOP,11,x where x is the status number. If x is 3 that means
+    // it is using the external antenna. If x is 2 it's using the internal
+    p = strchr(p, ',') + 1;
+    parseAntenna(p);
   }
+
 #ifdef NMEA_EXTENSIONS // Sentences not required for basic GPS functionality
   else if (!strcmp(thisSentence, "APB")) { //*******************************APB
     // from Actisense NGW-1 from SH CP150C
@@ -809,6 +818,28 @@ bool Adafruit_GPS::parseFix(char *p) {
     } else if (p[0] == 'V')
       fix = false;
     else
+      return false;
+    return true;
+  }
+  return false;
+}
+
+/**************************************************************************/
+/*!
+    @brief Parse a part of an NMEA string for antenna that is used
+    @param p Pointer to the location of the token in the NMEA string
+    @return 3=external 2=internal 1=there was an antenna short or problem
+*/
+/**************************************************************************/
+bool Adafruit_GPS::parseAntenna(char *p) {
+  if (!isEmpty(p)) {
+    if (p[0] == '3') {
+      antenna = 3;
+    } else if (p[0] == '2') {
+      antenna = 2;
+    } else if (p[0] == '1') {
+      antenna = 1;
+    } else
       return false;
     return true;
   }
