@@ -1,5 +1,10 @@
 # Adafruit_GPS [![Build Status](https://travis-ci.com/adafruit/Adafruit_GPS.svg?branch=master)](https://travis-ci.com/adafruit/Adafruit_GPS)
 
+> **Warning**
+>
+> This library assumes that only valid, supported NMEA sentences are parsed.
+> Parsing invalid or unsupported NMEA sentences may result in memory corruption and/or unhandled faults & exceptions!
+
 This is the Adafruit GPS library - the ultimate GPS library
 for the ultimate GPS module!
 
