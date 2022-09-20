@@ -2,10 +2,6 @@
 /*!
   @file NMEA_parse.cpp
 
-  @mainpage Adafruit Ultimate GPS Breakout
-
-  @section intro Introduction
-
   This is the Adafruit GPS library - the ultimate GPS library
   for the ultimate GPS module!
 
@@ -17,13 +13,9 @@
   please support Adafruit and open-source hardware by purchasing
   products from Adafruit!
 
-  @section author Author
+  @author Limor Fried/Ladyada for Adafruit Industries.
 
-  Written by Limor Fried/Ladyada for Adafruit Industries.
-
-  @section license License
-
-  BSD license, check license.txt for more information
+  @copyright BSD license, check license.txt for more information
   All text above must be included in any redistribution
 */
 /**************************************************************************/
