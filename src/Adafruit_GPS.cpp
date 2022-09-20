@@ -32,20 +32,20 @@
 
 static bool strStartsWith(const char *str, const char *prefix);
 
-/**************************************************************************/
-/*!
-    @brief Is the field empty, or should we try conversion? Won't work
-    for a text field that starts with an asterisk or a comma, but that
-    probably violates the NMEA-183 standard.
-    @param pStart Pointer to the location of the token in the NMEA string
-    @return true if empty field, false if something there
-*/
-/**************************************************************************/
-/*!
-    @brief Parse a part of an NMEA string for latitude angle
-    @param p Pointer to the location of the token in the NMEA string
-*/
-/**************************************************************************/
+// /**************************************************************************/
+// /*!
+//     @brief Is the field empty, or should we try conversion? Won't work
+//     for a text field that starts with an asterisk or a comma, but that
+//     probably violates the NMEA-183 standard.
+//     @param pStart Pointer to the location of the token in the NMEA string
+//     @return true if empty field, false if something there
+// */
+// /**************************************************************************/
+// /*!
+//     @brief Parse a part of an NMEA string for latitude angle
+//     @param p Pointer to the location of the token in the NMEA string
+// */
+// /**************************************************************************/
 // void Adafruit_GPS::parseLat(char *p) {
 //   char degreebuff[10];
 //   if (!isEmpty(p)) {
@@ -65,13 +65,13 @@ static bool strStartsWith(const char *str, const char *prefix);
 //   }
 // }
 
-/**************************************************************************/
-/*!
-    @brief Parse a part of an NMEA string for latitude direction
-    @param p Pointer to the location of the token in the NMEA string
-    @return True if we parsed it, false if it has invalid data
-*/
-/**************************************************************************/
+// /**************************************************************************/
+// /*!
+//     @brief Parse a part of an NMEA string for latitude direction
+//     @param p Pointer to the location of the token in the NMEA string
+//     @return True if we parsed it, false if it has invalid data
+// */
+// /**************************************************************************/
 // bool Adafruit_GPS::parseLatDir(char *p) {
 //   if (p[0] == 'S') {
 //     lat = 'S';
@@ -87,12 +87,12 @@ static bool strStartsWith(const char *str, const char *prefix);
 //   return true;
 // }
 
-/**************************************************************************/
-/*!
-    @brief Parse a part of an NMEA string for longitude angle
-    @param p Pointer to the location of the token in the NMEA string
-*/
-/**************************************************************************/
+// /**************************************************************************/
+// /*!
+//     @brief Parse a part of an NMEA string for longitude angle
+//     @param p Pointer to the location of the token in the NMEA string
+// */
+// /**************************************************************************/
 // void Adafruit_GPS::parseLon(char *p) {
 //   int32_t degree;
 //   long minutes;
@@ -114,13 +114,13 @@ static bool strStartsWith(const char *str, const char *prefix);
 //   }
 // }
 
-/**************************************************************************/
-/*!
-    @brief Parse a part of an NMEA string for longitude direction
-    @param p Pointer to the location of the token in the NMEA string
-    @return True if we parsed it, false if it has invalid data
-*/
-/**************************************************************************/
+// /**************************************************************************/
+// /*!
+//     @brief Parse a part of an NMEA string for longitude direction
+//     @param p Pointer to the location of the token in the NMEA string
+//     @return True if we parsed it, false if it has invalid data
+// */
+// /**************************************************************************/
 // bool Adafruit_GPS::parseLonDir(char *p) {
 //   if (!isEmpty(p)) {
 //     if (p[0] == 'W') {
