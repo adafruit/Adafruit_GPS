@@ -1,5 +1,4 @@
-# Adafruit_GPS [![Build Status](https://travis-ci.com/adafruit/Adafruit_GPS.svg?branch=master)](https://travis-ci.com/adafruit/Adafruit_GPS)
-[![Documentation](https://github.com/adafruit/ci-arduino/blob/master/assets/doxygen_badge.svg)](http://adafruit.github.io/Adafruit_GPS/html/index.html)
+# Adafruit_GPS [![Build Status](https://travis-ci.com/adafruit/Adafruit_GPS.svg?branch=master)](https://travis-ci.com/adafruit/Adafruit_GPS) [![Documentation](https://github.com/adafruit/ci-arduino/blob/master/assets/doxygen_badge.svg)](http://adafruit.github.io/Adafruit_GPS/html/index.html)
 
 > **Warning**
 >
