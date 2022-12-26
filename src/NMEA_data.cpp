@@ -350,8 +350,9 @@ void Adafruit_GPS::initDataValue(nmea_index_t idx, char *label, char *fmt,
     val[idx].type = type;
     if ((int)(val[idx].type / 10) ==
         1) { // angle with sin/cos component recording
-      initDataValue((nmea_index_t)(
-          idx + 1)); // initialize the next two data values as well
+      initDataValue(
+          (nmea_index_t)(idx +
+                         1)); // initialize the next two data values as well
       initDataValue((nmea_index_t)(idx + 2));
     }
   }
