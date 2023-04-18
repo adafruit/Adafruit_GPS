@@ -443,6 +443,18 @@ bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
 
 /**************************************************************************/
 /*!
+    @brief Set the tolerance for accepting distance travelled is real
+    @brief movement not just drift
+    @param meters float expressing lowest valid distance
+*/
+/**************************************************************************/
+void Adafruit_GPS::setDriftTolerance(nmea_float_t meters) {
+  driftTolerance = meters;
+}
+
+
+/**************************************************************************/
+/*!
     @brief Start the LOCUS logger
     @return True on success, false if it failed
 */

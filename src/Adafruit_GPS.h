@@ -105,6 +105,7 @@ public:
   char *lastNMEA(void);
   bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
                        bool usingInterrupts = false);
+  void setDriftTolerance(nmea_float_t meters = 10.0);
   bool LOCUS_StartLogger(void);
   bool LOCUS_StopLogger(void);
   bool LOCUS_ReadStatus(void);
@@ -182,6 +183,17 @@ public:
 
   nmea_float_t latitudeDegrees;  ///< Latitude in decimal degrees
   nmea_float_t longitudeDegrees; ///< Longitude in decimal degrees
+  nmea_float_t driftTolerance = 10.0; ///< Threshold for updating lat/long...DegreesLocked (below)
+                                      ///< and tripDistance
+  nmea_float_t latitudeDegreesLocked;	///
+				    ///< Only updated if move more than drift tolerance
+				    ///< Floating point latitude value in degrees/minutes
+                         ///< as received from the GPS (DDMM.MMMM)
+  nmea_float_t longitudeDegreesLocked;		///
+					///< Only updated if move more than drift tolerance
+				     ///< Floating point longitude value in degrees/minutes
+                          ///< as received from the GPS (DDDMM.MMMM)
+  nmea_float_t tripDistance = 0.0;    ///< cumulative distance travelled using lat/long...DegreesLocked
   nmea_float_t geoidheight;      ///< Diff between geoid height and WGS84 height
   nmea_float_t altitude;         ///< Altitude in meters above MSL
   nmea_float_t speed;            ///< Current speed over ground in knots
@@ -251,6 +263,8 @@ private:
   bool parseFix(char *);
   bool parseAntenna(char *);
   bool isEmpty(char *pStart);
+  nmea_float_t degreesToRadians(nmea_float_t deg);
+  void updateTripMeter(nmea_float_t);
 
   // used by check() for validity tests, room for future expansion
   const char *sources[7] = {"II", "WI", "GP", "PG",
