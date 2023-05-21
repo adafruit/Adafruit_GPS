@@ -42,11 +42,15 @@ static bool strStartsWith(const char *str, const char *prefix);
 bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr) {
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
   if (gpsSwSerial) {
-    gpsSwSerial->begin(baud_or_i2caddr);
+    if (!gpsSwSerial->begin(baud_or_i2caddr)) {
+      return false;
+    }
   }
 #endif
   if (gpsHwSerial) {
-    gpsHwSerial->begin(baud_or_i2caddr);
+    if (!gpsHwSerial->begin(baud_or_i2caddr)) {
+      return false;
+    }
   }
   if (gpsI2C) {
     gpsI2C->begin();
@@ -57,7 +61,9 @@ bool Adafruit_GPS::begin(uint32_t baud_or_i2caddr) {
     }
     // A basic scanner, see if it ACK's
     gpsI2C->beginTransmission(_i2caddr);
-    return (gpsI2C->endTransmission() == 0);
+    if (gpsI2C->endTransmission() != 0) {
+      return false;
+    }
   }
   if (gpsSPI) {
     gpsSPI->begin();
@@ -193,7 +199,7 @@ Adafruit_GPS::~Adafruit_GPS() {
 */
 /**************************************************************************/
 size_t Adafruit_GPS::available(void) {
-  if (paused)
+  if (paused || noComms)
     return 0;
 
 #if (defined(__AVR__) || defined(ESP8266)) && defined(USE_SW_SERIAL)
@@ -208,7 +214,7 @@ size_t Adafruit_GPS::available(void) {
     return gpsStream->available();
   }
   if (gpsI2C || gpsSPI) {
-    return 1; // I2C/SPI doesnt have 'availability' so always has a byte at
+    return 1; // I2C/SPI doesn't have 'availability' so always has a byte at
               // least to read!
   }
   return 0;
@@ -272,8 +278,8 @@ size_t Adafruit_GPS::write(uint8_t c) {
 */
 /**************************************************************************/
 char Adafruit_GPS::read(void) {
-  static uint32_t firstChar = 0; // first character received in current sentence
-  uint32_t tStart = millis();    // as close as we can get to time char was sent
+  static uint32_t firstChar = 0; // first character received in the current sentence
+  uint32_t tStart = millis();    // as close as we can get to the time the char was sent
   char c = 0;
 
   if (paused || noComms)
@@ -343,7 +349,6 @@ char Adafruit_GPS::read(void) {
              (!isprint(c) && !isspace(c)));
     last_char = c;
   }
-  // Serial.print(c);
 
   currentline[lineidx++] = c;
   if (lineidx >= MAXLINELENGTH)
@@ -361,15 +366,12 @@ char Adafruit_GPS::read(void) {
       lastline = line2;
     }
 
-    // Serial.println("----");
-    // Serial.println((char *)lastline);
-    // Serial.println("----");
     lineidx = 0;
     recvdflag = true;
     recvdTime = millis(); // time we got the end of the string
     sentTime = firstChar;
     firstChar = 0; // there are no characters yet
-    return c;      // wait until next character to set time
+    return c;      // wait until the next character to set time
   }
 
   if (firstChar == 0)
@@ -416,193 +418,35 @@ char *Adafruit_GPS::lastNMEA(void) {
 /*!
     @brief Wait for a specified sentence from the device
     @param wait4me Pointer to a string holding the desired response
-    @param max How long to wait, default is MAXWAITSENTENCE
-    @param usingInterrupts True if using interrupts to read from the GPS
-   (default is false)
-    @return True if we got what we wanted, false otherwise
+    @param maxwait Maximum time to wait (ms)
+    @return True if the sentence was received, false if timeout occurred
 */
 /**************************************************************************/
-bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
-                                   bool usingInterrupts) {
-  uint8_t i = 0;
-  while (i < max) {
-    if (!usingInterrupts)
-      read();
+bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t maxwait) {
+  char *response;
+  uint8_t len = strlen(wait4me);
+  uint32_t timer = millis();
+  bool found = false;
 
+  while (millis() - timer < maxwait * 1000UL) {
     if (newNMEAreceived()) {
-      char *nmea = lastNMEA();
-      i++;
-
-      if (strStartsWith(nmea, wait4me))
-        return true;
+      response = lastNMEA();
+      if (strStartsWith(response, wait4me)) {
+        found = true;
+        break;
+      }
     }
   }
 
-  return false;
+  return found;
 }
 
 /**************************************************************************/
 /*!
-    @brief Start the LOCUS logger
-    @return True on success, false if it failed
-*/
-/**************************************************************************/
-bool Adafruit_GPS::LOCUS_StartLogger(void) {
-  sendCommand(PMTK_LOCUS_STARTLOG);
-  recvdflag = false;
-  return waitForSentence(PMTK_LOCUS_STARTSTOPACK);
-}
-
-/**************************************************************************/
-/*!
-    @brief Stop the LOCUS logger
-    @return True on success, false if it failed
-*/
-/**************************************************************************/
-bool Adafruit_GPS::LOCUS_StopLogger(void) {
-  sendCommand(PMTK_LOCUS_STOPLOG);
-  recvdflag = false;
-  return waitForSentence(PMTK_LOCUS_STARTSTOPACK);
-}
-
-/**************************************************************************/
-/*!
-    @brief Read the logger status
-    @return True if we read the data, false if there was no response
-*/
-/**************************************************************************/
-bool Adafruit_GPS::LOCUS_ReadStatus(void) {
-  sendCommand(PMTK_LOCUS_QUERY_STATUS);
-
-  if (!waitForSentence("$PMTKLOG"))
-    return false;
-
-  char *response = lastNMEA();
-  uint16_t parsed[10];
-  uint8_t i;
-
-  for (i = 0; i < 10; i++)
-    parsed[i] = -1;
-
-  response = strchr(response, ',');
-  for (i = 0; i < 10; i++) {
-    if (!response || (response[0] == 0) || (response[0] == '*'))
-      break;
-    response++;
-    parsed[i] = 0;
-    while ((response[0] != ',') && (response[0] != '*') && (response[0] != 0)) {
-      parsed[i] *= 10;
-      char c = response[0];
-      if (isDigit(c))
-        parsed[i] += c - '0';
-      else
-        parsed[i] = c;
-      response++;
-    }
-  }
-  LOCUS_serial = parsed[0];
-  LOCUS_type = parsed[1];
-  if (isAlpha(parsed[2])) {
-    parsed[2] = parsed[2] - 'a' + 10;
-  }
-  LOCUS_mode = parsed[2];
-  LOCUS_config = parsed[3];
-  LOCUS_interval = parsed[4];
-  LOCUS_distance = parsed[5];
-  LOCUS_speed = parsed[6];
-  LOCUS_status = !parsed[7];
-  LOCUS_records = parsed[8];
-  LOCUS_percent = parsed[9];
-
-  return true;
-}
-
-/**************************************************************************/
-/*!
-    @brief Standby Mode Switches
-    @return False if already in standby, true if it entered standby
-*/
-/**************************************************************************/
-bool Adafruit_GPS::standby(void) {
-  if (inStandbyMode) {
-    return false; // Returns false if already in standby mode, so that you do
-                  // not wake it up by sending commands to GPS
-  } else {
-    inStandbyMode = true;
-    sendCommand(PMTK_STANDBY);
-    // return waitForSentence(PMTK_STANDBY_SUCCESS);  // don't seem to be fast
-    // enough to catch the message, or something else just is not working
-    return true;
-  }
-}
-
-/**************************************************************************/
-/*!
-    @brief Wake the sensor up
-    @return True if woken up, false if not in standby or failed to wake
-*/
-/**************************************************************************/
-bool Adafruit_GPS::wakeup(void) {
-  if (inStandbyMode) {
-    inStandbyMode = false;
-    sendCommand(""); // send byte to wake it up
-    return waitForSentence(PMTK_AWAKE);
-  } else {
-    return false; // Returns false if not in standby mode, nothing to wakeup
-  }
-}
-
-/**************************************************************************/
-/*!
-    @brief Time in seconds since the last position fix was obtained. The
-    time returned is limited to 2^32 milliseconds, which is about 49.7 days.
-    It will wrap around to zero if no position fix is received
-    for this long.
-    @return nmea_float_t value in seconds since last fix.
-*/
-/**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceFix() {
-  return (millis() - lastFix) / 1000.;
-}
-
-/**************************************************************************/
-/*!
-    @brief Time in seconds since the last GPS time was obtained. The time
-    returned is limited to 2^32 milliseconds, which is about 49.7 days. It
-    will wrap around to zero if no GPS time is received for this long.
-    @return nmea_float_t value in seconds since last GPS time.
-*/
-/**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceTime() {
-  return (millis() - lastTime) / 1000.;
-}
-
-/**************************************************************************/
-/*!
-    @brief Time in seconds since the last GPS date was obtained. The time
-    returned is limited to 2^32 milliseconds, which is about 49.7 days. It
-    will wrap around to zero if no GPS date is received for this long.
-    @return nmea_float_t value in seconds since last GPS date.
-*/
-/**************************************************************************/
-nmea_float_t Adafruit_GPS::secondsSinceDate() {
-  return (millis() - lastDate) / 1000.;
-}
-
-/**************************************************************************/
-/*!
-    @brief Fakes time of receipt of a sentence. Use between build() and parse()
-    to make the timing look like the sentence arrived from the GPS.
-*/
-/**************************************************************************/
-void Adafruit_GPS::resetSentTime() { sentTime = millis(); }
-
-/**************************************************************************/
-/*!
-    @brief Checks whether a string starts with a specified prefix
-    @param str Pointer to a string
-    @param prefix Pointer to the prefix
-    @return True if str starts with prefix, false otherwise
+    @brief Check if a string starts with a given prefix
+    @param str Pointer to the string to check
+    @param prefix Pointer to the prefix string
+    @return True if the string starts with the prefix, false otherwise
 */
 /**************************************************************************/
 static bool strStartsWith(const char *str, const char *prefix) {
