@@ -39,7 +39,8 @@
 #endif
 #endif
 
-#if (defined(__AVR__) || defined(ESP8266)) && !defined(NO_SW_SERIAL)
+#if (defined(__AVR__) || ((defined(ARDUINO_UNOR4_WIFI) || defined(ESP8266)) && \
+                          !defined(NO_SW_SERIAL)))
 #define USE_SW_SERIAL ///< insert line `#define NO_SW_SERIAL` before this header
                       ///< if you don't want to include software serial in the
 #endif                ///< library
