@@ -258,7 +258,7 @@ private:
                             "GN", "P",  "ZZZ"}; ///< valid source ids
 #ifdef NMEA_EXTENSIONS
   const char *sentences_parsed[21] = {"GGA", "GLL", "GSA", "RMC", "DBT", "HDM",
-                                      "HDT", "MDA", "MTW", "MWV", "RMB", "TOP",
+                                      "HDT", "MDA", "MTW", "MWV", "RMB", "CD",
                                       "TXT", "VHW", "VLW", "VPW", "VWR", "WCV",
                                       "XTE", "ZZZ"}; ///< parseable sentence ids
   const char *sentences_known[15] = {
@@ -266,7 +266,7 @@ private:
       "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"}; ///< known, but not parseable
 #else // make the lists short to save memory
   const char *sentences_parsed[6] = {"GGA", "GLL", "GSA", "RMC",
-                                     "TOP", "ZZZ"}; ///< parseable sentence ids
+                                     "CD", "ZZZ"}; ///< parseable sentence ids
   const char *sentences_known[4] = {"DBT", "HDM", "HDT",
                                     "ZZZ"}; ///< known, but not parseable
 #endif
