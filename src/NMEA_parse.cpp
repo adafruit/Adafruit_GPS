@@ -22,6 +22,14 @@
 
 #include <Adafruit_GPS.h>
 
+int Adafruit_GPS::findFields(char * fields[], char * nmea) {
+  char *p = nmea;
+  int count = 0;
+  while  ((p = strchr(p, ',')) != NULL)
+    fields[count++] = ++p;
+  return count;
+}
+
 /**************************************************************************/
 /*!
     @brief Parse a standard NMEA string and update the relevant variables.
@@ -53,9 +61,10 @@ bool Adafruit_GPS::parse(char *nmea) {
     return false;
   // passed the check, so there's a valid source in thisSource and a valid
   // sentence in thisSentence
-  char *p = nmea; // Pointer to move through the sentence -- good parsers are
-                  // non-destructive
-  p = strchr(p, ',') + 1; // Skip to char after the next comma, then check.
+
+  char * fields[32]; // An array of pointers to the fields in the NMEA sentence
+  // Get indexes to each field in the nmea sentance
+  int fieldCount = findFields(fields, nmea);
 
   // This may look inefficient, but an M0 will get down the list in about 1 us /
   // strcmp()! Put the GPS sentences from Adafruit_GPS at the top to make
@@ -63,66 +72,58 @@ bool Adafruit_GPS::parse(char *nmea) {
   // reading.
   if (!strcmp(thisSentence, "GGA")) { //************************************GGA
     // Adafruit from Actisense NGW-1 from SH CP150C
-    parseTime(p);
-    p = strchr(p, ',') + 1; // parse time with specialized function
+    // GGA sentences have 14 fields.  If the number is otherwise, fail
+    if (fieldCount != 14)
+      return false;
+    parseTime(fields[0]);
     // parse out both latitude and direction, then go to next field, or fail
-    if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
+    if (parseCoord(fields[1], &latitudeDegrees, &latitude, &latitude_fixed, &lat))
       newDataValue(NMEA_LAT, latitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
+
     // parse out both longitude and direction, then go to next field, or fail
-    if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon))
+    if (parseCoord(fields[3], &longitudeDegrees, &longitude, &longitude_fixed, &lon))
       newDataValue(NMEA_LON, longitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p)) { // if it's a , (or a * at end of sentence) the value is
-                       // not included
-      fixquality = atoi(p); // needs additional processing
+    if (!isEmpty(fields[5])) { // if it's a , (or a * at end of sentence) the value is
+                               // not included
+      fixquality = atoi(fields[5]); // needs additional processing
       if (fixquality > 0) {
         fix = true;
         lastFix = sentTime;
       } else
         fix = false;
     }
-    p = strchr(p, ',') + 1; // then move on to the next
     // Most can just be parsed with atoi() or atof(), then move on to the next.
-    if (!isEmpty(p))
-      satellites = atoi(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_HDOP, HDOP = atof(p));
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      altitude = atof(p);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1; // skip the units
-    if (!isEmpty(p))
-      geoidheight = atof(p); // skip the rest
+    if (!isEmpty(fields[6]))
+      satellites = atoi(fields[6]);
+    if (!isEmpty(fields[7]))
+      newDataValue(NMEA_HDOP, HDOP = atof(fields[7]));
+    if (!isEmpty(fields[8]))
+      altitude = atof(fields[8]);
+    // skip the units
+    if (!isEmpty(fields[10]))
+      geoidheight = atof(fields[10]);
+    // skip the rest
 
   } else if (!strcmp(thisSentence, "RMC")) { //*****************************RMC
     // in Adafruit from Actisense NGW-1 from SH CP150C
-    parseTime(p);
-    p = strchr(p, ',') + 1;
-    parseFix(p);
-    p = strchr(p, ',') + 1;
+    // RMC sentences have 11 or 12 fields (FAA mode indicator in NMEA 2.3 and later)
+    // If the number is otherwise, fail
+    if ((fieldCount != 11) && (fieldCount != 12))
+      return false;
+    parseTime(fields[0]);
+    parseFix(fields[1]);
     // parse out both latitude and direction, then go to next field, or fail
-    if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
+    if (parseCoord(fields[2], &latitudeDegrees, &latitude, &latitude_fixed, &lat))
       newDataValue(NMEA_LAT, latitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
     // parse out both longitude and direction, then go to next field, or fail
-    if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon))
+    if (parseCoord(fields[4], &longitudeDegrees, &longitude, &longitude_fixed, &lon))
       newDataValue(NMEA_LON, longitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_SOG, speed = atof(p));
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_COG, angle = atof(p));
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p)) {
-      uint32_t fulldate = atof(p);
+    if (!isEmpty(fields[6]))
+      newDataValue(NMEA_SOG, speed = atof(fields[6]));
+    if (!isEmpty(fields[7]))
+      newDataValue(NMEA_COG, angle = atof(fields[7]));
+    if (!isEmpty(fields[8])) {
+      uint32_t fulldate = atof(fields[8]);
       day = fulldate / 10000;
       month = (fulldate % 10000) / 100;
       year = (fulldate % 100);
@@ -131,39 +132,34 @@ bool Adafruit_GPS::parse(char *nmea) {
 
   } else if (!strcmp(thisSentence, "GLL")) { //*****************************GLL
     // in Adafruit from Actisense NGW-1 from SH CP150C
+    // GLL sentences have 6 or 7 fields (FAA mode indicator in NMEA 2.3 and later)
+    // If the number is otherwise, fail
+    if ((fieldCount != 6) && (fieldCount != 7))
+      return false;
     // parse out both latitude and direction, then go to next field, or fail
-    if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
+    if (parseCoord(fields[0], &latitudeDegrees, &latitude, &latitude_fixed, &lat))
       newDataValue(NMEA_LAT, latitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
     // parse out both longitude and direction, then go to next field, or fail
-    if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon))
+    if (parseCoord(fields[2], &longitudeDegrees, &longitude, &longitude_fixed, &lon))
       newDataValue(NMEA_LON, longitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    parseTime(p);
-    p = strchr(p, ',') + 1;
-    parseFix(p); // skip the rest
+    parseTime(fields[4]);
+    parseFix(fields[5]); // skip the rest
 
   } else if (!strcmp(thisSentence, "GSA")) { //*****************************GSA
     // in Adafruit from Actisense NGW-1
-    p = strchr(p, ',') + 1; // skip selection mode
-    if (!isEmpty(p))
-      fixquality_3d = atoi(p);
-    p = strchr(p, ',') + 1;
-    // skip 12 Satellite PDNs without interpreting them
-    for (int i = 0; i < 12; i++)
-      p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      PDOP = atof(p);
-    p = strchr(p, ',') + 1;
+    // GSA sentences have 17 fields.  If the number is otherwise, fail
+    if (fieldCount != 17)
+      return false;
+    if (!isEmpty(fields[1]))
+      fixquality_3d = atoi(fields[1]);
+    if (!isEmpty(fields[14]))
+      PDOP = atof(fields[14]);
     // parse out HDOP, we also parse this from the GGA sentence. Chipset should
     // report the same for both
-    if (!isEmpty(p))
-      newDataValue(NMEA_HDOP, HDOP = atof(p));
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      VDOP = atof(p); // last before checksum
+    if (!isEmpty(fields[15]))
+      newDataValue(NMEA_HDOP, HDOP = atof(fields[15]));
+    if (!isEmpty(fields[16]))
+      VDOP = atof(fields[16]); // last before checksum
 
   } else if (!strcmp(thisSentence, "TOP")) { //*****************************TOP
     // See:
@@ -171,8 +167,11 @@ bool Adafruit_GPS::parse(char *nmea) {
     // There is an output sentence that will tell you the status of the
     // antenna. $PGTOP,11,x where x is the status number. If x is 3 that means
     // it is using the external antenna. If x is 2 it's using the internal
-    p = strchr(p, ',') + 1;
-    parseAntenna(p);
+    //
+    // TOP sentences have 2 fields.  If the number is otherwise, fail
+    if (fieldCount != 2)
+        return false;
+    parseAntenna(fields[1]);
   }
 
 #ifdef NMEA_EXTENSIONS // Sentences not required for basic GPS functionality
@@ -184,18 +183,18 @@ bool Adafruit_GPS::parse(char *nmea) {
     // from Actisense NGW-1
     // feet, metres, fathoms below transducer coerced to water depth from
     // surface in metres
-    if (!isEmpty(p))
+    //
+    // DBT sentences have 6 fields.  If the number is otherwise, fail
+    if (fieldCount != 6)
+        return false;
+    if (!isEmpty(fields[0]))
       newDataValue(NMEA_DEPTH,
-                   (nmea_float_t)atof(p) * 0.3048f + depthToTransducer);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_DEPTH, (nmea_float_t)atof(p) + depthToTransducer);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
+                   (nmea_float_t)atof(fields[0]) * 0.3048f + depthToTransducer);
+    if (!isEmpty(fields[2]))
+      newDataValue(NMEA_DEPTH, (nmea_float_t)atof(fields[2]) + depthToTransducer);
+    if (!isEmpty(fields[4]))
       newDataValue(NMEA_DEPTH,
-                   (nmea_float_t)atof(p) * 6 * 0.3048f + depthToTransducer);
+                   (nmea_float_t)atof(fields[4]) * 6 * 0.3048f + depthToTransducer);
 
   } else if (!strcmp(thisSentence, "DPT")) { //*****************************DPT
     // from Actisense NGW-1
@@ -210,31 +209,34 @@ bool Adafruit_GPS::parse(char *nmea) {
     return false;
 
   } else if (!strcmp(thisSentence, "HDM")) { //*****************************HDM
-    if (!isEmpty(p))
-      newDataValue(NMEA_HDG, atof(p)); // skip the rest
+    // HDM sentences have 2 fields.  If the number is otherwise, fail
+    if (fieldCount != 2)
+        return false;
+    if (!isEmpty(fields[0]))
+      newDataValue(NMEA_HDG, atof(fields[0])); // skip the rest
 
   } else if (!strcmp(thisSentence, "HDT")) { //*****************************HDT
-    if (!isEmpty(p))
-      newDataValue(NMEA_HDT, atof(p)); // skip the rest
+    // HDT sentences have 2 fields.  If the number is otherwise, fail
+    if (fieldCount != 2)
+        return false;
+    if (!isEmpty(fields[0]))
+      newDataValue(NMEA_HDT, atof(fields[0])); // skip the rest
 
   } else if (!strcmp(thisSentence, "MDA")) { //*****************************MDA
     // from Actisense NGW-1
-    if (!isEmpty(p))
-      newDataValue(NMEA_BAROMETER, atof(p) * 3386.39);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_BAROMETER, atof(p) * 100000);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
+    // MDA sentences have 15 fields.  If the number is otherwise, fail
+    if (fieldCount != 15)
+        return false;
+    if (!isEmpty(fields[0]))
+      newDataValue(NMEA_BAROMETER, atof(fields[0]) * 3386.39);
+    if (!isEmpty(fields[2]))
+      newDataValue(NMEA_BAROMETER, atof(fields[2]) * 100000);
     nmea_float_t T = 100000.;
     char u = 'C';
-    if (!isEmpty(p))
-      T = atof(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      u = *p;
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[4]))
+      T = atof(fields[4]);
+    if (!isEmpty(fields[5]))
+      u = *(fields[5]);
     if (u != 'C') {
       T = (T - 32) / 1.8f;
       u = 'C';
@@ -243,29 +245,29 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_TEMPERATURE_AIR, T);
     T = 100000.;
     u = 'C';
-    if (!isEmpty(p))
-      T = atof(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      u = *p;
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[7]))
+      T = atof(fields[7]);
+    if (!isEmpty(fields[8]))
+      u = *(fields[8]);
     if (u != 'C') {
       T = (T - 32) / 1.8f;
       u = 'C';
     }
     if (T < 1000)
       newDataValue(NMEA_TEMPERATURE_WATER, T);
-    if (!isEmpty(p))
-      newDataValue(NMEA_HUMIDITY, atof(p)); // skip the rest
+    if (!isEmpty(fields[9]))
+      newDataValue(NMEA_HUMIDITY, atof(fields[9])); // skip the rest
 
   } else if (!strcmp(thisSentence, "MTW")) { //*****************************MTW
+    // MTW sentences have 2 fields.  If the number is otherwise, fail
+    if (fieldCount != 2)
+        return false;
     nmea_float_t T = 100000.;
     char u = 'C';
-    if (!isEmpty(p))
-      T = atof(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      u = *p; // last before checksum
+    if (!isEmpty(fields[0]))
+      T = atof(fields[0]);
+    if (!isEmpty(fields[1]))
+      u = *(fields[1]); // last before checksum
     if (u != 'C') {
       T = (T - 32) / 1.8f;
       u = 'C';
@@ -279,25 +281,24 @@ bool Adafruit_GPS::parse(char *nmea) {
 
   } else if (!strcmp(thisSentence, "MWV")) { //*****************************MWV
     // from Actisense NGW-1
+    // MWV sentences have 5 fields.  If the number is otherwise, fail
+    if (fieldCount != 5)
+        return false;
     nmea_float_t ang = 100000.;
     char ref = 'T';
-    if (!isEmpty(p))
-      ang = atof(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      ref = *p;
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[0]))
+      ang = atof(fields[0]);
+    if (!isEmpty(fields[1]))
+      ref = *(fields[1]);
     nmea_float_t spd = 100000.;
-    if (!isEmpty(p))
-      spd = atof(p);
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[2]))
+      spd = atof(fields[2]);
     char units = 'N';
-    if (!isEmpty(p))
-      units = *p;
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[3]))
+      units = *(fields[3]);
     char stat = 'A';
-    if (!isEmpty(p))
-      stat = *p; // last before checksum
+    if (!isEmpty(fields[4]))
+      stat = *(fields[4]); // last before checksum
     if (units == 'K') {
       spd /= 1.6f;
       units = 'M';
@@ -337,26 +338,28 @@ bool Adafruit_GPS::parse(char *nmea) {
     // 11) Bearing to destination in degrees True
     // 12) Destination closing velocity in knots
     // 13) Arrival Status, A = Arrival Circle Entered 14) Checksum
-    p = strchr(p, ',') + 1; // skip status
+    //
+    // RMB sentences have 13 or 14 fields (FAA mode indicator in NMEA 2.3 and later)
+    // If the number is otherwise, fail
+    if ((fieldCount != 13) && (fieldCount != 14))
+      return false;
+
+    // skip status - fields[0]
     nmea_float_t xte = 100000.;
     char xteDir = 'X';
-    if (!isEmpty(p))
-      xte = atof(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      xteDir = *p;
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[1]))
+      xte = atof(fields[1]);
+    if (!isEmpty(fields[2]))
+      xteDir = *(fields[2]);
     if (xte < 10000.0f && xteDir != 'X') {
       if (xteDir == 'L')
         xte *= -1.0f;
       newDataValue(NMEA_XTE, xte);
     }
-    if (!isEmpty(p))
-      parseStr(toID, p, NMEA_MAX_WP_ID);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      parseStr(fromID, p, NMEA_MAX_WP_ID);
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[3]))
+      parseStr(toID, fields[3], NMEA_MAX_WP_ID);
+    if (!isEmpty(fields[4]))
+      parseStr(fromID, fields[4], NMEA_MAX_WP_ID);
     nmea_float_t latitudeWP = 0;
     nmea_float_t longitudeWP = 0;
     int32_t latitude_fixedWP = 0;
@@ -368,34 +371,28 @@ bool Adafruit_GPS::parse(char *nmea) {
 
     // parse out both latitude and direction for WayPoint, then go to next
     // field, or fail
-    if (!isEmpty(p)) {
-      if (!parseCoord(p, &latitudeDegreesWP, &latitudeWP, &latitude_fixedWP,
+    if (!isEmpty(fields[5])) {
+      if (!parseCoord(fields[5], &latitudeDegreesWP, &latitudeWP, &latitude_fixedWP,
                       &latWP))
         return false;
       else
         newDataValue(NMEA_LATWP, latitudeDegreesWP);
     }
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
     // parse out both longitude and direction for WayPoint, then go to next
     // field, or fail
-    if (!isEmpty(p)) {
-      if (!parseCoord(p, &longitudeDegreesWP, &longitudeWP, &longitude_fixedWP,
+    if (!isEmpty(fields[7])) {
+      if (!parseCoord(fields[7], &longitudeDegreesWP, &longitudeWP, &longitude_fixedWP,
                       &lonWP))
         return false;
       else
         newDataValue(NMEA_LONWP, longitudeDegreesWP);
     }
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_DISTWP, atof(p));
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_COGWP, atof(p));
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_VMGWP, atof(p)); // skip arrival flag
+    if (!isEmpty(fields[9]))
+      newDataValue(NMEA_DISTWP, atof(fields[9]));
+    if (!isEmpty(fields[10]))
+      newDataValue(NMEA_COGWP, atof(fields[10]));
+    if (!isEmpty(fields[11]))
+      newDataValue(NMEA_VMGWP, atof(fields[11])); // skip arrival flag
 
   } else if (!strcmp(thisSentence, "ROT")) { //*****************************ROT
     return false;
@@ -408,17 +405,17 @@ bool Adafruit_GPS::parse(char *nmea) {
     return false;
 
   } else if (!strcmp(thisSentence, "TXT")) { //*****************************TXT
-    if (!isEmpty(p))
-      txtTot = atoi(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      txtN = atoi(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      txtID = atoi(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      parseStr(txtTXT, p, 61); // copy the text to NMEA TXT max of 61 characters
+    // TXT sentences have 4 fields.  If the number is otherwise, fail
+    if (fieldCount != 4)
+        return false;
+    if (!isEmpty(fields[0]))
+      txtTot = atoi(fields[0]);
+    if (!isEmpty(fields[1]))
+      txtN = atoi(fields[1]);
+    if (!isEmpty(fields[2]))
+      txtID = atoi(fields[2]);
+    if (!isEmpty(fields[3]))
+      parseStr(txtTXT, fields[3], 61); // copy the text to NMEA TXT max of 61 characters
 
   } else if (!strcmp(thisSentence, "VDR")) { //*****************************VDR
     // from Actisense NGW-1
@@ -426,35 +423,36 @@ bool Adafruit_GPS::parse(char *nmea) {
 
   } else if (!strcmp(thisSentence, "VHW")) { //*****************************VHW
     // from Actisense NGW-1
-    if (!isEmpty(p))
-      newDataValue(NMEA_HDT, atof(p));
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_HDG, atof(p));
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_VTW, atof(p)); // skip the other units
+    // VHW sentences have 8 fields.  If the number is otherwise, fail
+    if (fieldCount != 8)
+        return false;
+    if (!isEmpty(fields[0]))
+      newDataValue(NMEA_HDT, atof(fields[0]));
+    if (!isEmpty(fields[2]))
+      newDataValue(NMEA_HDG, atof(fields[2]));
+    if (!isEmpty(fields[4]))
+      newDataValue(NMEA_VTW, atof(fields[4])); // skip the other units
 
   } else if (!strcmp(thisSentence, "VLW")) { //*****************************VLW
     // from Actisense NGW-1
-    if (!isEmpty(p))
-      newDataValue(NMEA_LOG, atof(p));
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_LOGR, atof(p)); // skip the other units
+    // VLW sentences have 4 fields.  If the number is otherwise, fail
+    if (fieldCount != 4)
+        return false;
+    if (!isEmpty(fields[0]))
+      newDataValue(NMEA_LOG, atof(fields[0]));
+    if (!isEmpty(fields[2]))
+      newDataValue(NMEA_LOGR, atof(fields[2])); // skip the other units
 
   } else if (!strcmp(thisSentence, "VPW")) { //*****************************VPW
+    // VPW sentences have 4 fields.  If the number is otherwise, fail
+    if (fieldCount != 4)
+        return false;
     // knots, metres/s coerced to knots
     nmea_float_t vmg = 100000.;
-    if (!isEmpty(p))
-      vmg = atof(p);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      vmg = atof(p) * 0.3048 * 3600. / 6000.; // skip units
+    if (!isEmpty(fields[0]))
+      vmg = atof(fields[0]);
+    if (!isEmpty(fields[2]))
+      vmg = atof(fields[2]) * 0.3048 * 3600. / 6000.; // skip units
     if (vmg < 1000.0f)
       newDataValue(NMEA_VMG, vmg);
   } else if (!strcmp(thisSentence, "VTG")) { //*****************************VTG
@@ -463,37 +461,33 @@ bool Adafruit_GPS::parse(char *nmea) {
 
   } else if (!strcmp(thisSentence, "VWR")) { //*****************************VWR
     // from Actisense NGW-1
+    // VWR sentences have 8 fields.  If the number is otherwise, fail
+    if (fieldCount != 8)
+        return false;
     nmea_float_t ang = 1000.;
-    if (!isEmpty(p))
-      ang = atof(p);
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[0]))
+      ang = atof(fields[0]);
     char ref = ' ';
-    if (!isEmpty(p))
-      ref = *p;
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[1]))
+      ref = *(fields[1]);
     if (ref == 'L')
       ang *= -1;
     if (ang < 1000.0f)
       newDataValue(NMEA_AWA, ang);
     nmea_float_t ws = 0.0;
     char units = 'X';
-    if (!isEmpty(p))
-      ws = atof(p);
-    p = strchr(p, ',') + 1; // knots
-    if (!isEmpty(p))
-      units = *p;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      ws = atof(p);
-    p = strchr(p, ',') + 1; // meters / second
-    if (!isEmpty(p))
-      units = *p;
-    p = strchr(p, ',') + 1; // M
-    if (!isEmpty(p))
-      ws = atof(p);
-    p = strchr(p, ',') + 1; // kilometers / hour can be converted back to knots
-    if (!isEmpty(p))
-      units = *p; // last before checksum
+    if (!isEmpty(fields[2]))
+      ws = atof(fields[2]);
+    if (!isEmpty(fields[3]))
+      units = *(fields[3]);
+    if (!isEmpty(fields[4]))
+      ws = atof(fields[4]);
+    if (!isEmpty(fields[5]))
+      units = *(fields[5]);
+    if (!isEmpty(fields[6]))
+      ws = atof(fields[6]);
+    if (!isEmpty(fields[7]))
+      units = *(fields[7]); // last before checksum
     if (units == 'M') {
       ws *= 3.6f;
       units = 'K';
@@ -511,21 +505,24 @@ bool Adafruit_GPS::parse(char *nmea) {
 
   } else if (!strcmp(thisSentence, "WCV")) { //*****************************WCV
     // from SH CP150C
-    if (!isEmpty(p))
-      newDataValue(NMEA_VMGWP, atof(p)); // skip the rest
+    // WCV sentences have 3 fields.  If the number is otherwise, fail
+    if (fieldCount != 3)
+        return false;
+    if (!isEmpty(fields[0]))
+      newDataValue(NMEA_VMGWP, atof(fields[0])); // skip the rest
 
   } else if (!strcmp(thisSentence, "XTE")) { //*****************************XTE
     // from Actisense NGW-1 from SH CP150C
-    p = strchr(p, ',') + 1; // skip status 1
-    p = strchr(p, ',') + 1; // skip status 2
+    // XTE sentences have 5 or 6 fields (FAA mode indicator in NMEA 2.3 and later)
+    // If the number is otherwise, fail
+    if ((fieldCount != 5) && (fieldCount != 6))
+      return false;
     nmea_float_t xte = 100000.;
     char xteDir = 'X';
-    if (!isEmpty(p))
-      xte = atof(p);
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      xteDir = *p;
-    p = strchr(p, ',') + 1;
+    if (!isEmpty(fields[2]))
+      xte = atof(fields[2]);
+    if (!isEmpty(fields[3]))
+      xteDir = *(fields[3]);
     if (xte < 10000.0f && xteDir != 'X') {
       if (xteDir == 'L')
         xte *= -1.0f;
