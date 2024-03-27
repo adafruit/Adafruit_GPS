@@ -566,7 +566,7 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
   addChecksum(nmea); // Successful completion
   if (!noCRLF) { // Add Carriage Return and Line Feed to comply with NMEA-183
     size_t len = strlen(nmea);
-    char *newStr = malloc(len + 3); // +2 for \r\n, +1 for null terminator
+    char *newStr = (char *)malloc(len + 3); // +2 for \r\n, +1 for null terminator
     if (newStr) {
         strcpy(newStr, nmea); // Copy original string
         strcat(newStr, "\r\n"); // Append \r\n
