@@ -590,5 +590,20 @@ void Adafruit_GPS::addChecksum(char *buff) {
     cs ^= buff[i];
     i++;
   }
-  sprintf(buff, "%s*%02X", buff, cs);
+
+  // Calculate the needed buffer size: original length + 3 (*XX) + 1 (null terminator)
+  int neededSize = strlen(buff) + 4;
+  char *tempBuffer = (char *)malloc(neededSize);
+
+  if (tempBuffer != NULL) {
+    // Use snprintf to safely format the string with the checksum
+    snprintf(tempBuffer, neededSize, "%s*%02X", buff, cs);
+
+    // Copy the formatted string back to the original buffer
+    // Note: Make sure the original buffer is large enough to hold the new string.
+    strcpy(buff, tempBuffer);
+
+    // Free the allocated memory to avoid memory leaks
+    free(tempBuffer);
+  }
 }
