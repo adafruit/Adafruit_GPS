@@ -351,7 +351,8 @@ char Adafruit_GPS::read(void) {
   }
   // Serial.print(c);
 
-  currentline[lineidx++] = c;
+  currentline[lineidx] = c;
+  lineidx = lineidx + 1;
   if (lineidx >= MAXLINELENGTH)
     lineidx = MAXLINELENGTH -
               1; // ensure there is someplace to put the next received character

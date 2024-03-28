@@ -565,7 +565,14 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
 
   addChecksum(nmea); // Successful completion
   if (!noCRLF) { // Add Carriage Return and Line Feed to comply with NMEA-183
-    sprintf(nmea, "%s\r\n", nmea);
+    size_t len = strlen(nmea);
+    char *nmeaWithCRLF =
+        (char *)malloc(len + 3); // +2 for \r\n, +1 for null terminator
+    if (nmeaWithCRLF) {
+      strcpy(nmeaWithCRLF, nmea);   // Copy original string
+      strcat(nmeaWithCRLF, "\r\n"); // Append \r\n
+      return nmeaWithCRLF;          // return pointer to finished product
+    }
   }
   return nmea; // return pointer to finished product
 }
@@ -590,5 +597,22 @@ void Adafruit_GPS::addChecksum(char *buff) {
     cs ^= buff[i];
     i++;
   }
-  sprintf(buff, "%s*%02X", buff, cs);
+
+  // Calculate the needed buffer size: original length + 3 (*XX) + 1 (null
+  // terminator)
+  int neededSize = strlen(buff) + 4;
+  char *tempBuffer = (char *)malloc(neededSize);
+
+  if (tempBuffer != NULL) {
+    // Use snprintf to safely format the string with the checksum
+    snprintf(tempBuffer, neededSize, "%s*%02X", buff, cs);
+
+    // Copy the formatted string back to the original buffer
+    // Note: Make sure the original buffer is large enough to hold the new
+    // string.
+    strcpy(buff, tempBuffer);
+
+    // Free the allocated memory to avoid memory leaks
+    free(tempBuffer);
+  }
 }
