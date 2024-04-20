@@ -243,6 +243,7 @@ private:
   // NMEA_data.cpp
   void data_init();
   // NMEA_parse.cpp
+  int findFields(char * fields[], char * nmea);
   const char *tokenOnList(char *token, const char **list);
   bool parseCoord(char *p, nmea_float_t *angleDegrees = NULL,
                   nmea_float_t *angle = NULL, int32_t *angle_fixed = NULL,
