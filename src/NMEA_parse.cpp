@@ -165,12 +165,12 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       VDOP = atof(p); // last before checksum
 
-  } else if (!strcmp(thisSentence, "TOP")) { //*****************************TOP
+  } else if (!strcmp(thisSentence, "CD")) { //*****************************CD
     // See:
     // https://learn.adafruit.com/adafruit-ultimate-gps-featherwing/antenna-options
     // There is an output sentence that will tell you the status of the
     // antenna. $PGTOP,11,x where x is the status number. If x is 3 that means
-    // it is using the external antenna. If x is 2 it's using the internal
+    // it is using the external antenna. If x is 2 it's using the internal.
     p = strchr(p, ',') + 1;
     parseAntenna(p);
   }
