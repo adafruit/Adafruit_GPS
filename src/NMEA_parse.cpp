@@ -104,30 +104,67 @@ bool Adafruit_GPS::parse(char *nmea) {
     parseTime(p);
     p = strchr(p, ',') + 1;
     parseFix(p);
-    p = strchr(p, ',') + 1;
-    // parse out both latitude and direction, then go to next field, or fail
-    if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
-      newDataValue(NMEA_LAT, latitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    // parse out both longitude and direction, then go to next field, or fail
-    if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon))
-      newDataValue(NMEA_LON, longitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_SOG, speed = atof(p));
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      newDataValue(NMEA_COG, angle = atof(p));
-    p = strchr(p, ',') + 1;
-    if (!isEmpty(p)) {
-      uint32_t fulldate = atof(p);
-      day = fulldate / 10000;
-      month = (fulldate % 10000) / 100;
-      year = (fulldate % 100);
-      lastDate = sentTime;
-    } // skip the rest
+    // Skip rest unless valid fix
+    if (fix) {
+      p = strchr(p, ',') + 1;
+      // parse out both latitude and direction, then go to next field, or fail
+      if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat)) {
+        newDataValue(NMEA_LAT, latitudeDegrees);
+        //Valid latitude so move on to longitiude
+        p = strchr(p, ',') + 1;
+        p = strchr(p, ',') + 1;
+        // parse out both longitude and direction, then go to next field, or fail
+        if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon)) {
+          newDataValue(NMEA_LON, longitudeDegrees);
+          //Valid coords
+          if (latitudeDegreesLocked == NULL) {
+            //Initialize locked coords if NULL
+            latitudeDegreesLocked = latitudeDegrees;
+            longitudeDegreesLocked = longitudeDegrees;
+          }
+          else
+          {
+            // Do distance calc here
+            nmea_float_t lat1Radians = degreesToRadians(latitudeDegreesLocked);
+            nmea_float_t lat2Radians = degreesToRadians(latitudeDegrees);
+            nmea_float_t lon1Radians = degreesToRadians(longitudeDegreesLocked);
+            nmea_float_t lon2Radians = degreesToRadians(longitudeDegrees);
+            nmea_float_t d=6378100 * acos(sin(lat1Radians)*sin(lat2Radians)+cos(lat1Radians)*cos(lat2Radians)*cos(lon1Radians-lon2Radians));
+            if (d >= driftTolerance) {
+              tripDistance += d;
+	         latitudeDegreesLocked = latitudeDegrees;
+	         longitudeDegreesLocked = longitudeDegrees;
+            }	//  Only update locked position if distance travelled 3 meters or greater
+          }
+        }
+        //Good or bad, Skip to SOG
+        p = strchr(p, ',') + 1;
+        p = strchr(p, ',') + 1;
+      }
+      else
+      {
+        //No Latitude so skip to SOG
+        p = strchr(p, ',') + 1;
+        p = strchr(p, ',') + 1;
+        p = strchr(p, ',') + 1;
+        p = strchr(p, ',') + 1;
+      }
+  //
+      if (!isEmpty(p))
+        newDataValue(NMEA_SOG, speed = atof(p));
+      p = strchr(p, ',') + 1;
+      if (!isEmpty(p))
+        newDataValue(NMEA_COG, angle = atof(p));
+      p = strchr(p, ',') + 1;
+      if (!isEmpty(p)) {
+        uint32_t fulldate = atof(p);
+        day = fulldate / 10000;
+        month = (fulldate % 10000) / 100;
+        year = (fulldate % 100);
+        lastDate = sentTime;
+      } // skip the rest
+    }
+
 
   } else if (!strcmp(thisSentence, "GLL")) { //*****************************GLL
     // in Adafruit from Actisense NGW-1 from SH CP150C
@@ -684,15 +721,15 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
   if (!isEmpty(p)) {
     // get the number in DDDMM.mmmm format and break into components
     char degreebuff[10] = {0}; // Ensure string is terminated after strncpy
-    char *e = strchr(p, '.');
-    if (e == NULL || e - p > 6)
+    char *e = strchr(p, '.') - 2;
+    if (e == NULL || e - p > 4)
       return false;                // no decimal point in range
-    strncpy(degreebuff, p, e - p); // get DDDMM
-    long dddmm = atol(degreebuff);
-    long degrees = (dddmm / 100);         // truncate the minutes
-    long minutes = dddmm - degrees * 100; // remove the degrees
-    p = e;                                // start from the decimal point
-    nmea_float_t decminutes = atof(e); // the fraction after the decimal point
+    strncpy(degreebuff, p, e - p); // get DDD
+    long degrees = atol(degreebuff);
+//    long degrees = (dddmm / 100);         // truncate the minutes
+//    long minutes = dddmm - degrees * 100; // remove the degrees
+    p = e;                                // start from the start of minutes (decimal point - 2)
+    nmea_float_t minutes = atof(e); // the integer AND the fraction after the decimal point
     p = strchr(p, ',') + 1;            // go to the next field
 
     // get the NSEW direction as a character
@@ -703,9 +740,8 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
       return false; // no direction provided
 
     // set the various numerical formats to their values
-    long fixed = degrees * 10000000 + (minutes * 10000000) / 60 +
-                 (decminutes * 10000000) / 60;
-    nmea_float_t ang = degrees * 100 + minutes + decminutes;
+    long fixed = degrees * 10000000 + (minutes * 10000000) / 60;
+    nmea_float_t ang = degrees * 100 + minutes;
     nmea_float_t deg = fixed / (nmea_float_t)10000000.;
     if (nsew == 'S' ||
         nsew == 'W') { // fixed and deg are signed, but DDDMM.mmmm is not
@@ -814,6 +850,11 @@ bool Adafruit_GPS::parseFix(char *p) {
     return true;
   }
   return false;
+}
+
+nmea_float_t Adafruit_GPS::degreesToRadians(nmea_float_t deg)
+{
+  return deg*0.01745329251994329576923690768489;
 }
 
 /**************************************************************************/
