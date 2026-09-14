@@ -254,8 +254,8 @@ private:
   bool isEmpty(char *pStart);
 
   // used by check() for validity tests, room for future expansion
-  const char *sources[7] = {"II", "WI", "GP", "PG",
-                            "GN", "P",  "ZZZ"}; ///< valid source ids
+  const char *sources[9] = {"II", "WI", "GP", "PG", "GL",
+                            "GA", "GN", "P",  "ZZZ"}; ///< valid source ids
 #ifdef NMEA_EXTENSIONS
   const char *sentences_parsed[21] = {"GGA", "GLL", "GSA", "RMC", "DBT", "HDM",
                                       "HDT", "MDA", "MTW", "MWV", "RMB", "TOP",
