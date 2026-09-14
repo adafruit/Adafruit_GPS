@@ -346,16 +346,9 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       xteDir = *p;
     p = strchr(p, ',') + 1;
-    if (xte < 10000.0f && xteDir != 'X') {
-      if (xteDir == 'L')
-        xte *= -1.0f;
-      newDataValue(NMEA_XTE, xte);
-    }
-    if (!isEmpty(p))
-      parseStr(toID, p, NMEA_MAX_WP_ID);
+    char *toIDField = p;
     p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      parseStr(fromID, p, NMEA_MAX_WP_ID);
+    char *fromIDField = p;
     p = strchr(p, ',') + 1;
     nmea_float_t latitudeWP = 0;
     nmea_float_t longitudeWP = 0;
@@ -372,8 +365,6 @@ bool Adafruit_GPS::parse(char *nmea) {
       if (!parseCoord(p, &latitudeDegreesWP, &latitudeWP, &latitude_fixedWP,
                       &latWP))
         return false;
-      else
-        newDataValue(NMEA_LATWP, latitudeDegreesWP);
     }
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
@@ -383,9 +374,23 @@ bool Adafruit_GPS::parse(char *nmea) {
       if (!parseCoord(p, &longitudeDegreesWP, &longitudeWP, &longitude_fixedWP,
                       &lonWP))
         return false;
-      else
-        newDataValue(NMEA_LONWP, longitudeDegreesWP);
     }
+
+    // Both coordinates passed validation. Save the new waypoint data only now
+    // so a rejected sentence leaves the previous data and history intact.
+    if (xte < 10000.0f && xteDir != 'X') {
+      if (xteDir == 'L')
+        xte *= -1.0f;
+      newDataValue(NMEA_XTE, xte);
+    }
+    if (!isEmpty(toIDField))
+      parseStr(toID, toIDField, NMEA_MAX_WP_ID);
+    if (!isEmpty(fromIDField))
+      parseStr(fromID, fromIDField, NMEA_MAX_WP_ID);
+    if (latWP != 'X')
+      newDataValue(NMEA_LATWP, latitudeDegreesWP);
+    if (lonWP != 'X')
+      newDataValue(NMEA_LONWP, longitudeDegreesWP);
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
     if (!isEmpty(p))
