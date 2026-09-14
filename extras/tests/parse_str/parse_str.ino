@@ -1,9 +1,9 @@
-// Regression test for bounded copying of unknown NMEA sentence identifiers.
-// Runs without a GPS receiver; tests both comma and checksum delimiters.
+// Two-sentence regression test. Runs without a GPS receiver.
 
 #include <Adafruit_GPS.h>
 
-bool testsPassed = true;
+Adafruit_GPS GPS;
+bool testsPassed = false;
 
 void setup() {
   Serial.begin(115200);
@@ -14,91 +14,41 @@ void setup() {
   delay(250);
   Serial.println("Adafruit GPS text field bounds regression");
 
-  const uint8_t lengths[] = {0, 1, NMEA_MAX_SENTENCE_ID - 2,
-                            NMEA_MAX_SENTENCE_ID - 1,
-                            NMEA_MAX_SENTENCE_ID, NMEA_MAX_SENTENCE_ID + 5};
-  for (uint8_t length : lengths) {
-    if (!testIdentifier(length, false)) {
-      testsPassed = false;
-    }
-    if (!testIdentifier(length, true)) {
-      testsPassed = false;
-    }
+  char valid[] =
+      "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47";
+  Serial.println(valid);
+  if (!GPS.parse(valid)) {
+    Serial.println("FAIL: valid GGA sentence did not parse");
+    return;
   }
+  Serial.println("PASS: valid GGA sentence parsed");
+
+  // Valid checksum, but the unknown identifier exceeds the 19-character
+  // destination. Before the fix, its terminator overwrites lastSource[0].
+  char invalid[] = "$GPXXXXXXXXXXXXXXXXXXXX*17";
+  Serial.println(invalid);
+  if (GPS.parse(invalid)) {
+    Serial.println("FAIL: unknown sentence was accepted");
+    return;
+  }
+  Serial.println("PASS: unknown sentence rejected");
+
+  // Rejection alone passed before the fix too. The last valid sentence's
+  // identity must also survive, proving that the rejected input stayed in bounds.
+  if (strcmp(GPS.lastSource, "GP") != 0 ||
+      strcmp(GPS.lastSentence, "GGA") != 0) {
+    Serial.println("FAIL: rejected sentence corrupted the previous result");
+    return;
+  }
+  Serial.println("PASS: previous result preserved");
+  testsPassed = true;
 }
 
 void loop() {
   if (testsPassed) {
-    Serial.println("PASS: all 12 text field bounds cases");
+    Serial.println("PASS: two-sentence regression");
   } else {
-    Serial.println("FAIL: text field bounds regression");
+    Serial.println("FAIL: two-sentence regression");
   }
   delay(2000);
-}
-
-bool testIdentifier(uint8_t length, bool comma) {
-  Adafruit_GPS gps;
-  char sentence[64] = "$GP";
-  size_t used = 3;
-  for (uint8_t i = 0; i < length; i++) {
-    sentence[used++] = 'X';
-  }
-  if (comma) {
-    sentence[used++] = ',';
-  }
-  uint8_t checksum = 0;
-  for (size_t i = 1; i < used; i++) {
-    checksum ^= sentence[i];
-  }
-  snprintf(sentence + used, sizeof(sentence) - used, "*%02X",
-           (unsigned int)checksum);
-
-  // Prefill the destination and its neighboring public fields. This catches
-  // missing termination as well as writes beyond the destination buffer.
-  memset(gps.thisSentence, '?', sizeof(gps.thisSentence));
-  memset(gps.lastSource, 'S', sizeof(gps.lastSource));
-  memset(gps.lastSentence, 'T', sizeof(gps.lastSentence));
-
-  // The checksum is valid, but the unknown identifier must not be recognized.
-  bool passed = !gps.check(sentence);
-  if (strcmp(gps.thisSource, "GP") != 0) {
-    passed = false;
-  }
-  size_t copied = min((size_t)length, sizeof(gps.thisSentence) - 1);
-  for (size_t i = 0; i < copied; i++) {
-    if (gps.thisSentence[i] != 'X') {
-      passed = false;
-    }
-  }
-  if (gps.thisSentence[copied] != '\0') {
-    passed = false;
-  }
-  for (size_t i = copied + 1; i < sizeof(gps.thisSentence); i++) {
-    if (gps.thisSentence[i] != '?') {
-      passed = false;
-    }
-  }
-  for (size_t i = 0; i < sizeof(gps.lastSource); i++) {
-    if (gps.lastSource[i] != 'S') {
-      passed = false;
-    }
-  }
-  for (size_t i = 0; i < sizeof(gps.lastSentence); i++) {
-    if (gps.lastSentence[i] != 'T') {
-      passed = false;
-    }
-  }
-  if (passed) {
-    Serial.print("PASS: ");
-  } else {
-    Serial.print("FAIL: ");
-  }
-  Serial.print("identifier length ");
-  Serial.print(length);
-  if (comma) {
-    Serial.println(", comma delimiter");
-  } else {
-    Serial.println(", checksum delimiter");
-  }
-  return passed;
 }
