@@ -308,8 +308,8 @@ char Adafruit_GPS::read(void) {
       _buff_idx++;
     } else {
       // refill the buffer!
-      if (gpsI2C->requestFrom((uint8_t)0x10, (uint8_t)GPS_MAX_I2C_TRANSFER,
-                              (uint8_t) true) == GPS_MAX_I2C_TRANSFER) {
+      if (gpsI2C->requestFrom(_i2caddr, (uint8_t)GPS_MAX_I2C_TRANSFER,
+                              (uint8_t)true) == GPS_MAX_I2C_TRANSFER) {
         // got data!
         _buff_max = 0;
         char curr_char = 0;
