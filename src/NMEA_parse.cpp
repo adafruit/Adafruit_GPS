@@ -21,6 +21,7 @@
 /**************************************************************************/
 
 #include <Adafruit_GPS.h>
+#include <ctype.h>
 
 /**************************************************************************/
 /*!
@@ -51,6 +52,17 @@
 bool Adafruit_GPS::parse(char *nmea) {
   if (!check(nmea))
     return false;
+  // Count fields before parsing so a truncated sentence cannot change GPS data
+  // or make a comma lookup run past the end of the sentence.
+  size_t fields = 0;
+  for (char *p = nmea; *p && *p != '*'; p++) {
+    if (*p == ',')
+      fields++;
+  }
+  // All current sentence handlers require fields. Revisit this guard if a
+  // zero-field sentence is added; the comma lookup below also assumes a field.
+  if (fields == 0)
+    return false;
   // passed the check, so there's a valid source in thisSource and a valid
   // sentence in thisSentence
   char *p = nmea; // Pointer to move through the sentence -- good parsers are
@@ -62,6 +74,8 @@ bool Adafruit_GPS::parse(char *nmea) {
   // pruning excess code easier. Otherwise, keep them alphabetical for ease of
   // reading.
   if (!strcmp(thisSentence, "GGA")) { //************************************GGA
+    if (fields < 11)
+      return false;
     // Adafruit from Actisense NGW-1 from SH CP150C
     parseTime(p);
     p = strchr(p, ',') + 1; // parse time with specialized function
@@ -100,6 +114,8 @@ bool Adafruit_GPS::parse(char *nmea) {
       geoidheight = atof(p); // skip the rest
 
   } else if (!strcmp(thisSentence, "RMC")) { //*****************************RMC
+    if (fields < 9)
+      return false;
     // in Adafruit from Actisense NGW-1 from SH CP150C
     parseTime(p);
     p = strchr(p, ',') + 1;
@@ -130,6 +146,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     } // skip the rest
 
   } else if (!strcmp(thisSentence, "GLL")) { //*****************************GLL
+    if (fields < 6)
+      return false;
     // in Adafruit from Actisense NGW-1 from SH CP150C
     // parse out both latitude and direction, then go to next field, or fail
     if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
@@ -146,6 +164,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     parseFix(p); // skip the rest
 
   } else if (!strcmp(thisSentence, "GSA")) { //*****************************GSA
+    if (fields < 17)
+      return false;
     // in Adafruit from Actisense NGW-1
     p = strchr(p, ',') + 1; // skip selection mode
     if (!isEmpty(p))
@@ -166,6 +186,8 @@ bool Adafruit_GPS::parse(char *nmea) {
       VDOP = atof(p); // last before checksum
 
   } else if (!strcmp(thisSentence, "TOP")) { //*****************************TOP
+    if (fields < 2)
+      return false;
     // See:
     // https://learn.adafruit.com/adafruit-ultimate-gps-featherwing/antenna-options
     // There is an output sentence that will tell you the status of the
@@ -181,6 +203,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     return false;
 
   } else if (!strcmp(thisSentence, "DBT")) { //*****************************DBT
+    if (fields < 5)
+      return false;
     // from Actisense NGW-1
     // feet, metres, fathoms below transducer coerced to water depth from
     // surface in metres
@@ -218,6 +242,8 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_HDT, atof(p)); // skip the rest
 
   } else if (!strcmp(thisSentence, "MDA")) { //*****************************MDA
+    if (fields < 9)
+      return false;
     // from Actisense NGW-1
     if (!isEmpty(p))
       newDataValue(NMEA_BAROMETER, atof(p) * 3386.39);
@@ -259,6 +285,8 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_HUMIDITY, atof(p)); // skip the rest
 
   } else if (!strcmp(thisSentence, "MTW")) { //*****************************MTW
+    if (fields < 2)
+      return false;
     nmea_float_t T = 100000.;
     char u = 'C';
     if (!isEmpty(p))
@@ -278,6 +306,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     return false;
 
   } else if (!strcmp(thisSentence, "MWV")) { //*****************************MWV
+    if (fields < 5)
+      return false;
     // from Actisense NGW-1
     nmea_float_t ang = 100000.;
     char ref = 'T';
@@ -321,6 +351,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     }
 
   } else if (!strcmp(thisSentence, "RMB")) { //*****************************RMB
+    if (fields < 12)
+      return false;
     // from Actisense NGW-1 from SH CP150C
     // RMB Recommended Minimum Navigation Information
     //       1 2   3 4    5    6       7 8        9 10  11 12  13 14
@@ -346,16 +378,9 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       xteDir = *p;
     p = strchr(p, ',') + 1;
-    if (xte < 10000.0f && xteDir != 'X') {
-      if (xteDir == 'L')
-        xte *= -1.0f;
-      newDataValue(NMEA_XTE, xte);
-    }
-    if (!isEmpty(p))
-      parseStr(toID, p, NMEA_MAX_WP_ID);
+    char *toIDField = p;
     p = strchr(p, ',') + 1;
-    if (!isEmpty(p))
-      parseStr(fromID, p, NMEA_MAX_WP_ID);
+    char *fromIDField = p;
     p = strchr(p, ',') + 1;
     nmea_float_t latitudeWP = 0;
     nmea_float_t longitudeWP = 0;
@@ -372,8 +397,6 @@ bool Adafruit_GPS::parse(char *nmea) {
       if (!parseCoord(p, &latitudeDegreesWP, &latitudeWP, &latitude_fixedWP,
                       &latWP))
         return false;
-      else
-        newDataValue(NMEA_LATWP, latitudeDegreesWP);
     }
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
@@ -383,9 +406,24 @@ bool Adafruit_GPS::parse(char *nmea) {
       if (!parseCoord(p, &longitudeDegreesWP, &longitudeWP, &longitude_fixedWP,
                       &lonWP))
         return false;
-      else
-        newDataValue(NMEA_LONWP, longitudeDegreesWP);
     }
+
+    // Any supplied coordinates passed validation. Save the cross-track error,
+    // waypoint IDs, and coordinates now; a rejected sentence must leave the
+    // previous data and history intact.
+    if (xte < 10000.0f && xteDir != 'X') {
+      if (xteDir == 'L')
+        xte *= -1.0f;
+      newDataValue(NMEA_XTE, xte);
+    }
+    if (!isEmpty(toIDField))
+      parseStr(toID, toIDField, NMEA_MAX_WP_ID);
+    if (!isEmpty(fromIDField))
+      parseStr(fromID, fromIDField, NMEA_MAX_WP_ID);
+    if (latWP != 'X')
+      newDataValue(NMEA_LATWP, latitudeDegreesWP);
+    if (lonWP != 'X')
+      newDataValue(NMEA_LONWP, longitudeDegreesWP);
     p = strchr(p, ',') + 1;
     p = strchr(p, ',') + 1;
     if (!isEmpty(p))
@@ -408,6 +446,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     return false;
 
   } else if (!strcmp(thisSentence, "TXT")) { //*****************************TXT
+    if (fields < 4)
+      return false;
     if (!isEmpty(p))
       txtTot = atoi(p);
     p = strchr(p, ',') + 1;
@@ -425,6 +465,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     return false;
 
   } else if (!strcmp(thisSentence, "VHW")) { //*****************************VHW
+    if (fields < 5)
+      return false;
     // from Actisense NGW-1
     if (!isEmpty(p))
       newDataValue(NMEA_HDT, atof(p));
@@ -438,6 +480,8 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_VTW, atof(p)); // skip the other units
 
   } else if (!strcmp(thisSentence, "VLW")) { //*****************************VLW
+    if (fields < 3)
+      return false;
     // from Actisense NGW-1
     if (!isEmpty(p))
       newDataValue(NMEA_LOG, atof(p));
@@ -447,6 +491,8 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_LOGR, atof(p)); // skip the other units
 
   } else if (!strcmp(thisSentence, "VPW")) { //*****************************VPW
+    if (fields < 3)
+      return false;
     // knots, metres/s coerced to knots
     nmea_float_t vmg = 100000.;
     if (!isEmpty(p))
@@ -462,6 +508,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     return false;
 
   } else if (!strcmp(thisSentence, "VWR")) { //*****************************VWR
+    if (fields < 8)
+      return false;
     // from Actisense NGW-1
     nmea_float_t ang = 1000.;
     if (!isEmpty(p))
@@ -515,6 +563,8 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_VMGWP, atof(p)); // skip the rest
 
   } else if (!strcmp(thisSentence, "XTE")) { //*****************************XTE
+    if (fields < 5)
+      return false;
     // from Actisense NGW-1 from SH CP150C
     p = strchr(p, ',') + 1; // skip status 1
     p = strchr(p, ',') + 1; // skip status 2
@@ -575,8 +625,17 @@ bool Adafruit_GPS::check(char *nmea) {
   if (*ast != '*')
     return false; // there is no asterisk
   else {
-    uint16_t sum = parseHex(*(ast + 1)) * 16; // extract checksum
-    sum += parseHex(*(ast + 2));
+    if (!isxdigit((unsigned char)ast[1]) || !isxdigit((unsigned char)ast[2]))
+      return false; // checksum must contain two hexadecimal digits
+    char *end = ast + 3;
+    if (*end == '\r')
+      end++;
+    if (*end == '\n')
+      end++;
+    if (*end != '\0')
+      return false; // only a line ending may follow the checksum
+    uint16_t sum = parseHex(toupper((unsigned char)ast[1])) * 16;
+    sum += parseHex(toupper((unsigned char)ast[2]));
     char *p = nmea; // check checksum
     for (char *p1 = p + 1; p1 < ast; p1++)
       sum ^= *p1;
@@ -685,7 +744,8 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
     // get the number in DDDMM.mmmm format and break into components
     char degreebuff[10] = {0}; // Ensure string is terminated after strncpy
     char *e = strchr(p, '.');
-    if (e == NULL || e - p > 6)
+    char *comma = strchr(p, ',');
+    if (e == NULL || comma == NULL || e > comma || e - p > 6)
       return false;                // no decimal point in range
     strncpy(degreebuff, p, e - p); // get DDDMM
     long dddmm = atol(degreebuff);
@@ -693,7 +753,7 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
     long minutes = dddmm - degrees * 100; // remove the degrees
     p = e;                                // start from the decimal point
     nmea_float_t decminutes = atof(e); // the fraction after the decimal point
-    p = strchr(p, ',') + 1;            // go to the next field
+    p = comma + 1;                     // go to the direction field
 
     // get the NSEW direction as a character
     char nsew = 'X';
