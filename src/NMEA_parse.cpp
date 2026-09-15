@@ -21,6 +21,22 @@
 /**************************************************************************/
 
 #include <Adafruit_GPS.h>
+
+const char Adafruit_GPS::sources[][4] PROGMEM = {"II", "WI", "GP", "PG", "GL",
+                                                 "GA", "GN", "P",  "ZZZ"};
+#ifdef NMEA_EXTENSIONS
+const char Adafruit_GPS::sentences_parsed[][4] PROGMEM = {
+    "GGA", "GLL", "GSA", "RMC", "DBT", "HDM", "HDT", "MDA", "MTW", "MWV",
+    "RMB", "TOP", "TXT", "VHW", "VLW", "VPW", "VWR", "WCV", "XTE", "ZZZ"};
+const char Adafruit_GPS::sentences_known[][4] PROGMEM = {
+    "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
+    "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"};
+#else // make the lists short to save flash on small boards
+const char Adafruit_GPS::sentences_parsed[][4] PROGMEM = {"GGA", "GLL", "GSA",
+                                                          "RMC", "TOP", "ZZZ"};
+const char Adafruit_GPS::sentences_known[][4] PROGMEM = {"DBT", "HDM", "HDT",
+                                                         "ZZZ"};
+#endif
 #include <ctype.h>
 
 /**************************************************************************/
@@ -648,20 +664,20 @@ bool Adafruit_GPS::check(char *nmea) {
   char *p = nmea + 1;
   const char *src = tokenOnList(p, sources);
   if (src) {
-    strcpy(thisSource, src);
+    strcpy_P(thisSource, src);
     thisCheck += NMEA_HAS_SOURCE;
   } else
     return false;
-  p += strlen(src);
+  p += strlen_P(src);
   // extract sentence id and check if parsed
   const char *snc = tokenOnList(p, sentences_parsed);
   if (snc) {
-    strcpy(thisSentence, snc);
+    strcpy_P(thisSentence, snc);
     thisCheck += NMEA_HAS_SENTENCE_P + NMEA_HAS_SENTENCE;
   } else { // check if known
     snc = tokenOnList(p, sentences_known);
     if (snc) {
-      strcpy(thisSentence, snc);
+      strcpy_P(thisSentence, snc);
       thisCheck += NMEA_HAS_SENTENCE;
       return false; // known but not parsed
     } else {
@@ -676,18 +692,17 @@ bool Adafruit_GPS::check(char *nmea) {
 /*!
     @brief Check if a token at the start of a string is on a list.
     @param token Pointer to the string
-    @param list A list of strings, with the final entry starting "ZZ"
-    @return Pointer to the found token, or NULL if it fails
+    @param list A table in program memory, with the final entry starting "ZZ"
+    @return Program-memory pointer to the found token, or NULL if it fails
 */
 /**************************************************************************/
-const char *Adafruit_GPS::tokenOnList(char *token, const char **list) {
-  int i = 0; // index in the list
-  while (strncmp(list[i], "ZZ", 2) &&
-         i < 1000) { // stop at terminator and don't crash without it
+const char *Adafruit_GPS::tokenOnList(char *token, const char list[][4]) {
+  for (int i = 0; i < 1000; i++) {
+    if (pgm_read_byte(list[i]) == 'Z' && pgm_read_byte(list[i] + 1) == 'Z')
+      break; // stop at terminator
     // test for a match on the sentence name
-    if (!strncmp((const char *)list[i], (const char *)token, strlen(list[i])))
+    if (!strncmp_P(token, list[i], strlen_P(list[i])))
       return list[i];
-    i++;
   }
   return NULL; // couldn't find a match
 }
