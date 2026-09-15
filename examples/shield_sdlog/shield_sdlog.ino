@@ -74,6 +74,8 @@ void error(uint8_t errno) {
   }
 }
 
+// Keep SD initialization buffers off the stack once logging starts.
+void setup() __attribute__((noinline));
 void setup() {
   // for Leonardos, if you want to debug SD issues, uncomment this line
   // to see serial output
@@ -82,7 +84,7 @@ void setup() {
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
   Serial.begin(115200);
-  Serial.println("\r\nUltimate GPSlogger Shield");
+  Serial.println(F("\r\nUltimate GPSlogger Shield"));
   pinMode(ledPin, OUTPUT);
 
   // make sure that the default chip select pin is set to
@@ -90,11 +92,11 @@ void setup() {
   pinMode(10, OUTPUT);
 
   if (!SD.begin(chipSelect)) {
-    Serial.println("Card init. failed!");
+    Serial.println(F("Card init. failed!"));
     error(2);
   }
-  char filename[15];
-  strcpy(filename, "GPSLOG00.TXT");
+  char filename[12];
+  strcpy_P(filename, PSTR("GPSLOG00.TXT"));
   for (uint8_t i = 0; i < 100; i++) {
     filename[6] = '0' + i/10;
     filename[7] = '0' + i%10;
@@ -106,27 +108,27 @@ void setup() {
 
   logfile = SD.open(filename, FILE_WRITE);
   if( ! logfile ) {
-    Serial.print("Couldnt create ");
+    Serial.print(F("Couldnt create "));
     Serial.println(filename);
     error(3);
   }
-  Serial.print("Writing to ");
+  Serial.print(F("Writing to "));
   Serial.println(filename);
 
   // connect to the GPS at the desired rate
   GPS.begin(9600);
 
   // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
-  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  GPS.sendCommand(F(PMTK_SET_NMEA_OUTPUT_RMCGGA));
   // uncomment this line to turn on only the "minimum recommended" data
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
+  //GPS.sendCommand(F(PMTK_SET_NMEA_OUTPUT_RMCONLY));
   // For logging data, we don't suggest using anything but either RMC only or RMC+GGA
   // to keep the log files at a reasonable size
   // Set the update rate
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 100 millihertz (once every 10 seconds), 1Hz or 5Hz update rate
+  GPS.sendCommand(F(PMTK_SET_NMEA_UPDATE_1HZ));   // 100 millihertz (once every 10 seconds), 1Hz or 5Hz update rate
 
   // Turn off updates on antenna status, if the firmware permits it
-  GPS.sendCommand(PGCMD_NOANTENNA);
+  GPS.sendCommand(F(PGCMD_NOANTENNA));
 
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the
@@ -135,7 +137,7 @@ void setup() {
   useInterrupt(true);
 #endif
 
-  Serial.println("Ready!");
+  Serial.println(F("Ready!"));
 }
 
 
@@ -192,19 +194,19 @@ void loop() {
       return;  // we can fail to parse a sentence in which case we should just wait for another
 
     // Sentence parsed!
-    Serial.println("OK");
+    Serial.println(F("OK"));
     if (LOG_FIXONLY && !GPS.fix) {
-      Serial.print("No Fix");
+      Serial.print(F("No Fix"));
       return;
     }
 
     // Rad. lets log it!
-    Serial.println("Log");
+    Serial.println(F("Log"));
 
     uint8_t stringsize = strlen(stringptr);
     if (stringsize != logfile.write((uint8_t *)stringptr, stringsize))    //write the string to the SD file
         error(4);
-    if (strstr(stringptr, "RMC") || strstr(stringptr, "GGA"))   logfile.flush();
+    if (strstr_P(stringptr, PSTR("RMC")) || strstr_P(stringptr, PSTR("GGA")))   logfile.flush();
     Serial.println();
   }
 }

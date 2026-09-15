@@ -84,7 +84,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
   // pruning excess code easier. Otherwise, keep them alphabetical for ease of
   // reading.
 
-  if (!strcmp(thisSentence, "GGA")) { //************************************GGA
+  if (!strcmp_P(thisSentence,
+                PSTR("GGA"))) { //************************************GGA
     // GGA Global Positioning System Fix Data. Time, Position and fix related
     // data for a GPS receiver
     //       1         2       3 4        5 6 7  8   9  10 11 12 13  14  15
@@ -113,7 +114,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
             (double)latitude, lat, (double)longitude, lon, fixquality,
             satellites, (double)HDOP, (double)altitude, (double)geoidheight);
 
-  } else if (!strcmp(thisSentence, "GLL")) { //*****************************GLL
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("GLL"))) { //*****************************GLL
     // GLL Geographic Position – Latitude/Longitude
     //       1       2 3        4 5         6 7
     //       |       | |        | |         | |
@@ -130,7 +132,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
             (double)hour * 10000L + minute * 100L + seconds +
                 milliseconds / 1000.);
 
-  } else if (!strcmp(thisSentence, "GSA")) { //*****************************GSA
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("GSA"))) { //*****************************GSA
     // GSA GPS DOP and active satellites
     //       1 2 3                        14 15  16  17 18
     //       | | |                         | |   |   |   |
@@ -147,7 +150,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 18) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "RMC")) { //*****************************RMC
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("RMC"))) { //*****************************RMC
     // RMC Recommended Minimum Navigation Information
     //                                                            12
     //       1         2 3       4 5        6 7   8   9     10  11 |
@@ -172,7 +176,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
             (double)angle, day * 10000 + month * 100 + year,
             (double)magvariation, mag);
 
-  } else if (!strcmp(thisSentence, "APB")) { //*****************************APB
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("APB"))) { //*****************************APB
     // APB Autopilot Sentence "B"
     //                                       13    15
     //       1 2 3   4 5 6 7 8   9 10   11 12 |  14 |
@@ -202,7 +207,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 15) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "DBK")) { //*****************************DBT
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("DBK"))) { //*****************************DBT
     // DBK Depth Below Keel
     //       1   2 3   4 5   6 7
     //       |   | |   | |   | |
@@ -216,7 +222,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 7) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "DBS")) { //*****************************DBT
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("DBS"))) { //*****************************DBT
     // DBS Depth Below Surface
     //       1   2 3   4 5   6 7
     //       |   | |   | |   | |
@@ -230,7 +237,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 7) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "DBT")) { //*****************************DBT
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("DBT"))) { //*****************************DBT
     // DBT Depth Below Transducer
     //       1   2 3   4 5   6 7
     //       |   | |   | |   | |
@@ -245,7 +253,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     double d = val[NMEA_DEPTH].latest - depthToTransducer;
     sprintf(p, "%f,f,%f,M,,,", d / 0.3048, d);
 
-  } else if (!strcmp(thisSentence, "DPT")) { //*****************************DPT
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("DPT"))) { //*****************************DPT
     // DPT Heading – Deviation & Variation
     //       1   2   3
     //       |   |   |
@@ -257,7 +266,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 3) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "GSV")) { //*****************************GSV
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("GSV"))) { //*****************************GSV
     // GSV Satellites in view
     //       1 2 3 4 5 6 7     n
     //       | | | | | | |     |
@@ -273,7 +283,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // n) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "HDG")) { //*****************************HDG
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("HDG"))) { //*****************************HDG
     //  HDG Heading – Deviation & Variation
     //       1   2   3 4   5 6
     //       |   |   | |   | |
@@ -286,7 +297,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 6) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "HDM")) { //*****************************HDM
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("HDM"))) { //*****************************HDM
     // HDM Heading – Magnetic
     //       1   2 3
     //       |   | |
@@ -296,7 +308,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 3) Checksum
     sprintf(p, "%f,M", (double)val[NMEA_HDG].latest);
 
-  } else if (!strcmp(thisSentence, "HDT")) { //*****************************HDT
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("HDT"))) { //*****************************HDT
     // HDT Heading – True
     //       1   2 3
     //       |   | |
@@ -307,7 +320,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // starts with $II for integrated instrumentation
     sprintf(p, "%f,T", (double)val[NMEA_HDT].latest);
 
-  } else if (!strcmp(thisSentence, "MDA")) { //*****************************MDA
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("MDA"))) { //*****************************MDA
     // MDA Meteorological Composite
     //       1   2 3   4 5   6 7   8 9 10 11  12
     //       |   | |   | |   | |   | |  |  |   |
@@ -328,7 +342,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 12) C or F
     return NULL;
 
-  } else if (!strcmp(thisSentence, "MTW")) { //*****************************MTW
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("MTW"))) { //*****************************MTW
     // MTW Water Temperature
     //       1   2 3
     //       |   | |
@@ -339,12 +354,14 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 3) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "MWD")) { //*****************************MWD
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("MWD"))) { //*****************************MWD
     // MWD Wind Direction & Speed
     // Format unknown
     return NULL;
 
-  } else if (!strcmp(thisSentence, "MWV")) { //*****************************MWV
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("MWV"))) { //*****************************MWV
     // MWV Wind Speed and Angle assuming values for True
     //       1   2 3   4 5 6
     //       |   | |   | | |
@@ -363,7 +380,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
       sprintf(p, "%f,%c,%f,N,A", (double)val[NMEA_TWA].latest, 'T',
               (double)val[NMEA_TWS].latest);
 
-  } else if (!strcmp(thisSentence, "RMB")) { //*****************************RMB
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("RMB"))) { //*****************************RMB
     // RMB Recommended Minimum Navigation Information
     //       1 2   3 4    5    6       7 8        9 10  11 12  13 14
     //       | |   | |    |    |       | |        | |   |   |   | |
@@ -381,7 +399,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 13) Arrival Status, A = Arrival Circle Entered 14) Checksum
     sprintf(p, ",,,,,,,,,,,%f,A", (double)val[NMEA_VMGWP].latest);
 
-  } else if (!strcmp(thisSentence, "ROT")) { //*****************************ROT
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("ROT"))) { //*****************************ROT
     // ROT Rate Of Turn
     //       1   2 3
     //       |   | |
@@ -391,7 +410,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 3) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "RPM")) { //*****************************RPM
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("RPM"))) { //*****************************RPM
     // RPM Revolutions
     //       1 2 3   4   5 6
     //       | | |   |   | |
@@ -404,7 +424,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 6) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "RSA")) { //*****************************RSA
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("RSA"))) { //*****************************RSA
     //  RSA Rudder Sensor Angle
     //       1   2 3   4 5
     //       |   | |   | |
@@ -416,7 +437,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 5) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "TXT")) { //*****************************TXT
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("TXT"))) { //*****************************TXT
     // as mentioned in https://github.com/adafruit/Adafruit_GPS/issues/95
     // TXT Text Transmission
     //       1  2  3  4    5
@@ -429,7 +451,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 5) Checksum
     sprintf(p, "01,01,23,This is the text of the sample message");
 
-  } else if (!strcmp(thisSentence, "VDR")) { //*****************************VDR
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("VDR"))) { //*****************************VDR
     // VDR Set and Drift
     //       1   2 3   4 5   6 7
     //       |   | |   | |   | |
@@ -443,7 +466,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 7) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "VHW")) { //*****************************VHW
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("VHW"))) { //*****************************VHW
     // VHW Water Speed and Heading
     //       1   2 3   4 5   6 7   8 9
     //       |   | |   | |   | |   | |
@@ -462,7 +486,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
             (double)val[NMEA_HDG].latest, (double)val[NMEA_VTW].latest,
             (double)val[NMEA_VTW].latest * 1.829);
 
-  } else if (!strcmp(thisSentence, "VLW")) { //*****************************VLW
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("VLW"))) { //*****************************VLW
     // VLW Distance Traveled through Water
     //       1   2 3   4 5
     //       |   | |   | |
@@ -476,7 +501,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 5) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "VPW")) { //*****************************VPW
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("VPW"))) { //*****************************VPW
     // not supported by iNavX
     // VPW Speed – Measured Parallel to Wind
     //       1   2 3   4 5
@@ -489,7 +515,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 5) Checksum
     sprintf(p, "%f,N,,", (double)val[NMEA_VMG].latest);
 
-  } else if (!strcmp(thisSentence, "VTG")) { //*****************************VTG
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("VTG"))) { //*****************************VTG
     // VTG Track Made Good and Ground Speed
     //       1   2 3   4 5   6 7   8 9
     //       |   | |   | |   | |   | |
@@ -501,7 +528,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 9) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "VWR")) { //*****************************VWR
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("VWR"))) { //*****************************VWR
     // VWR Relative Wind Speed and Angle
     //       1   2 3   4 5   6 7   8 9
     //       |   | |   | |   | |   | |
@@ -519,7 +547,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 9) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "WCV")) { //*****************************WCV
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("WCV"))) { //*****************************WCV
     // WCV Waypoint Closure Velocity
     //       1   2 3    4
     //       |   | |    |
@@ -527,7 +556,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 1) Velocity 2) N = knots 3) Waypoint ID 4) Checksum
     sprintf(p, "%f,N,home", (double)val[NMEA_VMG].latest);
 
-  } else if (!strcmp(thisSentence, "XTE")) { //*****************************XTE
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("XTE"))) { //*****************************XTE
     // XTE Cross-Track Error – Measured
     //       1 2 3   4 5  6
     //       | | |   | |  |
@@ -545,7 +575,8 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     // 6) Checksum
     return NULL;
 
-  } else if (!strcmp(thisSentence, "ZDA")) { //*****************************ZDA
+  } else if (!strcmp_P(thisSentence,
+                       PSTR("ZDA"))) { //*****************************ZDA
     // ZDA Time & Date – UTC, Day, Month, Year and Local Time Zone
     //       1         2  3  4    5  6  7
     //       |         |  |  |    |  |  |
