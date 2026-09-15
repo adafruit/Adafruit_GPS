@@ -10,6 +10,7 @@ var searchData=
   ['latitude',['latitude',['../class_adafruit___g_p_s.html#a9570c4fbe5145a50cfd2e8ae1759a510',1,'Adafruit_GPS']]],
   ['latitude_5ffixed',['latitude_fixed',['../class_adafruit___g_p_s.html#a2d3b65036628a65d1e119d3d9a69678c',1,'Adafruit_GPS']]],
   ['latitudedegrees',['latitudeDegrees',['../class_adafruit___g_p_s.html#ae39fbc538a1ee3ba1c8108bf49065c3f',1,'Adafruit_GPS']]],
+  ['length',['length',['../structnmea__span__t.html#aacbef7fe3171c6c1fc648799f9037980',1,'nmea_span_t']]],
   ['locus_5fconfig',['LOCUS_config',['../class_adafruit___g_p_s.html#ab306e67df47d2e02a69dddc97317ea8e',1,'Adafruit_GPS']]],
   ['locus_5fdistance',['LOCUS_distance',['../class_adafruit___g_p_s.html#a9a09b0dc6344dbe3904dfa1c2bcdc538',1,'Adafruit_GPS']]],
   ['locus_5finterval',['LOCUS_interval',['../class_adafruit___g_p_s.html#aaf51d53983b61ab9d5c7795fcb97b41c',1,'Adafruit_GPS']]],
