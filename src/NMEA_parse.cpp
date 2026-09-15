@@ -21,6 +21,7 @@
 /**************************************************************************/
 
 #include <Adafruit_GPS.h>
+#include <ctype.h>
 
 /**************************************************************************/
 /*!
@@ -575,8 +576,17 @@ bool Adafruit_GPS::check(char *nmea) {
   if (*ast != '*')
     return false; // there is no asterisk
   else {
-    uint16_t sum = parseHex(*(ast + 1)) * 16; // extract checksum
-    sum += parseHex(*(ast + 2));
+    if (!isxdigit((unsigned char)ast[1]) || !isxdigit((unsigned char)ast[2]))
+      return false; // checksum must contain two hexadecimal digits
+    char *end = ast + 3;
+    if (*end == '\r')
+      end++;
+    if (*end == '\n')
+      end++;
+    if (*end != '\0')
+      return false; // only a line ending may follow the checksum
+    uint16_t sum = parseHex(toupper((unsigned char)ast[1])) * 16;
+    sum += parseHex(toupper((unsigned char)ast[2]));
     char *p = nmea; // check checksum
     for (char *p1 = p + 1; p1 < ast; p1++)
       sum ^= *p1;
