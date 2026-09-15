@@ -8,6 +8,8 @@
 #include <Adafruit_GPS.h>
 #undef private
 
+bool checkField(const char *value, uint8_t capacity, const char *expected);
+
 Adafruit_GPS GPS;
 bool testsPassed = false;
 

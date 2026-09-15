@@ -3,25 +3,14 @@ name: Arduino Library CI
 on: [pull_request, push, repository_dispatch]
 
 jobs:
-  nmea-tests:
-    name: NMEA regression tests
+  regression-tests:
+    name: All regression tests
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: Run host tests with sanitizers
-      shell: bash
-      run: |
-        set -euo pipefail
-        mkdir -p "$RUNNER_TEMP/nmea-tests"
-        for test in nmea_validate nmea_fields nmea_utilities; do
-          echo "Running $test"
-          g++ -std=c++11 -Wall -Wextra -Werror -g \
-            -fsanitize=address,undefined -fno-sanitize-recover=all \
-            -fno-omit-frame-pointer -Isrc src/Adafruit_NMEA.cpp \
-            "extras/tests/$test/$test.cpp" -o "$RUNNER_TEMP/nmea-tests/$test"
-          "$RUNNER_TEMP/nmea-tests/$test"
-        done
+    - name: Run all tests with sanitizers
+      run: python3 extras/tests/run_tests.py
 
   build:
     runs-on: ubuntu-latest
