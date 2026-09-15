@@ -74,6 +74,8 @@ void error(uint8_t errno) {
   }
 }
 
+// Keep SD initialization buffers off the stack once logging starts.
+void setup() __attribute__((noinline));
 void setup() {
   // for Leonardos, if you want to debug SD issues, uncomment this line
   // to see serial output
