@@ -70,8 +70,12 @@ typedef struct {
 class Adafruit_NMEA {
 public:
   Adafruit_NMEA(char *firstBuffer, char *secondBuffer, size_t capacity);
-  Adafruit_NMEA(const Adafruit_NMEA &) = delete;
-  Adafruit_NMEA &operator=(const Adafruit_NMEA &) = delete;
+  /// @brief Copying is disabled to prevent sharing writable receive buffers.
+  /// @param other Receiver that cannot be copied.
+  Adafruit_NMEA(const Adafruit_NMEA &other) = delete;
+  /// @brief Assignment is disabled to prevent sharing writable receive buffers.
+  /// @param other Receiver that cannot be assigned.
+  Adafruit_NMEA &operator=(const Adafruit_NMEA &other) = delete;
   void reset();
   nmea_frame_status_t feed(uint8_t byte, uint32_t receivedAtMs);
   nmea_sentence_t lastSentence() const;
