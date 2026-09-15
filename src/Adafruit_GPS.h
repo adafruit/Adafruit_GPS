@@ -296,8 +296,6 @@ private:
   int8_t gpsSPI_cs = -1;
   SPISettings gpsSPI_settings =
       SPISettings(1000000, MSBFIRST, SPI_MODE0); // default
-  char _spibuffer[GPS_MAX_SPI_TRANSFER]; // for when we write data, we need to
-                                         // read it too!
   uint8_t _i2caddr;
   char _i2cbuffer[GPS_MAX_I2C_TRANSFER];
   int8_t _buff_max = -1, _buff_idx = 0;
