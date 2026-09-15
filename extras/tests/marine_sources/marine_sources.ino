@@ -1,5 +1,7 @@
 #include <Adafruit_GPS.h>
 
+bool parseSentence(char *sentence, const char *source, const char *type);
+
 Adafruit_GPS GPS;
 bool testsPassed = false;
 
