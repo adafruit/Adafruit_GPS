@@ -1,13 +1,14 @@
 /**************************************************************************/
 /*!
   @file Adafruit_NMEA.cpp
-  @brief Hardware-independent NMEA sentence validation.
+  @brief Hardware-independent NMEA sentence and field utilities.
 
   Written for Adafruit Industries. BSD license; see license.txt.
 */
 /**************************************************************************/
 
 #include "Adafruit_NMEA.h"
+#include <string.h>
 
 /**************************************************************************/
 /*!
@@ -150,4 +151,167 @@ nmea_span_t Adafruit_NMEA::nextField(nmea_span_t &remaining) {
     remaining.length = 0;
   }
   return field;
+}
+
+/**************************************************************************/
+/*!
+    @brief Convert a complete field to an exact signed decimal value.
+    @param field Borrowed readable text, with no NUL terminator required.
+    @return Status, integer coefficient, and decimal-place count. Both numeric
+    members are zero on failure. NULL data is MISSING; zero length is EMPTY.
+
+    Accepts an optional sign, digits, and at most one decimal point. At least
+    one digit is required. Whitespace, exponents, and non-digit suffixes are
+    rejected. The supplied fractional digit count is retained, including zeros.
+    Coefficients must fit int64_t and decimal-place counts must fit uint8_t.
+    Malformed syntax takes precedence over overflow. No rounding, floating-point
+    conversion, allocation, or input modification occurs.
+*/
+/**************************************************************************/
+nmea_decimal_t Adafruit_NMEA::parseDecimal(nmea_span_t field) {
+  nmea_decimal_t result = {NMEA_NUMBER_BAD_FORMAT, 0, 0};
+  if (!field.data) {
+    result.status = NMEA_NUMBER_MISSING;
+    return result;
+  }
+  if (!field.length) {
+    result.status = NMEA_NUMBER_EMPTY;
+    return result;
+  }
+
+  size_t start = 0;
+  bool negative = false;
+  if (field.data[0] == '-' || field.data[0] == '+') {
+    negative = field.data[0] == '-';
+    start = 1;
+  }
+
+  // Accumulate negatively: INT64_MIN has no positive int64_t counterpart.
+  int64_t limit = -INT64_MAX;
+  if (negative)
+    limit = INT64_MIN;
+  int64_t cutoff = limit / 10;
+  uint8_t lastDigitLimit = (uint8_t)(-(limit % 10));
+  int64_t coefficient = 0;
+  uint8_t decimalPlaces = 0;
+  bool decimalPoint = false;
+  bool hasDigit = false;
+  bool overflow = false;
+  for (size_t i = start; i < field.length; i++) {
+    char c = field.data[i];
+    if (c == '.' && !decimalPoint) {
+      decimalPoint = true;
+      continue;
+    }
+    if (c < '0' || c > '9')
+      return result;
+    hasDigit = true;
+    uint8_t digit = c - '0';
+    if (decimalPoint) {
+      if (decimalPlaces == UINT8_MAX)
+        overflow = true;
+      else
+        decimalPlaces++;
+    }
+    if (!overflow) {
+      if (coefficient < cutoff ||
+          (coefficient == cutoff && digit > lastDigitLimit))
+        overflow = true;
+      else
+        coefficient = coefficient * 10 - digit;
+    }
+  }
+  if (!hasDigit)
+    return result;
+  if (overflow) {
+    result.status = NMEA_NUMBER_OUT_OF_RANGE;
+    return result;
+  }
+
+  result.status = NMEA_NUMBER_VALID;
+  result.coefficient = coefficient;
+  if (!negative)
+    result.coefficient = -coefficient;
+  result.decimalPlaces = decimalPlaces;
+  return result;
+}
+
+/**************************************************************************/
+/*!
+    @brief Build a checksummed command in caller-provided storage.
+    @param output Writable buffer for the complete command and NUL terminator.
+    @param capacity Size of output in bytes, including space for NUL.
+    @param body Readable address and optional comma-separated fields, without
+    '$', '!', '*', control characters, or non-ASCII bytes. No NUL is required.
+    @param bodyLength Number of bytes in body, excluding any NUL terminator.
+    @return Bytes written excluding NUL, or zero on invalid input, overlapping
+    buffers, or insufficient capacity. On failure, output[0] is cleared if
+   output is non-NULL and capacity is nonzero; no other output bytes are
+   changed.
+
+    Produces "$<body>*HH\r\n" followed by NUL, using uppercase checksum digits.
+    Requires bodyLength + NMEA_COMMAND_OVERHEAD bytes of storage. The address
+    must be nonempty and ASCII alphanumeric. Zero-field commands are allowed.
+    Arguments, capacity, and body syntax are checked before constructing output.
+    No heap allocation or transport I/O occurs.
+*/
+/**************************************************************************/
+size_t Adafruit_NMEA::buildCommand(char *output, size_t capacity,
+                                   const char *body, size_t bodyLength) {
+  bool valid = output && body && bodyLength &&
+               capacity >= NMEA_COMMAND_OVERHEAD &&
+               bodyLength <= capacity - NMEA_COMMAND_OVERHEAD;
+  if (valid) {
+    // Compare address differences so checking overlap cannot overflow an end
+    // address. Reject overlap with the caller's entire writable output span.
+    uintptr_t outputAddress = (uintptr_t)output;
+    uintptr_t bodyAddress = (uintptr_t)body;
+    if (outputAddress <= bodyAddress)
+      valid = bodyAddress - outputAddress >= capacity;
+    else
+      valid = outputAddress - bodyAddress >= bodyLength;
+  }
+
+  uint8_t checksum = 0;
+  bool inAddress = true;
+  if (valid) {
+    for (size_t i = 0; i < bodyLength; i++) {
+      uint8_t c = (uint8_t)body[i];
+      if (c < ' ' || c > '~' || c == '$' || c == '!' || c == '*') {
+        valid = false;
+        break;
+      }
+      if (inAddress) {
+        if (c == ',' && i > 0) {
+          inAddress = false;
+        } else if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                     (c >= '0' && c <= '9'))) {
+          valid = false;
+          break;
+        }
+      }
+      checksum ^= c;
+    }
+  }
+  if (!valid) {
+    if (output && capacity)
+      output[0] = '\0';
+    return 0;
+  }
+
+  output[0] = '$';
+  memcpy(output + 1, body, bodyLength);
+  size_t end = bodyLength + 1;
+  output[end++] = '*';
+  uint8_t digits[] = {(uint8_t)(checksum / 16), (uint8_t)(checksum % 16)};
+  for (uint8_t i = 0; i < 2; i++) {
+    if (digits[i] < 10)
+      output[end++] = '0' + digits[i];
+    else
+      output[end++] = 'A' + digits[i] - 10;
+  }
+  output[end++] = '\r';
+  output[end++] = '\n';
+  output[end] = '\0';
+  return end;
 }
