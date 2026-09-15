@@ -22,19 +22,19 @@
 
 #include <Adafruit_GPS.h>
 
-const char Adafruit_GPS::sources[][4] PROGMEM = {"II", "WI", "GP", "PG", "GL",
+const char PROGMEM Adafruit_GPS::sources[][4] = {"II", "WI", "GP", "PG", "GL",
                                                  "GA", "GN", "P",  "ZZZ"};
 #ifdef NMEA_EXTENSIONS
-const char Adafruit_GPS::sentences_parsed[][4] PROGMEM = {
+const char PROGMEM Adafruit_GPS::sentences_parsed[][4] = {
     "GGA", "GLL", "GSA", "RMC", "DBT", "HDM", "HDT", "MDA", "MTW", "MWV",
     "RMB", "TOP", "TXT", "VHW", "VLW", "VPW", "VWR", "WCV", "XTE", "ZZZ"};
-const char Adafruit_GPS::sentences_known[][4] PROGMEM = {
+const char PROGMEM Adafruit_GPS::sentences_known[][4] = {
     "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
     "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"};
 #else // make the lists short to save flash on small boards
-const char Adafruit_GPS::sentences_parsed[][4] PROGMEM = {"GGA", "GLL", "GSA",
+const char PROGMEM Adafruit_GPS::sentences_parsed[][4] = {"GGA", "GLL", "GSA",
                                                           "RMC", "TOP", "ZZZ"};
-const char Adafruit_GPS::sentences_known[][4] PROGMEM = {"DBT", "HDM", "HDT",
+const char PROGMEM Adafruit_GPS::sentences_known[][4] = {"DBT", "HDM", "HDT",
                                                          "ZZZ"};
 #endif
 #include <ctype.h>

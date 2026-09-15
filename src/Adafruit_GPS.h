@@ -254,9 +254,9 @@ private:
   bool isEmpty(char *pStart);
 
   // Shared flash tables avoid RAM copies of both the IDs and their pointers.
-  static const char sources[][4] PROGMEM;          ///< valid source ids
-  static const char sentences_parsed[][4] PROGMEM; ///< parseable sentence ids
-  static const char sentences_known[][4] PROGMEM;  ///< known, but not parseable
+  static const char PROGMEM sources[][4];          ///< valid source ids
+  static const char PROGMEM sentences_parsed[][4]; ///< parseable sentence ids
+  static const char PROGMEM sentences_known[][4];  ///< known, but not parseable
 
   // Make all of these times far in the past by setting them near the middle of
   // the millis() range. Timing assumes that sentences are parsed promptly.
