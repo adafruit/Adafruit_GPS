@@ -293,9 +293,9 @@ private:
   volatile char line2[MAXLINELENGTH]; ///< Second buffer
   Adafruit_NMEA receiver{line1, line2, MAXLINELENGTH}; ///< Bounded byte framing
   const char *volatile lastline =
-      (const char *)line2;       ///< Completed line published by read()
-  volatile bool recvdflag;       ///< Received flag
-  volatile bool inStandbyMode;   ///< In standby flag
+      (const char *)line2;     ///< Completed line published by read()
+  volatile bool recvdflag;     ///< Received flag
+  volatile bool inStandbyMode; ///< In standby flag
 };
 /**************************************************************************/
 
