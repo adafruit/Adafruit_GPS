@@ -1,7 +1,7 @@
 /**************************************************************************/
 /*!
   @file Adafruit_NMEA.h
-  @brief Hardware-independent NMEA sentence validation.
+  @brief Hardware-independent NMEA sentence and field utilities.
 
   Written for Adafruit Industries. BSD license; see license.txt.
 */
@@ -12,6 +12,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
+#define NMEA_COMMAND_OVERHEAD 7 ///< Bytes for '$', '*HH', CR/LF, and NUL.
 
 /** Result of framing or validating a sentence. Recognition belongs to GNSS
  *  or receiver-specific decoders: an unknown address can still be VALID. */
@@ -43,11 +45,32 @@ typedef struct {
   nmea_span_t fields;  ///< Text after the first comma and before '*'.
 } nmea_sentence_t;
 
+/// Result of converting one complete field to a decimal number.
+typedef enum : uint8_t {
+  NMEA_NUMBER_VALID,       ///< The complete field is a representable decimal.
+  NMEA_NUMBER_MISSING,     ///< Field is absent.
+  NMEA_NUMBER_EMPTY,       ///< Field is present but empty.
+  NMEA_NUMBER_BAD_FORMAT,  ///< Invalid character or decimal syntax.
+  NMEA_NUMBER_OUT_OF_RANGE ///< Coefficient or decimal-place count overflowed.
+} nmea_number_status_t;
+
+/** Exact decimal value: coefficient / 10^decimalPlaces, with no float step.
+ *  Coordinate interpretation and conversion to degrees belong to Adafruit_GNSS.
+ *  On any conversion failure, coefficient and decimalPlaces are both zero. */
+typedef struct {
+  nmea_number_status_t status; ///< Result of conversion.
+  int64_t coefficient;   ///< Signed integer containing the decimal digits.
+  uint8_t decimalPlaces; ///< Number of digits following the decimal point.
+} nmea_decimal_t;
+
 /// Hardware-independent NMEA utilities shared by receiver classes.
 class Adafruit_NMEA {
 public:
   static nmea_sentence_t validate(const char *data, size_t length);
   static nmea_span_t nextField(nmea_span_t &remaining);
+  static nmea_decimal_t parseDecimal(nmea_span_t field);
+  static size_t buildCommand(char *output, size_t capacity, const char *body,
+                             size_t bodyLength);
 };
 
 #endif // ADAFRUIT_NMEA_H
