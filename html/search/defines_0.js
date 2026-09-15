@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['gps_5fdefault_5fi2c_5faddr',['GPS_DEFAULT_I2C_ADDR',['../_adafruit___g_p_s_8h.html#a09a011d0f9a94852f1cf93de299f6152',1,'Adafruit_GPS.h']]],
-  ['gps_5fmax_5fi2c_5ftransfer',['GPS_MAX_I2C_TRANSFER',['../_adafruit___g_p_s_8h.html#aa4f51a6693bb8e084e5b879528dee0bf',1,'Adafruit_GPS.h']]],
-  ['gps_5fmax_5fspi_5ftransfer',['GPS_MAX_SPI_TRANSFER',['../_adafruit___g_p_s_8h.html#a2a9a79e8518d2e3ca5791a112a1976a5',1,'Adafruit_GPS.h']]]
+  ['cdcmd_5fantenna',['CDCMD_ANTENNA',['../_adafruit___p_m_t_k_8h.html#a26ad6a5f93327e4fbdea9e53854d19e5',1,'Adafruit_PMTK.h']]],
+  ['cdcmd_5fnoantenna',['CDCMD_NOANTENNA',['../_adafruit___p_m_t_k_8h.html#a9015179b5709fcb955a96fa5417514e1',1,'Adafruit_PMTK.h']]]
 ];
