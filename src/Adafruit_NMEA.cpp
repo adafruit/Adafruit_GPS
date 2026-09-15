@@ -123,6 +123,9 @@ nmea_sentence_t Adafruit_NMEA::validate(const char *data, size_t length) {
     cursor stays absent on subsequent calls. No text is copied or modified,
     and no NUL terminator is required. Only the supplied length is inspected.
     Iterate each cursor in order for one forward scan of its fields.
+
+    To mark a cursor exhausted, set remaining.data to NULL. Setting only
+    remaining.length to zero still yields one empty field if data is non-NULL.
 */
 /**************************************************************************/
 nmea_span_t Adafruit_NMEA::nextField(nmea_span_t &remaining) {
