@@ -244,7 +244,7 @@ private:
   // NMEA_data.cpp
   void data_init();
   // NMEA_parse.cpp
-  const char *tokenOnList(char *token, const char **list);
+  const char *tokenOnList(char *token, const char list[][4]);
   bool parseCoord(char *p, nmea_float_t *angleDegrees = NULL,
                   nmea_float_t *angle = NULL, int32_t *angle_fixed = NULL,
                   char *dir = NULL);
@@ -254,23 +254,10 @@ private:
   bool parseAntenna(char *);
   bool isEmpty(char *pStart);
 
-  // used by check() for validity tests, room for future expansion
-  const char *sources[9] = {"II", "WI", "GP", "PG", "GL",
-                            "GA", "GN", "P",  "ZZZ"}; ///< valid source ids
-#ifdef NMEA_EXTENSIONS
-  const char *sentences_parsed[21] = {"GGA", "GLL", "GSA", "RMC", "DBT", "HDM",
-                                      "HDT", "MDA", "MTW", "MWV", "RMB", "TOP",
-                                      "TXT", "VHW", "VLW", "VPW", "VWR", "WCV",
-                                      "XTE", "ZZZ"}; ///< parseable sentence ids
-  const char *sentences_known[15] = {
-      "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
-      "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"}; ///< known, but not parseable
-#else // make the lists short to save memory
-  const char *sentences_parsed[6] = {"GGA", "GLL", "GSA", "RMC",
-                                     "TOP", "ZZZ"}; ///< parseable sentence ids
-  const char *sentences_known[4] = {"DBT", "HDM", "HDT",
-                                    "ZZZ"}; ///< known, but not parseable
-#endif
+  // Shared flash tables avoid RAM copies of both the IDs and their pointers.
+  static const char PROGMEM sources[][4];          ///< valid source ids
+  static const char PROGMEM sentences_parsed[][4]; ///< parseable sentence ids
+  static const char PROGMEM sentences_known[][4];  ///< known, but not parseable
 
   // Make all of these times far in the past by setting them near the middle of
   // the millis() range. Timing assumes that sentences are parsed promptly.
