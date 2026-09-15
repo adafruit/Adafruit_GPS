@@ -127,8 +127,9 @@ void setup() {
   // Set the update rate
   GPS.sendCommand(F(PMTK_SET_NMEA_UPDATE_1HZ));   // 100 millihertz (once every 10 seconds), 1Hz or 5Hz update rate
 
-  // Turn off updates on antenna status, if the firmware permits it
+  // Disable antenna status on old and new modules, if the firmware permits it.
   GPS.sendCommand(F(PGCMD_NOANTENNA));
+  GPS.sendCommand(F(CDCMD_NOANTENNA));
 
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the

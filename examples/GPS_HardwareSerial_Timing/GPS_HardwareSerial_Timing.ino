@@ -72,8 +72,9 @@ void setup() {
   // For the parsing code to work nicely and have time to sort thru the data,
   // and print it out we don't suggest using anything higher than 1 Hz
 
-  // Request updates on antenna status, comment out to keep quiet
-  GPS.sendCommand(PGCMD_ANTENNA);
+  // Request antenna status from old and new modules; comment out both to keep quiet
+  GPS.sendCommand(F(PGCMD_ANTENNA));
+  GPS.sendCommand(F(CDCMD_ANTENNA));
 
   delay(1000);
 

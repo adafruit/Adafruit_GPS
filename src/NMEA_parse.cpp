@@ -26,14 +26,14 @@ const char PROGMEM Adafruit_GPS::sources[][4] = {"II", "WI", "GP", "PG", "GL",
                                                  "GA", "GN", "P",  "ZZZ"};
 #ifdef NMEA_EXTENSIONS
 const char PROGMEM Adafruit_GPS::sentences_parsed[][4] = {
-    "GGA", "GLL", "GSA", "RMC", "DBT", "HDM", "HDT", "MDA", "MTW", "MWV",
+    "GGA", "GLL", "GSA", "RMC", "CD",  "DBT", "HDM", "HDT", "MDA", "MTW", "MWV",
     "RMB", "TOP", "TXT", "VHW", "VLW", "VPW", "VWR", "WCV", "XTE", "ZZZ"};
 const char PROGMEM Adafruit_GPS::sentences_known[][4] = {
     "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
     "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"};
 #else // make the lists short to save flash on small boards
-const char PROGMEM Adafruit_GPS::sentences_parsed[][4] = {"GGA", "GLL", "GSA",
-                                                          "RMC", "TOP", "ZZZ"};
+const char PROGMEM Adafruit_GPS::sentences_parsed[][4] = {
+    "GGA", "GLL", "GSA", "RMC", "TOP", "CD", "ZZZ"};
 const char PROGMEM Adafruit_GPS::sentences_known[][4] = {"DBT", "HDM", "HDT",
                                                          "ZZZ"};
 #endif
@@ -201,16 +201,27 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       VDOP = atof(p); // last before checksum
 
-  } else if (!strcmp(thisSentence, "TOP")) { //*****************************TOP
+  } else if (!strcmp(thisSentence, "TOP") ||
+             !strcmp_P(thisSentence, PSTR("CD"))) { // Antenna status
     if (fields < 2)
       return false;
-    // See:
-    // https://learn.adafruit.com/adafruit-ultimate-gps-featherwing/antenna-options
-    // There is an output sentence that will tell you the status of the
-    // antenna. $PGTOP,11,x where x is the status number. If x is 3 that means
-    // it is using the external antenna. If x is 2 it's using the internal
+    bool cdtop = !strcmp_P(thisSentence, PSTR("CD"));
+    // Only PCD subtype 11 describes the antenna; other CD messages differ.
+    if (cdtop && strncmp_P(nmea, PSTR("$PCD,11,"), 8))
+      return false;
     p = strchr(p, ',') + 1;
-    parseAntenna(p);
+    if (!parseAntenna(p))
+      return false;
+    if (cdtop) {
+      // PCD uses 1=internal, 2=external, 3=shorted. Preserve the public
+      // PGTOP convention: 1=problem, 2=internal, 3=external.
+      if (antenna == 1)
+        antenna = 2;
+      else if (antenna == 2)
+        antenna = 3;
+      else
+        antenna = 1;
+    }
   }
 
 #ifdef NMEA_EXTENSIONS // Sentences not required for basic GPS functionality
@@ -895,11 +906,12 @@ bool Adafruit_GPS::parseFix(char *p) {
 /*!
     @brief Parse a part of an NMEA string for antenna that is used
     @param p Pointer to the location of the token in the NMEA string
-    @return 3=external 2=internal 1=there was an antenna short or problem
+    @return True if the antenna status was recognized, false otherwise
 */
 /**************************************************************************/
 bool Adafruit_GPS::parseAntenna(char *p) {
-  if (!isEmpty(p)) {
+  if (!isEmpty(p) && p[0] != '\0' &&
+      (p[1] == ',' || p[1] == '*' || p[1] == '\0')) {
     if (p[0] == '3') {
       antenna = 3;
     } else if (p[0] == '2') {

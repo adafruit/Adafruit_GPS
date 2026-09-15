@@ -46,8 +46,9 @@ void setup()
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
   // Default is 1 Hz update rate
   GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
-  // Request updates on antenna status, comment out to keep quiet
-  GPS.sendCommand(PGCMD_ANTENNA);
+  // Request antenna status from old and new modules; comment out both to keep quiet
+  GPS.sendCommand(F(PGCMD_ANTENNA));
+  GPS.sendCommand(F(CDCMD_ANTENNA));
   // Ask for firmware version
   GPS.sendCommand(PMTK_Q_RELEASE);
 
