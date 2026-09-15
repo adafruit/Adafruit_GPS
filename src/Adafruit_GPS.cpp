@@ -159,7 +159,9 @@ void Adafruit_GPS::common_init(void) {
   gpsSPI = NULL;
   recvdflag = false;
   paused = false;
-  lastline = (const char *)line2;
+  // Reset clears both buffers without swapping them. Keep lastline pointing
+  // at the completed buffer, which may be either line1 or line2 by now.
+  receiver.reset();
 
   hour = minute = seconds = year = month = day = fixquality = fixquality_3d =
       satellites = antenna = 0; // uint8_t

@@ -1,4 +1,10 @@
+#include <Arduino.h>
+#include <SPI.h>
+#include <Wire.h>
+// common_init() detaches the transport; reconnect the test stream afterwards.
+#define private public
 #include <Adafruit_GPS.h>
+#undef private
 
 class TestStream : public Stream {
 public:
@@ -18,6 +24,7 @@ const char navigation[] =
     "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A\r\n";
 
 bool receive(TestStream &stream, Adafruit_GPS &gps, const char *text);
+bool checkReinitialization();
 
 void setup() {
   Serial.begin(115200);
@@ -134,6 +141,11 @@ void setup() {
     return;
   }
   Serial.println(F("PASS: two receivers keep independent sentence timestamps"));
+  if (!checkReinitialization()) {
+    Serial.println(F("FAIL: reinitialization retained input or mixed buffer roles"));
+    return;
+  }
+  Serial.println(F("PASS: reinitialization clears input and preserves buffer roles"));
   testsPassed = true;
 }
 
@@ -158,4 +170,39 @@ bool receive(TestStream &stream, Adafruit_GPS &gps, const char *text) {
     completed = completed || gps.newNMEAreceived();
   }
   return completed;
+}
+
+bool checkReinitialization() {
+  // Cover the initial buffer orientation and both roles after completed lines.
+  for (uint8_t completed = 0; completed < 3; completed++) {
+    TestStream stream;
+    Adafruit_GPS gps((Stream *)&stream);
+    for (uint8_t i = 0; i < completed; i++) {
+      if (!receive(stream, gps, navigation)) {
+        return false;
+      }
+    }
+    // Leave any completed line unacknowledged while starting another line.
+    receive(stream, gps, "$stale,");
+    gps.common_init();
+    if (gps.newNMEAreceived() || gps.lastNMEA()[0] ||
+        gps.receiver.lastText().data || gps.receiver.sentenceStartedAt() ||
+        gps.receiver.sentenceReceivedAt()) {
+      return false;
+    }
+    gps.gpsStream = &stream;
+    if (receive(stream, gps, "tail\n") || gps.lastNMEA()[0] ||
+        receive(stream, gps, "$fresh,") || gps.lastNMEA()[0] ||
+        !receive(stream, gps, navigation) || strcmp(gps.lastNMEA(), navigation)) {
+      return false;
+    }
+    if (receive(stream, gps, "$next,") || strcmp(gps.lastNMEA(), navigation)) {
+      return false;
+    }
+    gps.common_init();
+    if (gps.newNMEAreceived() || gps.lastNMEA()[0]) {
+      return false;
+    }
+  }
+  return true;
 }
