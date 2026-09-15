@@ -101,6 +101,7 @@ public:
   size_t write(uint8_t);
   char read(void);
   void sendCommand(const char *);
+  void sendCommand(const __FlashStringHelper *);
   bool newNMEAreceived();
   void pause(bool b);
   char *lastNMEA(void);
