@@ -73,10 +73,12 @@ char *Adafruit_GPS::build(char *nmea, const char *thisSource,
     return NULL;
   *nmea = '$';
   char *p = nmea + 1; // Pointer to move through the sentence
-  strncpy(p, thisSource, strlen(thisSource));
-  p += strlen(thisSource);
-  strncpy(p, thisSentence, strlen(thisSentence));
-  p += strlen(thisSentence);
+  size_t len = strlen(thisSource);
+  memcpy(p, thisSource, len);
+  p += len;
+  len = strlen(thisSentence);
+  memcpy(p, thisSentence, len);
+  p += len;
   *p = ',';
   p += 1; // Now $XXSSS, and need to add argument fields
   // This may look inefficient, but an M0 will get down the list in about 1 us /

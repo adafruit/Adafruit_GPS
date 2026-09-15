@@ -1,6 +1,12 @@
-// Two-sentence regression test. Runs without a GPS receiver.
+// String-copy and sentence bounds regression. Runs without a GPS receiver.
 
+// Test the private field helper without changing the library's public API.
+#include <Arduino.h>
+#include <SPI.h>
+#include <Wire.h>
+#define private public
 #include <Adafruit_GPS.h>
+#undef private
 
 Adafruit_GPS GPS;
 bool testsPassed = false;
@@ -41,14 +47,42 @@ void setup() {
     return;
   }
   Serial.println("PASS: previous result preserved");
+
+  // Each destination starts with nonzero bytes so missing terminators fail.
+  if (!checkField("abc,tail", 8, "abc") ||
+      !checkField("abc*00", 8, "abc") ||
+      !checkField("abc", 8, "abc") ||
+      !checkField("abcdef,tail", 4, "abc") ||
+      !checkField("abcdef*00", 4, "abc") ||
+      !checkField("abcdef", 4, "abc") ||
+      !checkField("abc", 1, "") ||
+      !checkField("", 8, "")) {
+    return;
+  }
   testsPassed = true;
 }
 
 void loop() {
   if (testsPassed) {
-    Serial.println("PASS: two-sentence regression");
+    Serial.println("PASS: string-copy regression");
   } else {
-    Serial.println("FAIL: two-sentence regression");
+    Serial.println("FAIL: string-copy regression");
   }
   delay(2000);
+}
+
+bool checkField(const char *value, uint8_t capacity, const char *expected) {
+  char input[24];
+  char result[9];
+  strcpy(input, value);
+  memset(result, '?', sizeof(result));
+  if (GPS.parseStr(result, input, capacity) != result ||
+      memcmp(result, expected, strlen(expected) + 1) != 0 ||
+      result[capacity] != '?') {
+    Serial.println("FAIL: copied field or destination bounds");
+    return false;
+  }
+  Serial.print("PASS: copied field ");
+  Serial.println(value);
+  return true;
 }
