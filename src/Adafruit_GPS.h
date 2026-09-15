@@ -106,7 +106,7 @@ public:
   void pause(bool b);
   char *lastNMEA(void);
   bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
-                       bool usingInterrupts = false);
+                       bool usingInterrupts = false, uint32_t timeout = 10000);
   bool LOCUS_StartLogger(void);
   bool LOCUS_StopLogger(void);
   bool LOCUS_ReadStatus(void);

@@ -429,18 +429,24 @@ char *Adafruit_GPS::lastNMEA(void) {
 
 /**************************************************************************/
 /*!
-    @brief Wait for a specified sentence from the device
-    @param wait4me Pointer to a string holding the desired response
-    @param max How long to wait, default is MAXWAITSENTENCE
-    @param usingInterrupts True if using interrupts to read from the GPS
-   (default is false)
-    @return True if we got what we wanted, false otherwise
-*/
+ * @brief Wait for a specified sentence from the device
+ * @param wait4me
+ * Pointer to a string holding the desired response
+ * @param max Sentence limit
+ * (default MAXWAITSENTENCE)
+ * @param usingInterrupts True if interrupts read
+ * the GPS (default false)
+ * @param timeout Time limit in milliseconds (default
+ * 10000)
+ * @return True on a match, false when either limit is reached
+ */
 /**************************************************************************/
 bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
-                                   bool usingInterrupts) {
+                                   bool usingInterrupts, uint32_t timeout) {
   uint8_t i = 0;
-  while (i < max) {
+  uint32_t start = millis();
+  // A silent GPS, including an I2C device that NAKs, never advances i.
+  while (i < max && (uint32_t)(millis() - start) < timeout) {
     if (!usingInterrupts)
       read();
 
@@ -451,6 +457,7 @@ bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
       if (strStartsWith(nmea, wait4me))
         return true;
     }
+    yield();
   }
 
   return false;
@@ -553,15 +560,21 @@ bool Adafruit_GPS::standby(void) {
 
 /**************************************************************************/
 /*!
-    @brief Wake the sensor up
-    @return True if woken up, false if not in standby or failed to wake
-*/
+ * @brief Wake the sensor up
+ * @return True if woken up, false if not in
+ * standby or failed to wake
+ * @note A failed wakeup preserves standby state
+ * for retries.
+ */
 /**************************************************************************/
 bool Adafruit_GPS::wakeup(void) {
   if (inStandbyMode) {
-    inStandbyMode = false;
     sendCommand(""); // send byte to wake it up
-    return waitForSentence(PMTK_AWAKE);
+    if (waitForSentence(PMTK_AWAKE)) {
+      inStandbyMode = false;
+      return true;
+    }
+    return false;
   } else {
     return false; // Returns false if not in standby mode, nothing to wakeup
   }
