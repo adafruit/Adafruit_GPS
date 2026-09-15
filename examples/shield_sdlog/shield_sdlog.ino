@@ -117,16 +117,16 @@ void setup() {
   GPS.begin(9600);
 
   // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
-  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  GPS.sendCommand(F(PMTK_SET_NMEA_OUTPUT_RMCGGA));
   // uncomment this line to turn on only the "minimum recommended" data
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
+  //GPS.sendCommand(F(PMTK_SET_NMEA_OUTPUT_RMCONLY));
   // For logging data, we don't suggest using anything but either RMC only or RMC+GGA
   // to keep the log files at a reasonable size
   // Set the update rate
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 100 millihertz (once every 10 seconds), 1Hz or 5Hz update rate
+  GPS.sendCommand(F(PMTK_SET_NMEA_UPDATE_1HZ));   // 100 millihertz (once every 10 seconds), 1Hz or 5Hz update rate
 
   // Turn off updates on antenna status, if the firmware permits it
-  GPS.sendCommand(PGCMD_NOANTENNA);
+  GPS.sendCommand(F(PGCMD_NOANTENNA));
 
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the
