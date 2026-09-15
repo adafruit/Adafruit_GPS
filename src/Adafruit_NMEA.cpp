@@ -12,6 +12,147 @@
 
 /**************************************************************************/
 /*!
+    @brief Create a receiver using two caller-owned buffers.
+    @param firstBuffer First writable receive buffer.
+    @param secondBuffer Second writable receive buffer, not overlapping first.
+    @param capacity Size of each buffer, including space for a NUL terminator.
+
+    Both buffers must outlive the receiver and remain exclusively owned by it.
+    NULL pointers, overlapping buffers, or capacity below two bytes disable
+    reception: feed() returns BAD_FORMAT and no buffer is written. Valid
+    buffers are initialized to empty strings. No memory is allocated.
+*/
+/**************************************************************************/
+Adafruit_NMEA::Adafruit_NMEA(char *firstBuffer, char *secondBuffer,
+                             size_t capacity)
+    : _buffer(firstBuffer), _lastBuffer(secondBuffer), _capacity(capacity) {
+  if (!firstBuffer || !secondBuffer || capacity < 2) {
+    _capacity = 0;
+  } else {
+    // Subtract addresses instead of adding capacity to avoid end overflow.
+    uintptr_t firstAddress = (uintptr_t)firstBuffer;
+    uintptr_t secondAddress = (uintptr_t)secondBuffer;
+    if (firstAddress <= secondAddress) {
+      if (secondAddress - firstAddress < capacity)
+        _capacity = 0;
+    } else if (firstAddress - secondAddress < capacity) {
+      _capacity = 0;
+    }
+  }
+  reset();
+}
+
+/**************************************************************************/
+/*!
+    @brief Discard partial and completed lines and clear all timestamps.
+
+    Invalidates every view returned by lastSentence(). Valid receive buffers
+    become empty strings. Invalid storage remains disabled and untouched.
+*/
+/**************************************************************************/
+void Adafruit_NMEA::reset() {
+  _length = _lastLength = 0;
+  _startedAt = _lastStarted = _lastReceived = 0;
+  if (_capacity) {
+    _buffer[0] = '\0';
+    _lastBuffer[0] = '\0';
+  }
+}
+
+/**************************************************************************/
+/*!
+    @brief Feed one byte into this receiver's bounded sentence buffer.
+    @param byte Received byte, including any CR/LF characters.
+    @param receivedAtMs Receive time in milliseconds, such as millis().
+    @return INCOMPLETE until LF completes a line, then its validation status.
+    OVERFLOW discards a line that cannot fit including LF and NUL. BAD_FORMAT
+    also indicates invalid storage supplied to the constructor.
+
+    Ignore bytes before '$' or '!'. Either start marker restarts assembly,
+    including after overflow. Overflow is reported once; subsequent bytes
+    are ignored until another start marker. Partial and overflowing lines
+    preserve the previous complete line and its timestamps.
+
+    Every complete, non-overflowed line replaces lastSentence(), even if its
+    format or checksum is invalid. Its raw text includes LF and is followed
+    by a NUL terminator. The caller must consume each line promptly; there is
+    no queue. No transport access, allocation, or sentence copying occurs.
+*/
+/**************************************************************************/
+nmea_frame_status_t Adafruit_NMEA::feed(uint8_t byte, uint32_t receivedAtMs) {
+  if (!_capacity)
+    return NMEA_FRAME_BAD_FORMAT;
+
+  if (byte == '$' || byte == '!') {
+    _length = 0;
+    _startedAt = receivedAtMs;
+  } else if (!_length) {
+    return NMEA_FRAME_INCOMPLETE;
+  }
+
+  // Reserve one byte for NUL, including when the incoming byte is LF.
+  if (_length == _capacity - 1) {
+    _length = 0;
+    _buffer[0] = '\0';
+    return NMEA_FRAME_OVERFLOW;
+  }
+  _buffer[_length++] = (char)byte;
+  _buffer[_length] = '\0';
+  if (byte != '\n')
+    return NMEA_FRAME_INCOMPLETE;
+
+  // Publish by swapping buffers, leaving the new completed line undisturbed
+  // while the next line is assembled.
+  char *previous = _lastBuffer;
+  _lastBuffer = _buffer;
+  _buffer = previous;
+  _lastLength = _length;
+  _lastStarted = _startedAt;
+  _lastReceived = receivedAtMs;
+  _length = 0;
+  _buffer[0] = '\0';
+  return validate(_lastBuffer, _lastLength).status;
+}
+
+/**************************************************************************/
+/*!
+    @brief Get views of the latest complete line, including invalid raw text.
+    @return Validated sentence, or INCOMPLETE with absent spans before a line
+    has completed or after reset(). Overflow does not replace this result.
+
+    Views borrow the receive buffer and expire on the next complete line,
+    reset(), or receiver destruction. Address and fields are only available
+    for VALID lines. Validation uses the stored length, not the NUL terminator.
+*/
+/**************************************************************************/
+nmea_sentence_t Adafruit_NMEA::lastSentence() const {
+  if (_lastLength)
+    return validate(_lastBuffer, _lastLength);
+  nmea_sentence_t result = {
+      NMEA_FRAME_INCOMPLETE, {NULL, 0}, {NULL, 0}, {NULL, 0}};
+  return result;
+}
+
+/**************************************************************************/
+/*!
+    @brief Get the start-marker timestamp of the latest complete line.
+    @return Supplied receive time in milliseconds, or zero before a line exists.
+    Zero is also a valid timestamp; use lastSentence().status to distinguish it.
+*/
+/**************************************************************************/
+uint32_t Adafruit_NMEA::sentenceStartedAt() const { return _lastStarted; }
+
+/**************************************************************************/
+/*!
+    @brief Get the LF timestamp of the latest complete line.
+    @return Supplied receive time in milliseconds, or zero before a line exists.
+    Timestamps retain the caller's uint32_t wraparound behavior.
+*/
+/**************************************************************************/
+uint32_t Adafruit_NMEA::sentenceReceivedAt() const { return _lastReceived; }
+
+/**************************************************************************/
+/*!
     @brief Validate a complete, length-bounded NMEA sentence without copying it.
     @param data Readable input buffer; no NUL terminator is required.
     @param length Number of bytes to inspect, excluding any NUL terminator.
