@@ -109,6 +109,10 @@
 #define PGCMD_ANTENNA                                                          \
   "$PGCMD,33,1*6C" ///< request for updates on antenna status
 #define PGCMD_NOANTENNA "$PGCMD,33,0*6D" ///< don't show antenna status messages
+#define CDCMD_ANTENNA                                                          \
+  "$CDCMD,33,1*7C" ///< request antenna status on newer CDTop modules
+#define CDCMD_NOANTENNA                                                        \
+  "$CDCMD,33,0*7D" ///< disable antenna status on newer CDTop modules
 
 #define MAXWAITSENTENCE                                                        \
   10 ///< maximum number of sentences to examine when looking for a response

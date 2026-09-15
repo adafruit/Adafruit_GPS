@@ -202,7 +202,7 @@ public:
   uint8_t fixquality;    ///< Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
   uint8_t fixquality_3d; ///< 3D fix quality (1, 3, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;    ///< Number of satellites in use
-  uint8_t antenna;       ///< Antenna that is used (from PGTOP)
+  uint8_t antenna;       ///< 1=problem, 2=internal, 3=external (PGTOP or PCD)
 
   uint16_t LOCUS_serial;  ///< Log serial number
   uint16_t LOCUS_records; ///< Log number of data record
