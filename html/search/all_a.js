@@ -3,6 +3,7 @@ var searchData=
   ['n',['n',['../structnmea__history__t.html#a8bf34a6e794f01eec90c4a919f9b244d',1,'nmea_history_t']]],
   ['newdatavalue',['newDataValue',['../class_adafruit___g_p_s.html#adc65b4561fbde5b33497df8bded60d5c',1,'Adafruit_GPS']]],
   ['newnmeareceived',['newNMEAreceived',['../class_adafruit___g_p_s.html#ac44f7d0517543bdd1c22a89d2d11ea78',1,'Adafruit_GPS']]],
+  ['nextfield',['nextField',['../class_adafruit___n_m_e_a.html#a9d8d7da57a71eea1a9cff9c3de1fe80f',1,'Adafruit_NMEA']]],
   ['nmea_5fawa',['NMEA_AWA',['../_n_m_e_a__data_8h.html#a8a308981a294c0b3640afd1c360822f7a1363b51b93019f4cd2be31a3181f7a73',1,'NMEA_data.h']]],
   ['nmea_5fawa_5fcos',['NMEA_AWA_COS',['../_n_m_e_a__data_8h.html#a8a308981a294c0b3640afd1c360822f7aced0f6b647b9b3d9090e10eab53a573f',1,'NMEA_data.h']]],
   ['nmea_5fawa_5fsin',['NMEA_AWA_SIN',['../_n_m_e_a__data_8h.html#a8a308981a294c0b3640afd1c360822f7a04fe7a2c0cfad169ce450a0b61f8103b',1,'NMEA_data.h']]],
