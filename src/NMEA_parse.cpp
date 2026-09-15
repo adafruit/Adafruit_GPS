@@ -768,12 +768,12 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
   char *p = pStart;
   if (!isEmpty(p)) {
     // get the number in DDDMM.mmmm format and break into components
-    char degreebuff[10] = {0}; // Ensure string is terminated after strncpy
+    char degreebuff[10] = {0}; // Ensure string is terminated after copying
     char *e = strchr(p, '.');
     char *comma = strchr(p, ',');
     if (e == NULL || comma == NULL || e > comma || e - p > 6)
-      return false;                // no decimal point in range
-    strncpy(degreebuff, p, e - p); // get DDDMM
+      return false;               // no decimal point in range
+    memcpy(degreebuff, p, e - p); // get DDDMM
     long dddmm = atol(degreebuff);
     long degrees = (dddmm / 100);         // truncate the minutes
     long minutes = dddmm - degrees * 100; // remove the degrees
@@ -836,22 +836,17 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
 /**************************************************************************/
 char *Adafruit_GPS::parseStr(char *buff, char *p, int n) {
   char *e = strchr(p, ',');
-  int len = 0;
-  if (e) {
-    len = min(int(e - p), n - 1);
-    strncpy(buff, p, len); // copy up to the comma
-    buff[len] = 0;
-  } else {
+  if (!e) {
     e = strchr(p, '*');
-    if (e) {
-      len = min(int(e - p), n - 1);
-      strncpy(buff, p, len); // or up to the *
-      buff[len] = 0;
-    } else {
-      len = min((int)strlen(p), n - 1);
-      strncpy(buff, p, len); // or to the end or max capacity
-    }
   }
+  int len;
+  if (e) {
+    len = min((int)(e - p), n - 1);
+  } else {
+    len = min((int)strlen(p), n - 1);
+  }
+  memcpy(buff, p, len);
+  buff[len] = 0;
   return buff;
 }
 
