@@ -9,6 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Check Doxygen before tests
+      run: bash extras/tests/check_doxygen.sh
     - name: Run all tests with sanitizers
       run: python3 extras/tests/run_tests.py
 

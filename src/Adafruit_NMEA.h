@@ -75,6 +75,7 @@ public:
   Adafruit_NMEA(const Adafruit_NMEA &other) = delete;
   /// @brief Assignment is disabled to prevent sharing writable receive buffers.
   /// @param other Receiver that cannot be assigned.
+  /// @return No value; this deleted operation cannot be called.
   Adafruit_NMEA &operator=(const Adafruit_NMEA &other) = delete;
   void reset();
   nmea_frame_status_t feed(uint8_t byte, uint32_t receivedAtMs);

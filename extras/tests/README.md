@@ -22,3 +22,16 @@ output and a real monotonic clock; the wakeup timeout test takes ten seconds.
 I2C, SPI, GPIO, and hardware serial input abort if used. This runs the parser
 and mock-stream regressions, not physical GPS/SD hardware or MCU emulation.
 The sketches remain usable on Arduino boards with the normal Arduino core.
+
+Check documentation before pushing, on Linux or Windows through WSL:
+
+```sh
+bash extras/tests/check_doxygen.sh
+```
+
+This requires `curl` and `tar` and downloads the same Doxygen 1.8.13 binary and
+default configuration used by Adafruit's documentation deployment job. Any
+Doxygen output or missing HTML fails the check; a newer system Doxygen is not
+a substitute. Build files and the diagnostic log stay in a temporary directory
+outside the checkout. CI runs this check before the regression tests, so
+documentation failures appear without waiting for all Arduino builds.
