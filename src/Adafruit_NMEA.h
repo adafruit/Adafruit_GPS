@@ -63,14 +63,41 @@ typedef struct {
   uint8_t decimalPlaces; ///< Number of digits following the decimal point.
 } nmea_decimal_t;
 
-/// Hardware-independent NMEA utilities shared by receiver classes.
+/** Hardware-independent NMEA framing and utilities shared by receiver classes.
+ *  Receive storage is borrowed, with no heap allocation. Each instance has its
+ *  own receive state and timestamps; callers must synchronize concurrent use.
+ */
 class Adafruit_NMEA {
 public:
+  Adafruit_NMEA(char *firstBuffer, char *secondBuffer, size_t capacity);
+  /// @brief Copying is disabled to prevent sharing writable receive buffers.
+  /// @param other Receiver that cannot be copied.
+  Adafruit_NMEA(const Adafruit_NMEA &other) = delete;
+  /// @brief Assignment is disabled to prevent sharing writable receive buffers.
+  /// @param other Receiver that cannot be assigned.
+  /// @return No value; this deleted operation cannot be called.
+  Adafruit_NMEA &operator=(const Adafruit_NMEA &other) = delete;
+  void reset();
+  nmea_frame_status_t feed(uint8_t byte, uint32_t receivedAtMs);
+  nmea_sentence_t lastSentence() const;
+  uint32_t sentenceStartedAt() const;
+  uint32_t sentenceReceivedAt() const;
+
   static nmea_sentence_t validate(const char *data, size_t length);
   static nmea_span_t nextField(nmea_span_t &remaining);
   static nmea_decimal_t parseDecimal(nmea_span_t field);
   static size_t buildCommand(char *output, size_t capacity, const char *body,
                              size_t bodyLength);
+
+private:
+  char *_buffer;          ///< Buffer currently receiving bytes.
+  char *_lastBuffer;      ///< Buffer holding the latest complete line.
+  size_t _capacity;       ///< Bytes per buffer, or zero for invalid storage.
+  size_t _length;         ///< Current line length; zero while awaiting a start.
+  size_t _lastLength;     ///< Latest complete line length, excluding NUL.
+  uint32_t _startedAt;    ///< Start time of the line being assembled.
+  uint32_t _lastStarted;  ///< Start time of the latest complete line.
+  uint32_t _lastReceived; ///< LF time of the latest complete line.
 };
 
 #endif // ADAFRUIT_NMEA_H
