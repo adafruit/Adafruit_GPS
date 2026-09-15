@@ -14,8 +14,8 @@ not universal across GPS manufacturers.
 ## Getting started
 
 1. In the Arduino IDE Library Manager, search for **Adafruit GPS** and install
-   **Adafruit GPS Library**, including its offered dependencies. The SD logger
-   example needs the **SD** library from Arduino.
+   **Adafruit GPS Library**. For the `shield_sdlog` example, also install **SD**
+   by Arduino from Library Manager.
 2. Follow the wiring guide for your module:
    [Ultimate GPS](https://learn.adafruit.com/adafruit-ultimate-gps) or
    [PA1010D](https://learn.adafruit.com/adafruit-mini-gps-pa1010d-module).
