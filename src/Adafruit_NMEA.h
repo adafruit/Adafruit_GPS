@@ -47,6 +47,7 @@ typedef struct {
 class Adafruit_NMEA {
 public:
   static nmea_sentence_t validate(const char *data, size_t length);
+  static nmea_span_t nextField(nmea_span_t &remaining);
 };
 
 #endif // ADAFRUIT_NMEA_H

@@ -109,3 +109,42 @@ nmea_sentence_t Adafruit_NMEA::validate(const char *data, size_t length) {
   }
   return result;
 }
+
+/**************************************************************************/
+/*!
+    @brief Return the next field and advance a bounded field cursor.
+    @param remaining Start with a copy of a VALID sentence's fields span.
+    Updated in place to refer to the fields after the next comma, or to an
+    absent span after the last field. Its input storage must remain readable.
+    @return Borrowed field text, excluding the comma. Non-NULL data with zero
+    length means an empty field; NULL data means there are no fields left.
+
+    Leading, consecutive, and trailing commas preserve empty fields. An absent
+    cursor stays absent on subsequent calls. No text is copied or modified,
+    and no NUL terminator is required. Only the supplied length is inspected.
+    Iterate each cursor in order for one forward scan of its fields.
+*/
+/**************************************************************************/
+nmea_span_t Adafruit_NMEA::nextField(nmea_span_t &remaining) {
+  nmea_span_t field = {NULL, 0};
+  if (!remaining.data) {
+    remaining.length = 0;
+    return field;
+  }
+
+  field.data = remaining.data;
+  while (field.length < remaining.length &&
+         remaining.data[field.length] != ',') {
+    field.length++;
+  }
+
+  if (field.length < remaining.length) {
+    // Keep a non-NULL cursor after a trailing comma: one empty field remains.
+    remaining.data += field.length + 1;
+    remaining.length -= field.length + 1;
+  } else {
+    remaining.data = NULL;
+    remaining.length = 0;
+  }
+  return field;
+}
