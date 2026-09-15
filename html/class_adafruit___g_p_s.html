@@ -120,6 +120,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:abd7e2f17f11188dfc99fff55e3560dfb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#abd7e2f17f11188dfc99fff55e3560dfb">sendCommand</a> (const char *)</td></tr>
 <tr class="memdesc:abd7e2f17f11188dfc99fff55e3560dfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a command to the GPS device.  <a href="#abd7e2f17f11188dfc99fff55e3560dfb">More...</a><br /></td></tr>
 <tr class="separator:abd7e2f17f11188dfc99fff55e3560dfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2de930139bef6da9433272a2b9b30b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#aa2de930139bef6da9433272a2b9b30b5">sendCommand</a> (const __FlashStringHelper *)</td></tr>
+<tr class="memdesc:aa2de930139bef6da9433272a2b9b30b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a command stored in flash.  <a href="#aa2de930139bef6da9433272a2b9b30b5">More...</a><br /></td></tr>
+<tr class="separator:aa2de930139bef6da9433272a2b9b30b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac44f7d0517543bdd1c22a89d2d11ea78"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#ac44f7d0517543bdd1c22a89d2d11ea78">newNMEAreceived</a> ()</td></tr>
 <tr class="memdesc:ac44f7d0517543bdd1c22a89d2d11ea78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check to see if a new NMEA line has been received.  <a href="#ac44f7d0517543bdd1c22a89d2d11ea78">More...</a><br /></td></tr>
 <tr class="separator:ac44f7d0517543bdd1c22a89d2d11ea78"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -648,7 +651,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 </div>
 </div>
 <a id="abd7e2f17f11188dfc99fff55e3560dfb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abd7e2f17f11188dfc99fff55e3560dfb">&#9670;&nbsp;</a></span>sendCommand()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abd7e2f17f11188dfc99fff55e3560dfb">&#9670;&nbsp;</a></span>sendCommand() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -667,6 +670,32 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">str</td><td>Pointer to a string holding the command to send </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa2de930139bef6da9433272a2b9b30b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2de930139bef6da9433272a2b9b30b5">&#9670;&nbsp;</a></span>sendCommand() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Adafruit_GPS::sendCommand </td>
+          <td>(</td>
+          <td class="paramtype">const __FlashStringHelper *&#160;</td>
+          <td class="paramname"><em>str</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Send a command stored in flash. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td>Command wrapped in F() </td></tr>
   </table>
   </dd>
 </dl>
