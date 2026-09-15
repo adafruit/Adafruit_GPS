@@ -376,8 +376,9 @@ bool Adafruit_GPS::parse(char *nmea) {
         return false;
     }
 
-    // Both coordinates passed validation. Save the new waypoint data only now
-    // so a rejected sentence leaves the previous data and history intact.
+    // Any supplied coordinates passed validation. Save the cross-track error,
+    // waypoint IDs, and coordinates now; a rejected sentence must leave the
+    // previous data and history intact.
     if (xte < 10000.0f && xteDir != 'X') {
       if (xteDir == 'L')
         xte *= -1.0f;
