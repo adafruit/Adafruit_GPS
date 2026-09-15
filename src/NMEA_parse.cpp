@@ -58,6 +58,8 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (*p == ',')
       fields++;
   }
+  // All current sentence handlers require fields. Revisit this guard if a
+  // zero-field sentence is added; the comma lookup below also assumes a field.
   if (fields == 0)
     return false;
   // passed the check, so there's a valid source in thisSource and a valid
