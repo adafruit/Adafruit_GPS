@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['val',['val',['../class_adafruit___g_p_s.html#a6ce54126c2fa2d6b59fd012b4173840f',1,'Adafruit_GPS']]],
-  ['vdop',['VDOP',['../class_adafruit___g_p_s.html#af13a4d008ab2f74ff30bfc098315edea',1,'Adafruit_GPS']]]
+  ['unit',['unit',['../structnmea__datavalue__t.html#a904af9df777122471b3358c1af5e5aac',1,'nmea_datavalue_t']]]
 ];

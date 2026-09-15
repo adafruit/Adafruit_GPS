@@ -11,5 +11,5 @@ var searchData=
   ['smoothed',['smoothed',['../structnmea__datavalue__t.html#a067a769e6b0ef402b3bf01b0c333e269',1,'nmea_datavalue_t']]],
   ['speed',['speed',['../class_adafruit___g_p_s.html#a449f4a33ecbe0fdf656f6663c74e6cce',1,'Adafruit_GPS']]],
   ['standby',['standby',['../class_adafruit___g_p_s.html#a32ddd41152a08354d2ee2b4311bbf013',1,'Adafruit_GPS']]],
-  ['status',['status',['../structnmea__sentence__t.html#a0698ea96b5223e47a5505ec2c2b08c1d',1,'nmea_sentence_t']]]
+  ['status',['status',['../structnmea__sentence__t.html#a0698ea96b5223e47a5505ec2c2b08c1d',1,'nmea_sentence_t::status()'],['../structnmea__decimal__t.html#a39aeca4bcd47d3e89f4a3cc4d0a436fc',1,'nmea_decimal_t::status()']]]
 ];

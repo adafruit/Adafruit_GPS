@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['pdop',['PDOP',['../class_adafruit___g_p_s.html#a27b5195e96aaef00fb5751a34f3fb82b',1,'Adafruit_GPS']]]
+  ['ockam',['ockam',['../structnmea__datavalue__t.html#a1a0e6f5a33df3b9cd0c4645b3f317c75',1,'nmea_datavalue_t']]],
+  ['offset',['offset',['../structnmea__history__t.html#a54afeb9a77cf9595d8516aded551bf44',1,'nmea_history_t']]]
 ];

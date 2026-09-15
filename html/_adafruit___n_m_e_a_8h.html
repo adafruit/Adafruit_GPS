@@ -64,13 +64,14 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle">
 <div class="title">Adafruit_NMEA.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Hardware-independent NMEA sentence validation.  
+<p>Hardware-independent NMEA sentence and field utilities.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
@@ -83,9 +84,18 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnmea__decimal__t.html">nmea_decimal_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hardware-independent NMEA utilities shared by receiver classes.  <a href="class_adafruit___n_m_e_a.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:af3efc5b17b3bc7eb257dfa5ca682dd59"><td class="memItemLeft" align="right" valign="top"><a id="af3efc5b17b3bc7eb257dfa5ca682dd59"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___n_m_e_a_8h.html#af3efc5b17b3bc7eb257dfa5ca682dd59">NMEA_COMMAND_OVERHEAD</a>&#160;&#160;&#160;7</td></tr>
+<tr class="memdesc:af3efc5b17b3bc7eb257dfa5ca682dd59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes for '$', '*HH', CR/LF, and NUL. <br /></td></tr>
+<tr class="separator:af3efc5b17b3bc7eb257dfa5ca682dd59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -99,9 +109,20 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:ace3ac8bd1353ce499e20842e81b3c5aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d9505c929721a57a83c857411f2c53e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53e">nmea_number_status_t</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53ea1347996b48ea8017e84258133eb25742">NMEA_NUMBER_VALID</a>, 
+<a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53eab8545f6b8afc89ec12c56eb46b99d3f0">NMEA_NUMBER_MISSING</a>, 
+<a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53ea6ee30e6d26abaea81e5187f249950066">NMEA_NUMBER_EMPTY</a>, 
+<a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53ea6068cdc3e195a4ebd5248f9fa58ecd4e">NMEA_NUMBER_BAD_FORMAT</a>, 
+<br />
+&#160;&#160;<a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53ea83b33e84f13c370b06c130b9254f6a14">NMEA_NUMBER_OUT_OF_RANGE</a>
+<br />
+ }<tr class="memdesc:a7d9505c929721a57a83c857411f2c53e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of converting one complete field to a decimal number.  <a href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53e">More...</a><br /></td></tr>
+</td></tr>
+<tr class="separator:a7d9505c929721a57a83c857411f2c53e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Hardware-independent NMEA sentence validation. </p>
+<div class="textblock"><p>Hardware-independent NMEA sentence and field utilities. </p>
 <p>Written for Adafruit Industries. BSD license; see license.txt. </p>
 </div><h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ace3ac8bd1353ce499e20842e81b3c5aa"></a>
@@ -126,6 +147,34 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="ace3ac8bd1353ce499e20842e81b3c5aaa0bbddda00779b45c907985a68459b3be"></a>NMEA_FRAME_BAD_CHECKSUM&#160;</td><td class="fielddoc"><p>Two hex checksum digits do not match the payload. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ace3ac8bd1353ce499e20842e81b3c5aaa374a5c5f7d22f567d3a34a33614adef6"></a>NMEA_FRAME_OVERFLOW&#160;</td><td class="fielddoc"><p>Receive buffer has no room for the whole sentence. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a7d9505c929721a57a83c857411f2c53e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d9505c929721a57a83c857411f2c53e">&#9670;&nbsp;</a></span>nmea_number_status_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53e">nmea_number_status_t</a> : uint8_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Result of converting one complete field to a decimal number. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a7d9505c929721a57a83c857411f2c53ea1347996b48ea8017e84258133eb25742"></a>NMEA_NUMBER_VALID&#160;</td><td class="fielddoc"><p>The complete field is a representable decimal. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7d9505c929721a57a83c857411f2c53eab8545f6b8afc89ec12c56eb46b99d3f0"></a>NMEA_NUMBER_MISSING&#160;</td><td class="fielddoc"><p>Field is absent. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7d9505c929721a57a83c857411f2c53ea6ee30e6d26abaea81e5187f249950066"></a>NMEA_NUMBER_EMPTY&#160;</td><td class="fielddoc"><p>Field is present but empty. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7d9505c929721a57a83c857411f2c53ea6068cdc3e195a4ebd5248f9fa58ecd4e"></a>NMEA_NUMBER_BAD_FORMAT&#160;</td><td class="fielddoc"><p>Invalid character or decimal syntax. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7d9505c929721a57a83c857411f2c53ea83b33e84f13c370b06c130b9254f6a14"></a>NMEA_NUMBER_OUT_OF_RANGE&#160;</td><td class="fielddoc"><p>Coefficient or decimal-place count overflowed. </p>
 </td></tr>
 </table>
 
