@@ -7,6 +7,8 @@ var searchData=
   ['secondssincefix',['secondsSinceFix',['../class_adafruit___g_p_s.html#aed7db1b8b55742a78f291687f1ebc9ca',1,'Adafruit_GPS']]],
   ['secondssincetime',['secondsSinceTime',['../class_adafruit___g_p_s.html#af01989c447efddb9fe1baa78e50373c5',1,'Adafruit_GPS']]],
   ['sendcommand',['sendCommand',['../class_adafruit___g_p_s.html#abd7e2f17f11188dfc99fff55e3560dfb',1,'Adafruit_GPS::sendCommand(const char *)'],['../class_adafruit___g_p_s.html#aa2de930139bef6da9433272a2b9b30b5',1,'Adafruit_GPS::sendCommand(const __FlashStringHelper *)']]],
+  ['sentencereceivedat',['sentenceReceivedAt',['../class_adafruit___n_m_e_a.html#a8ea632c28c155294c3fbb126ba5d958c',1,'Adafruit_NMEA']]],
+  ['sentencestartedat',['sentenceStartedAt',['../class_adafruit___n_m_e_a.html#afe708e26a1e6942510d30d2896905703',1,'Adafruit_NMEA']]],
   ['showdatavalue',['showDataValue',['../class_adafruit___g_p_s.html#accf44cdc598df5c687e2f5fb32e9e752',1,'Adafruit_GPS']]],
   ['smoothed',['smoothed',['../structnmea__datavalue__t.html#a067a769e6b0ef402b3bf01b0c333e269',1,'nmea_datavalue_t']]],
   ['speed',['speed',['../class_adafruit___g_p_s.html#a449f4a33ecbe0fdf656f6663c74e6cce',1,'Adafruit_GPS']]],

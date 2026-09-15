@@ -1,6 +1,8 @@
 var searchData=
 [
-  ['newdatavalue',['newDataValue',['../class_adafruit___g_p_s.html#adc65b4561fbde5b33497df8bded60d5c',1,'Adafruit_GPS']]],
-  ['newnmeareceived',['newNMEAreceived',['../class_adafruit___g_p_s.html#ac44f7d0517543bdd1c22a89d2d11ea78',1,'Adafruit_GPS']]],
-  ['nextfield',['nextField',['../class_adafruit___n_m_e_a.html#a9d8d7da57a71eea1a9cff9c3de1fe80f',1,'Adafruit_NMEA']]]
+  ['lastnmea',['lastNMEA',['../class_adafruit___g_p_s.html#a6938dadca5d72ec6e89e86a5b01b9b67',1,'Adafruit_GPS']]],
+  ['lastsentence',['lastSentence',['../class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb',1,'Adafruit_NMEA']]],
+  ['locus_5freadstatus',['LOCUS_ReadStatus',['../class_adafruit___g_p_s.html#adb6139e84c64156b5654dfce2a2e6e3f',1,'Adafruit_GPS']]],
+  ['locus_5fstartlogger',['LOCUS_StartLogger',['../class_adafruit___g_p_s.html#a325d15c43c09fa1bedcdadb39706e72b',1,'Adafruit_GPS']]],
+  ['locus_5fstoplogger',['LOCUS_StopLogger',['../class_adafruit___g_p_s.html#a48eaf7f5b46e3682b058a7f8f44fa385',1,'Adafruit_GPS']]]
 ];

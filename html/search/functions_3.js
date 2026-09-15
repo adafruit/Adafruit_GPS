@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['get',['get',['../class_adafruit___g_p_s.html#a5195ba0c15098e7ebdeed7b58163fa39',1,'Adafruit_GPS']]],
-  ['getsmoothed',['getSmoothed',['../class_adafruit___g_p_s.html#a272df8380267fd53ff611f552409e86d',1,'Adafruit_GPS']]]
+  ['feed',['feed',['../class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7',1,'Adafruit_NMEA']]]
 ];

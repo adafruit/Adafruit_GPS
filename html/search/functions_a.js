@@ -1,9 +1,7 @@
 var searchData=
 [
-  ['secondssincedate',['secondsSinceDate',['../class_adafruit___g_p_s.html#a4b49f40ba946d1646d7937b25e8dda37',1,'Adafruit_GPS']]],
-  ['secondssincefix',['secondsSinceFix',['../class_adafruit___g_p_s.html#aed7db1b8b55742a78f291687f1ebc9ca',1,'Adafruit_GPS']]],
-  ['secondssincetime',['secondsSinceTime',['../class_adafruit___g_p_s.html#af01989c447efddb9fe1baa78e50373c5',1,'Adafruit_GPS']]],
-  ['sendcommand',['sendCommand',['../class_adafruit___g_p_s.html#abd7e2f17f11188dfc99fff55e3560dfb',1,'Adafruit_GPS::sendCommand(const char *)'],['../class_adafruit___g_p_s.html#aa2de930139bef6da9433272a2b9b30b5',1,'Adafruit_GPS::sendCommand(const __FlashStringHelper *)']]],
-  ['showdatavalue',['showDataValue',['../class_adafruit___g_p_s.html#accf44cdc598df5c687e2f5fb32e9e752',1,'Adafruit_GPS']]],
-  ['standby',['standby',['../class_adafruit___g_p_s.html#a32ddd41152a08354d2ee2b4311bbf013',1,'Adafruit_GPS']]]
+  ['read',['read',['../class_adafruit___g_p_s.html#a776378bc3e4e8a098dce88d6a4ffb0b8',1,'Adafruit_GPS']]],
+  ['removehistory',['removeHistory',['../class_adafruit___g_p_s.html#aea92bf75e742154517db75d1d30087d9',1,'Adafruit_GPS']]],
+  ['reset',['reset',['../class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98',1,'Adafruit_NMEA']]],
+  ['resetsenttime',['resetSentTime',['../class_adafruit___g_p_s.html#a1194f23fada702be6e58b24a62402d39',1,'Adafruit_GPS']]]
 ];

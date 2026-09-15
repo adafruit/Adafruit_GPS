@@ -59,6 +59,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="class_adafruit___n_m_e_a-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -66,11 +67,35 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Hardware-independent NMEA utilities shared by receiver classes.  
- <a href="class_adafruit___n_m_e_a.html#details">More...</a></p>
-
 <p><code>#include &lt;<a class="el" href="_adafruit___n_m_e_a_8h_source.html">Adafruit_NMEA.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a3e604f44d8bed9ac7297f1ce34d49b0f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a3e604f44d8bed9ac7297f1ce34d49b0f">Adafruit_NMEA</a> (char *firstBuffer, char *secondBuffer, size_t capacity)</td></tr>
+<tr class="memdesc:a3e604f44d8bed9ac7297f1ce34d49b0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a receiver using two caller-owned buffers.  <a href="#a3e604f44d8bed9ac7297f1ce34d49b0f">More...</a><br /></td></tr>
+<tr class="separator:a3e604f44d8bed9ac7297f1ce34d49b0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a8a9e0339de1ed249d262e7fbcc1252"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a1a8a9e0339de1ed249d262e7fbcc1252">Adafruit_NMEA</a> (const <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;other)=delete</td></tr>
+<tr class="memdesc:a1a8a9e0339de1ed249d262e7fbcc1252"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copying is disabled to prevent sharing writable receive buffers.  <a href="#a1a8a9e0339de1ed249d262e7fbcc1252">More...</a><br /></td></tr>
+<tr class="separator:a1a8a9e0339de1ed249d262e7fbcc1252"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48f4a2229b4cee7cb134e0b594c66e11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a48f4a2229b4cee7cb134e0b594c66e11">operator=</a> (const <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;other)=delete</td></tr>
+<tr class="memdesc:a48f4a2229b4cee7cb134e0b594c66e11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment is disabled to prevent sharing writable receive buffers.  <a href="#a48f4a2229b4cee7cb134e0b594c66e11">More...</a><br /></td></tr>
+<tr class="separator:a48f4a2229b4cee7cb134e0b594c66e11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9878c7a74f09a83bce8095f118622a98"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98">reset</a> ()</td></tr>
+<tr class="memdesc:a9878c7a74f09a83bce8095f118622a98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discard partial and completed lines and clear all timestamps.  <a href="#a9878c7a74f09a83bce8095f118622a98">More...</a><br /></td></tr>
+<tr class="separator:a9878c7a74f09a83bce8095f118622a98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5b0a29a311cba10eb4fc906c4ecb7d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_adafruit___n_m_e_a_8h.html#ace3ac8bd1353ce499e20842e81b3c5aa">nmea_frame_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7">feed</a> (uint8_t byte, uint32_t receivedAtMs)</td></tr>
+<tr class="memdesc:ac5b0a29a311cba10eb4fc906c4ecb7d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Feed one byte into this receiver's bounded sentence buffer.  <a href="#ac5b0a29a311cba10eb4fc906c4ecb7d7">More...</a><br /></td></tr>
+<tr class="separator:ac5b0a29a311cba10eb4fc906c4ecb7d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a144bf137d190ef58c95ed1f170d2f6eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb">lastSentence</a> () const</td></tr>
+<tr class="memdesc:a144bf137d190ef58c95ed1f170d2f6eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get views of the latest complete line, including invalid raw text.  <a href="#a144bf137d190ef58c95ed1f170d2f6eb">More...</a><br /></td></tr>
+<tr class="separator:a144bf137d190ef58c95ed1f170d2f6eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe708e26a1e6942510d30d2896905703"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#afe708e26a1e6942510d30d2896905703">sentenceStartedAt</a> () const</td></tr>
+<tr class="memdesc:afe708e26a1e6942510d30d2896905703"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the start-marker timestamp of the latest complete line.  <a href="#afe708e26a1e6942510d30d2896905703">More...</a><br /></td></tr>
+<tr class="separator:afe708e26a1e6942510d30d2896905703"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ea632c28c155294c3fbb126ba5d958c"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a8ea632c28c155294c3fbb126ba5d958c">sentenceReceivedAt</a> () const</td></tr>
+<tr class="memdesc:a8ea632c28c155294c3fbb126ba5d958c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the LF timestamp of the latest complete line.  <a href="#a8ea632c28c155294c3fbb126ba5d958c">More...</a><br /></td></tr>
+<tr class="separator:a8ea632c28c155294c3fbb126ba5d958c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a7c1d5ab8a0dc484b1d3bc285a417f7c8"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a7c1d5ab8a0dc484b1d3bc285a417f7c8">validate</a> (const char *data, size_t length)</td></tr>
@@ -87,8 +112,244 @@ Static Public Member Functions</h2></td></tr>
 <tr class="separator:a194090c458270f464ff1ad4bd9ac8a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Hardware-independent NMEA utilities shared by receiver classes. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<div class="textblock"><p>Hardware-independent NMEA framing and utilities shared by receiver classes. Receive storage is borrowed, with no heap allocation. Each instance has its own receive state and timestamps; callers must synchronize concurrent use. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a3e604f44d8bed9ac7297f1ce34d49b0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e604f44d8bed9ac7297f1ce34d49b0f">&#9670;&nbsp;</a></span>Adafruit_NMEA() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Adafruit_NMEA::Adafruit_NMEA </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>firstBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>secondBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create a receiver using two caller-owned buffers. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">firstBuffer</td><td>First writable receive buffer. </td></tr>
+    <tr><td class="paramname">secondBuffer</td><td>Second writable receive buffer, not overlapping first. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Size of each buffer, including space for a NUL terminator.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Both buffers must outlive the receiver and remain exclusively owned by it. NULL pointers, overlapping buffers, or capacity below two bytes disable reception: <a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7" title="Feed one byte into this receiver&#39;s bounded sentence buffer. ">feed()</a> returns BAD_FORMAT and no buffer is written. Valid buffers are initialized to empty strings. No memory is allocated. </p>
+
+</div>
+</div>
+<a id="a1a8a9e0339de1ed249d262e7fbcc1252"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a8a9e0339de1ed249d262e7fbcc1252">&#9670;&nbsp;</a></span>Adafruit_NMEA() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Adafruit_NMEA::Adafruit_NMEA </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copying is disabled to prevent sharing writable receive buffers. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">other</td><td>Receiver that cannot be copied. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a48f4a2229b4cee7cb134e0b594c66e11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a48f4a2229b4cee7cb134e0b594c66e11">&#9670;&nbsp;</a></span>operator=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a>&amp; Adafruit_NMEA::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assignment is disabled to prevent sharing writable receive buffers. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">other</td><td>Receiver that cannot be assigned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>No value; this deleted operation cannot be called. </dd></dl>
+
+</div>
+</div>
+<a id="a9878c7a74f09a83bce8095f118622a98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9878c7a74f09a83bce8095f118622a98">&#9670;&nbsp;</a></span>reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Adafruit_NMEA::reset </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Discard partial and completed lines and clear all timestamps. </p>
+<p>Invalidates every view returned by <a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb" title="Get views of the latest complete line, including invalid raw text. ">lastSentence()</a>. Valid receive buffers become empty strings. Invalid storage remains disabled and untouched. </p>
+
+</div>
+</div>
+<a id="ac5b0a29a311cba10eb4fc906c4ecb7d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5b0a29a311cba10eb4fc906c4ecb7d7">&#9670;&nbsp;</a></span>feed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="_adafruit___n_m_e_a_8h.html#ace3ac8bd1353ce499e20842e81b3c5aa">nmea_frame_status_t</a> Adafruit_NMEA::feed </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>byte</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>receivedAtMs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Feed one byte into this receiver's bounded sentence buffer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">byte</td><td>Received byte, including any CR/LF characters. </td></tr>
+    <tr><td class="paramname">receivedAtMs</td><td>Receive time in milliseconds, such as millis(). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>INCOMPLETE until LF completes a line, then its validation status. OVERFLOW discards a line that cannot fit including LF and NUL. BAD_FORMAT also indicates invalid storage supplied to the constructor.</dd></dl>
+<p>Ignore bytes before '$' or '!'. Either start marker restarts assembly, including after overflow. Overflow is reported once; subsequent bytes are ignored until another start marker. Partial and overflowing lines preserve the previous complete line and its timestamps.</p>
+<p>Every complete, non-overflowed line replaces <a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb" title="Get views of the latest complete line, including invalid raw text. ">lastSentence()</a>, even if its format or checksum is invalid. Its raw text includes LF and is followed by a NUL terminator. The caller must consume each line promptly; there is no queue. No transport access, allocation, or sentence copying occurs. </p>
+
+</div>
+</div>
+<a id="a144bf137d190ef58c95ed1f170d2f6eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a144bf137d190ef58c95ed1f170d2f6eb">&#9670;&nbsp;</a></span>lastSentence()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a> Adafruit_NMEA::lastSentence </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get views of the latest complete line, including invalid raw text. </p>
+<dl class="section return"><dt>Returns</dt><dd>Validated sentence, or INCOMPLETE with absent spans before a line has completed or after <a class="el" href="class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98" title="Discard partial and completed lines and clear all timestamps. ">reset()</a>. Overflow does not replace this result.</dd></dl>
+<p>Views borrow the receive buffer and expire on the next complete line, <a class="el" href="class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98" title="Discard partial and completed lines and clear all timestamps. ">reset()</a>, or receiver destruction. Address and fields are only available for VALID lines. Validation uses the stored length, not the NUL terminator. </p>
+
+</div>
+</div>
+<a id="afe708e26a1e6942510d30d2896905703"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe708e26a1e6942510d30d2896905703">&#9670;&nbsp;</a></span>sentenceStartedAt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Adafruit_NMEA::sentenceStartedAt </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the start-marker timestamp of the latest complete line. </p>
+<dl class="section return"><dt>Returns</dt><dd>Supplied receive time in milliseconds, or zero before a line exists. Zero is also a valid timestamp; use <a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb" title="Get views of the latest complete line, including invalid raw text. ">lastSentence()</a>.status to distinguish it. </dd></dl>
+
+</div>
+</div>
+<a id="a8ea632c28c155294c3fbb126ba5d958c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ea632c28c155294c3fbb126ba5d958c">&#9670;&nbsp;</a></span>sentenceReceivedAt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Adafruit_NMEA::sentenceReceivedAt </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the LF timestamp of the latest complete line. </p>
+<dl class="section return"><dt>Returns</dt><dd>Supplied receive time in milliseconds, or zero before a line exists. Timestamps retain the caller's uint32_t wraparound behavior. </dd></dl>
+
+</div>
+</div>
 <a id="a7c1d5ab8a0dc484b1d3bc285a417f7c8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7c1d5ab8a0dc484b1d3bc285a417f7c8">&#9670;&nbsp;</a></span>validate()</h2>
 
