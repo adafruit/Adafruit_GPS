@@ -82,7 +82,7 @@ void setup() {
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
   Serial.begin(115200);
-  Serial.println("\r\nUltimate GPSlogger Shield");
+  Serial.println(F("\r\nUltimate GPSlogger Shield"));
   pinMode(ledPin, OUTPUT);
 
   // make sure that the default chip select pin is set to
@@ -90,7 +90,7 @@ void setup() {
   pinMode(10, OUTPUT);
 
   if (!SD.begin(chipSelect)) {
-    Serial.println("Card init. failed!");
+    Serial.println(F("Card init. failed!"));
     error(2);
   }
   char filename[15];
@@ -106,11 +106,11 @@ void setup() {
 
   logfile = SD.open(filename, FILE_WRITE);
   if( ! logfile ) {
-    Serial.print("Couldnt create ");
+    Serial.print(F("Couldnt create "));
     Serial.println(filename);
     error(3);
   }
-  Serial.print("Writing to ");
+  Serial.print(F("Writing to "));
   Serial.println(filename);
 
   // connect to the GPS at the desired rate
@@ -135,7 +135,7 @@ void setup() {
   useInterrupt(true);
 #endif
 
-  Serial.println("Ready!");
+  Serial.println(F("Ready!"));
 }
 
 
@@ -192,14 +192,14 @@ void loop() {
       return;  // we can fail to parse a sentence in which case we should just wait for another
 
     // Sentence parsed!
-    Serial.println("OK");
+    Serial.println(F("OK"));
     if (LOG_FIXONLY && !GPS.fix) {
-      Serial.print("No Fix");
+      Serial.print(F("No Fix"));
       return;
     }
 
     // Rad. lets log it!
-    Serial.println("Log");
+    Serial.println(F("Log"));
 
     uint8_t stringsize = strlen(stringptr);
     if (stringsize != logfile.write((uint8_t *)stringptr, stringsize))    //write the string to the SD file
