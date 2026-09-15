@@ -21,22 +21,6 @@
 /**************************************************************************/
 
 #include <Adafruit_GPS.h>
-
-const char Adafruit_GPS::sources[][4] PROGMEM = {"II", "WI", "GP", "PG", "GL",
-                                                 "GA", "GN", "P",  "ZZZ"};
-#ifdef NMEA_EXTENSIONS
-const char Adafruit_GPS::sentences_parsed[][4] PROGMEM = {
-    "GGA", "GLL", "GSA", "RMC", "DBT", "HDM", "HDT", "MDA", "MTW", "MWV",
-    "RMB", "TOP", "TXT", "VHW", "VLW", "VPW", "VWR", "WCV", "XTE", "ZZZ"};
-const char Adafruit_GPS::sentences_known[][4] PROGMEM = {
-    "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
-    "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"};
-#else // make the lists short to save flash on small boards
-const char Adafruit_GPS::sentences_parsed[][4] PROGMEM = {"GGA", "GLL", "GSA",
-                                                          "RMC", "TOP", "ZZZ"};
-const char Adafruit_GPS::sentences_known[][4] PROGMEM = {"DBT", "HDM", "HDT",
-                                                         "ZZZ"};
-#endif
 #include <ctype.h>
 
 /**************************************************************************/
@@ -89,8 +73,7 @@ bool Adafruit_GPS::parse(char *nmea) {
   // strcmp()! Put the GPS sentences from Adafruit_GPS at the top to make
   // pruning excess code easier. Otherwise, keep them alphabetical for ease of
   // reading.
-  if (!strcmp_P(thisSentence,
-                PSTR("GGA"))) { //************************************GGA
+  if (!strcmp(thisSentence, "GGA")) { //************************************GGA
     if (fields < 11)
       return false;
     // Adafruit from Actisense NGW-1 from SH CP150C
@@ -130,8 +113,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       geoidheight = atof(p); // skip the rest
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("RMC"))) { //*****************************RMC
+  } else if (!strcmp(thisSentence, "RMC")) { //*****************************RMC
     if (fields < 9)
       return false;
     // in Adafruit from Actisense NGW-1 from SH CP150C
@@ -163,8 +145,7 @@ bool Adafruit_GPS::parse(char *nmea) {
       lastDate = sentTime;
     } // skip the rest
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("GLL"))) { //*****************************GLL
+  } else if (!strcmp(thisSentence, "GLL")) { //*****************************GLL
     if (fields < 6)
       return false;
     // in Adafruit from Actisense NGW-1 from SH CP150C
@@ -182,8 +163,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     p = strchr(p, ',') + 1;
     parseFix(p); // skip the rest
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("GSA"))) { //*****************************GSA
+  } else if (!strcmp(thisSentence, "GSA")) { //*****************************GSA
     if (fields < 17)
       return false;
     // in Adafruit from Actisense NGW-1
@@ -205,8 +185,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       VDOP = atof(p); // last before checksum
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("TOP"))) { //*****************************TOP
+  } else if (!strcmp(thisSentence, "TOP")) { //*****************************TOP
     if (fields < 2)
       return false;
     // See:
@@ -219,13 +198,11 @@ bool Adafruit_GPS::parse(char *nmea) {
   }
 
 #ifdef NMEA_EXTENSIONS // Sentences not required for basic GPS functionality
-  else if (!strcmp_P(thisSentence,
-                     PSTR("APB"))) { //*******************************APB
+  else if (!strcmp(thisSentence, "APB")) { //*******************************APB
     // from Actisense NGW-1 from SH CP150C
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("DBT"))) { //*****************************DBT
+  } else if (!strcmp(thisSentence, "DBT")) { //*****************************DBT
     if (fields < 5)
       return false;
     // from Actisense NGW-1
@@ -244,33 +221,27 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_DEPTH,
                    (nmea_float_t)atof(p) * 6 * 0.3048f + depthToTransducer);
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("DPT"))) { //*****************************DPT
+  } else if (!strcmp(thisSentence, "DPT")) { //*****************************DPT
     // from Actisense NGW-1
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("GSV"))) { //*****************************GSV
+  } else if (!strcmp(thisSentence, "GSV")) { //*****************************GSV
     // from Actisense NGW-1
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("HDG"))) { //*****************************HDG
+  } else if (!strcmp(thisSentence, "HDG")) { //*****************************HDG
     // from Actisense NGW-1 from SH CP150C
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("HDM"))) { //*****************************HDM
+  } else if (!strcmp(thisSentence, "HDM")) { //*****************************HDM
     if (!isEmpty(p))
       newDataValue(NMEA_HDG, atof(p)); // skip the rest
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("HDT"))) { //*****************************HDT
+  } else if (!strcmp(thisSentence, "HDT")) { //*****************************HDT
     if (!isEmpty(p))
       newDataValue(NMEA_HDT, atof(p)); // skip the rest
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("MDA"))) { //*****************************MDA
+  } else if (!strcmp(thisSentence, "MDA")) { //*****************************MDA
     if (fields < 9)
       return false;
     // from Actisense NGW-1
@@ -313,8 +284,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       newDataValue(NMEA_HUMIDITY, atof(p)); // skip the rest
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("MTW"))) { //*****************************MTW
+  } else if (!strcmp(thisSentence, "MTW")) { //*****************************MTW
     if (fields < 2)
       return false;
     nmea_float_t T = 100000.;
@@ -331,13 +301,11 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (T < 1000)
       newDataValue(NMEA_TEMPERATURE_WATER, T);
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("MWD"))) { //*****************************MWD
+  } else if (!strcmp(thisSentence, "MWD")) { //*****************************MWD
     // from Actisense NGW-1
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("MWV"))) { //*****************************MWV
+  } else if (!strcmp(thisSentence, "MWV")) { //*****************************MWV
     if (fields < 5)
       return false;
     // from Actisense NGW-1
@@ -382,8 +350,7 @@ bool Adafruit_GPS::parse(char *nmea) {
         newDataValue(NMEA_TWS, spd);
     }
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("RMB"))) { //*****************************RMB
+  } else if (!strcmp(thisSentence, "RMB")) { //*****************************RMB
     if (fields < 12)
       return false;
     // from Actisense NGW-1 from SH CP150C
@@ -468,21 +435,17 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       newDataValue(NMEA_VMGWP, atof(p)); // skip arrival flag
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("ROT"))) { //*****************************ROT
+  } else if (!strcmp(thisSentence, "ROT")) { //*****************************ROT
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("RPM"))) { //*****************************RPM
+  } else if (!strcmp(thisSentence, "RPM")) { //*****************************RPM
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("RSA"))) { //*****************************RSA
+  } else if (!strcmp(thisSentence, "RSA")) { //*****************************RSA
     // from Actisense NGW-1
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("TXT"))) { //*****************************TXT
+  } else if (!strcmp(thisSentence, "TXT")) { //*****************************TXT
     if (fields < 4)
       return false;
     if (!isEmpty(p))
@@ -497,13 +460,11 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       parseStr(txtTXT, p, 61); // copy the text to NMEA TXT max of 61 characters
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("VDR"))) { //*****************************VDR
+  } else if (!strcmp(thisSentence, "VDR")) { //*****************************VDR
     // from Actisense NGW-1
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("VHW"))) { //*****************************VHW
+  } else if (!strcmp(thisSentence, "VHW")) { //*****************************VHW
     if (fields < 5)
       return false;
     // from Actisense NGW-1
@@ -518,8 +479,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       newDataValue(NMEA_VTW, atof(p)); // skip the other units
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("VLW"))) { //*****************************VLW
+  } else if (!strcmp(thisSentence, "VLW")) { //*****************************VLW
     if (fields < 3)
       return false;
     // from Actisense NGW-1
@@ -530,8 +490,7 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (!isEmpty(p))
       newDataValue(NMEA_LOGR, atof(p)); // skip the other units
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("VPW"))) { //*****************************VPW
+  } else if (!strcmp(thisSentence, "VPW")) { //*****************************VPW
     if (fields < 3)
       return false;
     // knots, metres/s coerced to knots
@@ -544,13 +503,11 @@ bool Adafruit_GPS::parse(char *nmea) {
       vmg = atof(p) * 0.3048 * 3600. / 6000.; // skip units
     if (vmg < 1000.0f)
       newDataValue(NMEA_VMG, vmg);
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("VTG"))) { //*****************************VTG
+  } else if (!strcmp(thisSentence, "VTG")) { //*****************************VTG
     // from Actisense NGW-1 from SH CP150C
     return false;
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("VWR"))) { //*****************************VWR
+  } else if (!strcmp(thisSentence, "VWR")) { //*****************************VWR
     if (fields < 8)
       return false;
     // from Actisense NGW-1
@@ -600,14 +557,12 @@ bool Adafruit_GPS::parse(char *nmea) {
     if (units == 'N')
       newDataValue(NMEA_AWS, ws); // store the final result
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("WCV"))) { //*****************************WCV
+  } else if (!strcmp(thisSentence, "WCV")) { //*****************************WCV
     // from SH CP150C
     if (!isEmpty(p))
       newDataValue(NMEA_VMGWP, atof(p)); // skip the rest
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("XTE"))) { //*****************************XTE
+  } else if (!strcmp(thisSentence, "XTE")) { //*****************************XTE
     if (fields < 5)
       return false;
     // from Actisense NGW-1 from SH CP150C
@@ -627,8 +582,7 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_XTE, xte);
     } // skip units
 
-  } else if (!strcmp_P(thisSentence,
-                       PSTR("ZDA"))) { //*****************************ZDA
+  } else if (!strcmp(thisSentence, "ZDA")) { //*****************************ZDA
     // from Actisense NGW-1
     return false;
   }
@@ -694,20 +648,20 @@ bool Adafruit_GPS::check(char *nmea) {
   char *p = nmea + 1;
   const char *src = tokenOnList(p, sources);
   if (src) {
-    strcpy_P(thisSource, src);
+    strcpy(thisSource, src);
     thisCheck += NMEA_HAS_SOURCE;
   } else
     return false;
-  p += strlen_P(src);
+  p += strlen(src);
   // extract sentence id and check if parsed
   const char *snc = tokenOnList(p, sentences_parsed);
   if (snc) {
-    strcpy_P(thisSentence, snc);
+    strcpy(thisSentence, snc);
     thisCheck += NMEA_HAS_SENTENCE_P + NMEA_HAS_SENTENCE;
   } else { // check if known
     snc = tokenOnList(p, sentences_known);
     if (snc) {
-      strcpy_P(thisSentence, snc);
+      strcpy(thisSentence, snc);
       thisCheck += NMEA_HAS_SENTENCE;
       return false; // known but not parsed
     } else {
@@ -722,17 +676,18 @@ bool Adafruit_GPS::check(char *nmea) {
 /*!
     @brief Check if a token at the start of a string is on a list.
     @param token Pointer to the string
-    @param list A table in program memory, with the final entry starting "ZZ"
-    @return Program-memory pointer to the found token, or NULL if it fails
+    @param list A list of strings, with the final entry starting "ZZ"
+    @return Pointer to the found token, or NULL if it fails
 */
 /**************************************************************************/
-const char *Adafruit_GPS::tokenOnList(char *token, const char list[][4]) {
-  for (int i = 0; i < 1000; i++) {
-    if (pgm_read_byte(list[i]) == 'Z' && pgm_read_byte(list[i] + 1) == 'Z')
-      break; // stop at terminator
+const char *Adafruit_GPS::tokenOnList(char *token, const char **list) {
+  int i = 0; // index in the list
+  while (strncmp(list[i], "ZZ", 2) &&
+         i < 1000) { // stop at terminator and don't crash without it
     // test for a match on the sentence name
-    if (!strncmp_P(token, list[i], strlen_P(list[i])))
+    if (!strncmp((const char *)list[i], (const char *)token, strlen(list[i])))
       return list[i];
+    i++;
   }
   return NULL; // couldn't find a match
 }

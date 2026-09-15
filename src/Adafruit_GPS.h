@@ -101,7 +101,6 @@ public:
   size_t write(uint8_t);
   char read(void);
   void sendCommand(const char *);
-  void sendCommand(const __FlashStringHelper *);
   bool newNMEAreceived();
   void pause(bool b);
   char *lastNMEA(void);
@@ -244,7 +243,7 @@ private:
   // NMEA_data.cpp
   void data_init();
   // NMEA_parse.cpp
-  const char *tokenOnList(char *token, const char list[][4]);
+  const char *tokenOnList(char *token, const char **list);
   bool parseCoord(char *p, nmea_float_t *angleDegrees = NULL,
                   nmea_float_t *angle = NULL, int32_t *angle_fixed = NULL,
                   char *dir = NULL);
@@ -254,10 +253,23 @@ private:
   bool parseAntenna(char *);
   bool isEmpty(char *pStart);
 
-  // Shared flash tables avoid RAM copies of both the IDs and their pointers.
-  static const char sources[][4] PROGMEM;          ///< valid source ids
-  static const char sentences_parsed[][4] PROGMEM; ///< parseable sentence ids
-  static const char sentences_known[][4] PROGMEM;  ///< known, but not parseable
+  // used by check() for validity tests, room for future expansion
+  const char *sources[9] = {"II", "WI", "GP", "PG", "GL",
+                            "GA", "GN", "P",  "ZZZ"}; ///< valid source ids
+#ifdef NMEA_EXTENSIONS
+  const char *sentences_parsed[21] = {"GGA", "GLL", "GSA", "RMC", "DBT", "HDM",
+                                      "HDT", "MDA", "MTW", "MWV", "RMB", "TOP",
+                                      "TXT", "VHW", "VLW", "VPW", "VWR", "WCV",
+                                      "XTE", "ZZZ"}; ///< parseable sentence ids
+  const char *sentences_known[15] = {
+      "APB", "DPT", "GSV", "HDG", "MWD", "ROT",
+      "RPM", "RSA", "VDR", "VTG", "ZDA", "ZZZ"}; ///< known, but not parseable
+#else // make the lists short to save memory
+  const char *sentences_parsed[6] = {"GGA", "GLL", "GSA", "RMC",
+                                     "TOP", "ZZZ"}; ///< parseable sentence ids
+  const char *sentences_known[4] = {"DBT", "HDM", "HDT",
+                                    "ZZZ"}; ///< known, but not parseable
+#endif
 
   // Make all of these times far in the past by setting them near the middle of
   // the millis() range. Timing assumes that sentences are parsed promptly.
@@ -284,6 +296,8 @@ private:
   int8_t gpsSPI_cs = -1;
   SPISettings gpsSPI_settings =
       SPISettings(1000000, MSBFIRST, SPI_MODE0); // default
+  char _spibuffer[GPS_MAX_SPI_TRANSFER]; // for when we write data, we need to
+                                         // read it too!
   uint8_t _i2caddr;
   char _i2cbuffer[GPS_MAX_I2C_TRANSFER];
   int8_t _buff_max = -1, _buff_idx = 0;

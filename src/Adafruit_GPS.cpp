@@ -394,14 +394,6 @@ void Adafruit_GPS::sendCommand(const char *str) { println(str); }
 
 /**************************************************************************/
 /*!
-    @brief Send a command stored in flash
-    @param str Command wrapped in F()
-*/
-/**************************************************************************/
-void Adafruit_GPS::sendCommand(const __FlashStringHelper *str) { println(str); }
-
-/**************************************************************************/
-/*!
     @brief Check to see if a new NMEA line has been received
     @return True if received, false if not
 */
