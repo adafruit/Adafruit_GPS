@@ -69,7 +69,8 @@ typedef struct {
  */
 class Adafruit_NMEA {
 public:
-  Adafruit_NMEA(char *firstBuffer, char *secondBuffer, size_t capacity);
+  Adafruit_NMEA(volatile char *firstBuffer, volatile char *secondBuffer,
+                size_t capacity);
   /// @brief Copying is disabled to prevent sharing writable receive buffers.
   /// @param other Receiver that cannot be copied.
   Adafruit_NMEA(const Adafruit_NMEA &other) = delete;
@@ -79,6 +80,7 @@ public:
   Adafruit_NMEA &operator=(const Adafruit_NMEA &other) = delete;
   void reset();
   nmea_frame_status_t feed(uint8_t byte, uint32_t receivedAtMs);
+  nmea_span_t lastText() const;
   nmea_sentence_t lastSentence() const;
   uint32_t sentenceStartedAt() const;
   uint32_t sentenceReceivedAt() const;
@@ -90,8 +92,8 @@ public:
                              size_t bodyLength);
 
 private:
-  char *_buffer;          ///< Buffer currently receiving bytes.
-  char *_lastBuffer;      ///< Buffer holding the latest complete line.
+  volatile char *_buffer;     ///< Buffer currently receiving bytes.
+  volatile char *_lastBuffer; ///< Buffer holding the latest complete line.
   size_t _capacity;       ///< Bytes per buffer, or zero for invalid storage.
   size_t _length;         ///< Current line length; zero while awaiting a start.
   size_t _lastLength;     ///< Latest complete line length, excluding NUL.

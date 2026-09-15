@@ -159,9 +159,7 @@ void Adafruit_GPS::common_init(void) {
   gpsSPI = NULL;
   recvdflag = false;
   paused = false;
-  lineidx = 0;
-  currentline = line1;
-  lastline = line2;
+  lastline = (const char *)line2;
 
   hour = minute = seconds = year = month = day = fixquality = fixquality_3d =
       satellites = antenna = 0; // uint8_t
@@ -277,8 +275,7 @@ size_t Adafruit_GPS::write(uint8_t c) {
 */
 /**************************************************************************/
 char Adafruit_GPS::read(void) {
-  static uint32_t firstChar = 0; // first character received in current sentence
-  uint32_t tStart = millis();    // as close as we can get to time char was sent
+  uint32_t tStart = millis(); // as close as we can get to time char was sent
   char c = 0;
 
   if (paused || noComms)
@@ -351,36 +348,15 @@ char Adafruit_GPS::read(void) {
   }
   // Serial.print(c);
 
-  currentline[lineidx] = c;
-  lineidx = lineidx + 1;
-  if (lineidx >= MAXLINELENGTH)
-    lineidx = MAXLINELENGTH -
-              1; // ensure there is someplace to put the next received character
-
-  if (c == '\n') {
-    currentline[lineidx] = 0;
-
-    if (currentline == line1) {
-      currentline = line2;
-      lastline = line1;
-    } else {
-      currentline = line1;
-      lastline = line2;
-    }
-
-    // Serial.println("----");
-    // Serial.println((char *)lastline);
-    // Serial.println("----");
-    lineidx = 0;
+  nmea_frame_status_t status = receiver.feed((uint8_t)c, tStart);
+  if (c == '\n' && status != NMEA_FRAME_INCOMPLETE &&
+      status != NMEA_FRAME_OVERFLOW) {
+    // Publish only after the buffer and timestamp are ready. Keep read() as
+    // the sole framer owner so interrupt-driven sketches consume lastline.
+    lastline = receiver.lastText().data;
+    sentTime = receiver.sentenceStartedAt();
     recvdflag = true;
-    recvdTime = millis(); // time we got the end of the string
-    sentTime = firstChar;
-    firstChar = 0; // there are no characters yet
-    return c;      // wait until next character to set time
   }
-
-  if (firstChar == 0)
-    firstChar = tStart;
   return c;
 }
 

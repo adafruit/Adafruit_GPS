@@ -20,6 +20,7 @@ int main() {
                 "Receivers must not copy receive state");
   char first[32], second[32];
   Adafruit_NMEA receiver(first, second, sizeof(first));
+  assert(!receiver.lastText().data && !receiver.lastText().length);
   nmea_sentence_t sentence = receiver.lastSentence();
   assert(sentence.status == NMEA_FRAME_INCOMPLETE);
   assert(!sentence.text.data && !sentence.address.data &&
@@ -36,6 +37,7 @@ int main() {
   assert(feedLine(receiver, "$A*41\r\n", 0) == NMEA_FRAME_VALID);
   sentence = receiver.lastSentence();
   expectText(sentence.text, "$A*41\r\n");
+  expectText(receiver.lastText(), "$A*41\r\n");
   expectText(sentence.address, "A");
   assert(sentence.fields.data == NULL);
   assert(sentence.text.data == first && first[sentence.text.length] == 0);

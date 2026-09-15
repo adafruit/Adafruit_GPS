@@ -23,8 +23,8 @@
     buffers are initialized to empty strings. No memory is allocated.
 */
 /**************************************************************************/
-Adafruit_NMEA::Adafruit_NMEA(char *firstBuffer, char *secondBuffer,
-                             size_t capacity)
+Adafruit_NMEA::Adafruit_NMEA(volatile char *firstBuffer,
+                             volatile char *secondBuffer, size_t capacity)
     : _buffer(firstBuffer), _lastBuffer(secondBuffer), _capacity(capacity) {
   if (!firstBuffer || !secondBuffer || capacity < 2) {
     _capacity = 0;
@@ -103,7 +103,7 @@ nmea_frame_status_t Adafruit_NMEA::feed(uint8_t byte, uint32_t receivedAtMs) {
 
   // Publish by swapping buffers, leaving the new completed line undisturbed
   // while the next line is assembled.
-  char *previous = _lastBuffer;
+  volatile char *previous = _lastBuffer;
   _lastBuffer = _buffer;
   _buffer = previous;
   _lastLength = _length;
@@ -111,7 +111,26 @@ nmea_frame_status_t Adafruit_NMEA::feed(uint8_t byte, uint32_t receivedAtMs) {
   _lastReceived = receivedAtMs;
   _length = 0;
   _buffer[0] = '\0';
-  return validate(_lastBuffer, _lastLength).status;
+  return validate((const char *)_lastBuffer, _lastLength).status;
+}
+
+/**************************************************************************/
+/*!
+    @brief Get the latest complete raw line without validating it again.
+    @return Borrowed text and its length, or an absent span before completion.
+
+    Includes invalid lines and their LF, with a NUL after the stored length.
+    The view expires on the next completed line or reset(). As with
+    lastSentence(), callers must synchronize access with feed().
+*/
+/**************************************************************************/
+nmea_span_t Adafruit_NMEA::lastText() const {
+  nmea_span_t text = {NULL, 0};
+  if (_lastLength) {
+    text.data = (const char *)_lastBuffer;
+    text.length = _lastLength;
+  }
+  return text;
 }
 
 /**************************************************************************/
@@ -127,7 +146,7 @@ nmea_frame_status_t Adafruit_NMEA::feed(uint8_t byte, uint32_t receivedAtMs) {
 /**************************************************************************/
 nmea_sentence_t Adafruit_NMEA::lastSentence() const {
   if (_lastLength)
-    return validate(_lastBuffer, _lastLength);
+    return validate((const char *)_lastBuffer, _lastLength);
   nmea_sentence_t result = {
       NMEA_FRAME_INCOMPLETE, {NULL, 0}, {NULL, 0}, {NULL, 0}};
   return result;
