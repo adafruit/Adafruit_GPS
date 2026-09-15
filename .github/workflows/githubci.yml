@@ -19,10 +19,10 @@ jobs:
     - name: pre-install
       run: bash ci/actions_install.sh
 
-    - name: install SD logger example dependency
+    - name: install SdFat logger example dependency
       run: |
         arduino-cli lib update-index
-        arduino-cli lib install SD
+        arduino-cli lib install "SdFat - Adafruit Fork"
 
     - name: test platforms
       run: python3 ci/build_platform.py main_platforms

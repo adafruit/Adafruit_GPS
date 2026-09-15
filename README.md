@@ -14,8 +14,8 @@ not universal across GPS manufacturers.
 ## Getting started
 
 1. In the Arduino IDE Library Manager, search for **Adafruit GPS** and install
-   **Adafruit GPS Library**. For the `shield_sdlog` example, also install **SD**
-   by Arduino from Library Manager.
+   **Adafruit GPS Library**. For the `shield_sdlog` example, also install
+   **SdFat - Adafruit Fork** by Bill Greiman from Library Manager.
 2. Follow the wiring guide for your module:
    [Ultimate GPS](https://learn.adafruit.com/adafruit-ultimate-gps) or
    [PA1010D](https://learn.adafruit.com/adafruit-mini-gps-pa1010d-module).
@@ -74,9 +74,11 @@ a **parsing** sketch turns that text into individual readings.
 
 **SD logging** writes files to a separate SD card. The `shield_sdlog` example
 uses GPS pins D8/D7, the hardware SPI pins, and SD chip select D10. It writes raw
-NMEA text into files such as `GPSLOG00.TXT`. With `LOG_FIXONLY` set to `false`, it
-also saves sentences while the GPS has no position fix. Set it to `true` if you
-only want records with a fix.
+NMEA text into files named `GPSLOG0000.TXT` through `GPSLOG9999.TXT`, using
+SdFat's long-filename support. Each start creates a new file; if all names are
+used, the logger stops instead of reopening an old log. With `LOG_FIXONLY` set
+to `false`, it also saves sentences while the GPS has no position fix. Set it
+to `true` if you only want records with a fix.
 
 The Uno and Metro 328 have only 2 KB of RAM. SD logging leaves limited room for
 additional buffers and variables; keep constant print messages in `F()` when

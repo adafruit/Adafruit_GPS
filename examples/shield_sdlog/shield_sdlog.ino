@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
-#include <SD.h>
+#include <SdFat_Adafruit_Fork.h>
 #include <avr/sleep.h>
 
 // Ladyada's logger modified by Bill Greiman to use the SdFat library
@@ -36,6 +36,7 @@ bool usingInterrupt = false;
 #define chipSelect 10
 #define ledPin 13
 
+SdFat SD;
 File logfile;
 
 // read a Hex value and return the decimal equivalent
@@ -96,18 +97,19 @@ void setup() {
     error(2);
   }
   char filename[15];
-  strcpy(filename, "GPSLOG00.TXT");
-  for (uint8_t i = 0; i < 100; i++) {
-    filename[6] = '0' + i/10;
-    filename[7] = '0' + i%10;
-    // create if does not exist, do not open existing, write, sync after write
+  strcpy(filename, "GPSLOG0000.TXT");
+  for (uint16_t i = 0; i < 10000; i++) {
+    filename[6] = '0' + i/1000;
+    filename[7] = '0' + (i/100)%10;
+    filename[8] = '0' + (i/10)%10;
+    filename[9] = '0' + i%10;
+    // Find an unused long filename, then create it without opening an old log.
     if (! SD.exists(filename)) {
       break;
     }
   }
 
-  logfile = SD.open(filename, FILE_WRITE);
-  if( ! logfile ) {
+  if (!logfile.open(filename, O_WRONLY | O_CREAT | O_EXCL)) {
     Serial.print(F("Couldnt create "));
     Serial.println(filename);
     error(3);
@@ -130,6 +132,16 @@ void setup() {
   // Disable antenna status on old and new modules, if the firmware permits it.
   GPS.sendCommand(F(PGCMD_NOANTENNA));
   GPS.sendCommand(F(CDCMD_NOANTENNA));
+
+  // Drain startup command replies before the first SD write. Their rapid
+  // arrival can otherwise reuse a GPS receive buffer while it is being saved.
+  uint32_t start = millis();
+  while (millis() - start < 2000) {
+    GPS.read();
+    if (GPS.newNMEAreceived()) {
+      GPS.lastNMEA();
+    }
+  }
 
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the
