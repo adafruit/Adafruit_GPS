@@ -111,6 +111,6 @@
 #define PGCMD_NOANTENNA "$PGCMD,33,0*6D" ///< don't show antenna status messages
 
 #define MAXWAITSENTENCE                                                        \
-  10 ///< how long to wait when we're looking for a response
+  10 ///< maximum number of sentences to examine when looking for a response
 /**************************************************************************/
 #endif
