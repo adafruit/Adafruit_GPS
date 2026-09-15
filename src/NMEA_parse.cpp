@@ -23,7 +23,8 @@
 #include <Adafruit_GPS.h>
 
 const char PROGMEM Adafruit_GPS::sources[][4] = {"II", "WI", "GP", "PG", "GL",
-                                                 "GA", "GN", "P",  "ZZZ"};
+                                                 "GA", "GN", "HC", "TI", "SD",
+                                                 "AI", "P",  "ZZZ"};
 #ifdef NMEA_EXTENSIONS
 const char PROGMEM Adafruit_GPS::sentences_parsed[][4] = {
     "GGA", "GLL", "GSA", "RMC", "CD",  "DBT", "HDM", "HDT", "MDA", "MTW", "MWV",
