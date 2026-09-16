@@ -106,6 +106,7 @@ public:
   bool newNMEAreceived();
   void pause(bool b);
   char *lastNMEA(void);
+  gnss_position_t lastPosition() const;
   bool waitForSentence(const char *wait, uint8_t max = MAXWAITSENTENCE,
                        bool usingInterrupts = false, uint32_t timeout = 10000);
   bool LOCUS_StartLogger(void);
@@ -293,7 +294,7 @@ private:
   volatile char line1[MAXLINELENGTH]; ///< We double buffer: read one line in
                                       ///< and leave one for the main program
   volatile char line2[MAXLINELENGTH]; ///< Second buffer
-  Adafruit_NMEA receiver{line1, line2, MAXLINELENGTH}; ///< Bounded byte framing
+  Adafruit_GNSS receiver{line1, line2, MAXLINELENGTH}; ///< Shared GNSS receiver
   const char *volatile lastline =
       (const char *)line2;     ///< Completed line published by read()
   volatile bool recvdflag;     ///< Received flag
