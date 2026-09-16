@@ -844,7 +844,8 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>True on a match, false when either limit is reached </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>True on a valid matching frame, false on NULL prefix or either limit.</dd></dl>
+<p>Matching remains a text-prefix comparison, but the complete NMEA frame must have valid syntax and checksum. Unknown proprietary addresses are allowed; no GPS sentence whitelist or command-result interpretation is applied. Every completed line, including invalid and nonmatching lines, counts toward max. The accepted raw reply remains available through <a class="el" href="class_adafruit___g_p_s.html#a6938dadca5d72ec6e89e86a5b01b9b67" title="Returns the last NMEA line received and unsets the received flag. ">lastNMEA()</a>. </p>
 
 </div>
 </div>
