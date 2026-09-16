@@ -60,6 +60,7 @@
 #ifdef USE_SW_SERIAL
 #include <SoftwareSerial.h>
 #endif
+#include <Adafruit_NMEA.h>
 #include <Adafruit_PMTK.h>
 #include <NMEA_data.h>
 #include <SPI.h>
@@ -266,8 +267,6 @@ private:
   uint32_t lastFix = 2000000000L;  ///< millis() when last fix received
   uint32_t lastTime = 2000000000L; ///< millis() when last time received
   uint32_t lastDate = 2000000000L; ///< millis() when last date received
-  uint32_t recvdTime =
-      2000000000L; ///< millis() when last full sentence received
   uint32_t sentTime = 2000000000L; ///< millis() when first character of last
                                    ///< full sentence received
   bool paused;
@@ -292,11 +291,11 @@ private:
   volatile char line1[MAXLINELENGTH]; ///< We double buffer: read one line in
                                       ///< and leave one for the main program
   volatile char line2[MAXLINELENGTH]; ///< Second buffer
-  volatile uint8_t lineidx = 0; ///< our index into filling the current line
-  volatile char *currentline;   ///< Pointer to current line buffer
-  volatile char *lastline;      ///< Pointer to previous line buffer
-  volatile bool recvdflag;      ///< Received flag
-  volatile bool inStandbyMode;  ///< In standby flag
+  Adafruit_NMEA receiver{line1, line2, MAXLINELENGTH}; ///< Bounded byte framing
+  const char *volatile lastline =
+      (const char *)line2;     ///< Completed line published by read()
+  volatile bool recvdflag;     ///< Received flag
+  volatile bool inStandbyMode; ///< In standby flag
 };
 /**************************************************************************/
 
