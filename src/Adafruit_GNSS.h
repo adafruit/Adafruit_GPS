@@ -59,6 +59,22 @@ typedef struct {
   uint8_t field; ///< One-based error field, or zero for valid/unsupported.
 } gnss_validation_t;
 
+/** One sentence's position data, independent of earlier receiver state.
+ *  Check validation first, then each field's status. A valid sentence does not
+ *  imply a position fix or populated coordinates. Failed/unsupported decoding
+ *  leaves all measurement values zero and all field statuses MISSING. */
+typedef struct {
+  gnss_validation_t validation; ///< Sentence status and first failing field.
+  gnss_coordinate_t latitude;   ///< Exact latitude components.
+  gnss_coordinate_t longitude;  ///< Exact longitude components.
+  gnss_time_t time;             ///< UTC time, or EMPTY for a blank time field.
+  gnss_date_t date; ///< RMC date; MISSING in GGA/GLL, possibly EMPTY.
+  nmea_number_status_t fixStatus;        ///< Fix field status.
+  bool fix;                              ///< Valid fix; check fixStatus first.
+  nmea_number_status_t fixQualityStatus; ///< Quality field status.
+  uint8_t fixQuality; ///< GGA quality, including RTK values; check its status.
+} gnss_position_t;
+
 /** Stateless standard GNSS decoding shared by receiver implementations.
  *  Inputs are borrowed spans. Decoding neither allocates memory nor performs
  *  transport I/O, and does not alter the supplied text or receiver state.
@@ -69,12 +85,14 @@ public:
                                            nmea_span_t hemisphere);
   static size_t formatCoordinate(char *output, size_t capacity,
                                  const gnss_coordinate_t &coordinate);
+  static gnss_position_t parsePosition(nmea_span_t type, nmea_span_t fields);
   static gnss_time_t parseTime(nmea_span_t field);
   static gnss_date_t parseDate(nmea_span_t field);
   static gnss_validation_t validateNavigation(nmea_span_t type,
                                               nmea_span_t fields);
 
 private:
+  static uint8_t sentenceType(nmea_span_t type);
   /// Sentence kinds handled by the navigation validator.
   enum {
     UNSUPPORTED, ///< Sentence has no standard navigation validation.

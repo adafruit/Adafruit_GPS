@@ -304,15 +304,7 @@ gnss_validation_t Adafruit_GNSS::validateNavigation(nmea_span_t type,
   gnss_validation_t result = {GNSS_SENTENCE_UNSUPPORTED, 0};
   if (!type.data || type.length != 3)
     return result;
-  uint8_t sentence = UNSUPPORTED;
-  if (type.data[0] == 'G' && type.data[1] == 'G' && type.data[2] == 'A')
-    sentence = GGA;
-  else if (type.data[0] == 'R' && type.data[1] == 'M' && type.data[2] == 'C')
-    sentence = RMC;
-  else if (type.data[0] == 'G' && type.data[1] == 'L' && type.data[2] == 'L')
-    sentence = GLL;
-  else if (type.data[0] == 'G' && type.data[1] == 'S' && type.data[2] == 'A')
-    sentence = GSA;
+  uint8_t sentence = sentenceType(type);
   if (sentence == UNSUPPORTED)
     return result;
   uint8_t required = 6, latitudeField = 1, timeField = 5;
@@ -384,6 +376,106 @@ gnss_validation_t Adafruit_GNSS::validateNavigation(nmea_span_t type,
   }
   result.status = GNSS_SENTENCE_VALID;
   result.field = 0;
+  return result;
+}
+
+/**************************************************************************/
+/*!
+    @brief Identify a supported three-character standard sentence type.
+    @param type Three-character identifier already bounded by the caller.
+    @return Private sentence kind, or UNSUPPORTED.
+*/
+/**************************************************************************/
+uint8_t Adafruit_GNSS::sentenceType(nmea_span_t type) {
+  uint8_t sentence = UNSUPPORTED;
+  if (type.data[0] == 'G' && type.data[1] == 'G' && type.data[2] == 'A')
+    sentence = GGA;
+  else if (type.data[0] == 'R' && type.data[1] == 'M' && type.data[2] == 'C')
+    sentence = RMC;
+  else if (type.data[0] == 'G' && type.data[1] == 'L' && type.data[2] == 'L')
+    sentence = GLL;
+  else if (type.data[0] == 'G' && type.data[1] == 'S' && type.data[2] == 'A')
+    sentence = GSA;
+  return sentence;
+}
+
+/**************************************************************************/
+/*!
+    @brief Decode a GGA, RMC, or GLL position without retaining receiver state.
+    @param type Three-character sentence type without its talker prefix.
+    @param fields Borrowed fields after the address comma and before '*'.
+    @return Independent values and validation diagnostics. Invalid or
+    unsupported input returns no partially decoded measurements.
+
+    Call after validating the enclosing frame with Adafruit_NMEA::validate().
+    Input storage must remain readable and unchanged throughout the call.
+    All navigation fields consumed by the GPS decoder are validated first,
+    including fields this position result does not expose (such as altitude).
+    Optional tails retain validateNavigation()'s existing behavior.
+
+    Populated coordinates retain all nine fractional-minute digits and can be
+    passed directly to formatCoordinate(). Empty fields have EMPTY status;
+    fields absent from this sentence type have MISSING status. The fix boolean
+    is meaningful only with VALID fixStatus and does not imply populated
+    coordinates. GGA quality is independent of RMC/GLL fix validity.
+
+    Time/date and exact position components belong only to this sentence. No
+    timestamps, previous-fix merging, allocation, or floating-point conversion
+    occur here. GSA and other sentence types are UNSUPPORTED by this decoder.
+*/
+/**************************************************************************/
+gnss_position_t Adafruit_GNSS::parsePosition(nmea_span_t type,
+                                             nmea_span_t fields) {
+  gnss_position_t result = {};
+  result.validation.status = GNSS_SENTENCE_UNSUPPORTED;
+  result.latitude.status = result.longitude.status = NMEA_NUMBER_MISSING;
+  result.time.status = result.date.status = NMEA_NUMBER_MISSING;
+  result.fixStatus = result.fixQualityStatus = NMEA_NUMBER_MISSING;
+  if (!type.data || type.length != 3)
+    return result;
+  uint8_t sentence = sentenceType(type);
+  if (sentence != GGA && sentence != RMC && sentence != GLL)
+    return result;
+  result.validation = validateNavigation(type, fields);
+  if (result.validation.status != GNSS_SENTENCE_VALID)
+    return result;
+
+  uint8_t latitudeField = 1, timeField = 5, fixField = 6, lastField = 6;
+  if (sentence == GGA) {
+    latitudeField = 2;
+    timeField = 1;
+  } else if (sentence == RMC) {
+    latitudeField = 3;
+    timeField = 1;
+    fixField = 2;
+    lastField = 9;
+  }
+  for (uint8_t i = 1; i <= lastField; i++) {
+    nmea_span_t field = Adafruit_NMEA::nextField(fields);
+    if (i == latitudeField || i == latitudeField + 2) {
+      nmea_span_t hemisphere = Adafruit_NMEA::nextField(fields);
+      if (i == latitudeField)
+        result.latitude = parseCoordinate(field, hemisphere);
+      else
+        result.longitude = parseCoordinate(field, hemisphere);
+      i++;
+    } else if (i == timeField) {
+      result.time = parseTime(field);
+    } else if (i == fixField) {
+      result.fixStatus = field.length ? NMEA_NUMBER_VALID : NMEA_NUMBER_EMPTY;
+      if (sentence == GGA) {
+        result.fixQualityStatus = result.fixStatus;
+        // Validation already proved that this integer fits uint8_t.
+        for (size_t j = 0; j < field.length; j++)
+          result.fixQuality = result.fixQuality * 10 + field.data[j] - '0';
+        result.fix = result.fixQuality > 0;
+      } else {
+        result.fix = field.length && field.data[0] == 'A';
+      }
+    } else if (sentence == RMC && i == 9) {
+      result.date = parseDate(field);
+    }
+  }
   return result;
 }
 

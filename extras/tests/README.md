@@ -41,6 +41,11 @@ full-precision RTK outputs. Future receiver APIs and logging examples must
 preserve the core precision through storage, public results, and formatting
 without requiring a global float-type override.
 
+The shared position decoder regression checks GGA/RMC/GLL results, independent
+fix and GGA-quality status, empty/missing fields, exact coordinates through text
+output, and rejection of malformed sentences without partial measurements.
+Returned values remain independent of the input buffer and other receivers.
+
 Physical reception tests live separately in `extras/hw_tests/gnss_receive`.
 Build and run them explicitly on the documented Nano or HILBERT fixture; the
 host test runner does not operate attached boards.
