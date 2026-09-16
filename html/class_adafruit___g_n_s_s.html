@@ -73,6 +73,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a960c36f30377ffe7cdd7bf5b4bf15c0f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__coordinate__t.html">gnss_coordinate_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#a960c36f30377ffe7cdd7bf5b4bf15c0f">parseCoordinate</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> coordinate, <a class="el" href="structnmea__span__t.html">nmea_span_t</a> hemisphere)</td></tr>
 <tr class="memdesc:a960c36f30377ffe7cdd7bf5b4bf15c0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a latitude or longitude field and its hemisphere.  <a href="#a960c36f30377ffe7cdd7bf5b4bf15c0f">More...</a><br /></td></tr>
 <tr class="separator:a960c36f30377ffe7cdd7bf5b4bf15c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f2b2627a1f2500bbd2dc3b8ae63db7e"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#a1f2b2627a1f2500bbd2dc3b8ae63db7e">formatCoordinate</a> (char *output, size_t capacity, const <a class="el" href="structgnss__coordinate__t.html">gnss_coordinate_t</a> &amp;coordinate)</td></tr>
+<tr class="memdesc:a1f2b2627a1f2500bbd2dc3b8ae63db7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format exact coordinate components as signed decimal degrees.  <a href="#a1f2b2627a1f2500bbd2dc3b8ae63db7e">More...</a><br /></td></tr>
+<tr class="separator:a1f2b2627a1f2500bbd2dc3b8ae63db7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__time__t.html">gnss_time_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#ab47ea0afd9aad5105ec7224912bd4fd4">parseTime</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field)</td></tr>
 <tr class="memdesc:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a complete UTC hhmmss[.fraction] field.  <a href="#ab47ea0afd9aad5105ec7224912bd4fd4">More...</a><br /></td></tr>
 <tr class="separator:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -130,6 +133,61 @@ Static Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Validated components and signed decimal degrees times 10000000.</dd></dl>
 <p>Missing spans take precedence over empty spans, then malformed syntax, then range errors. Signs, spaces, exponents, and a bare decimal point are invalid. Minutes must be below 60; latitude is limited to 90 degrees and longitude to 180, with zero minutes at either boundary. Fractional minutes retain the first nine digits, padded with zeros; further digits are validated and truncated. degreesE7 is exact at its stated resolution, without rounding or intermediate floating-point arithmetic. </p>
+
+</div>
+</div>
+<a id="a1f2b2627a1f2500bbd2dc3b8ae63db7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f2b2627a1f2500bbd2dc3b8ae63db7e">&#9670;&nbsp;</a></span>formatCoordinate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t Adafruit_GNSS::formatCoordinate </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>output</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structgnss__coordinate__t.html">gnss_coordinate_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>coordinate</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Format exact coordinate components as signed decimal degrees. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">output</td><td>Writable text buffer; must not overlap coordinate. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Buffer size including the NUL terminator. Use GNSS_COORDINATE_TEXT_SIZE to fit every valid coordinate. </td></tr>
+    <tr><td class="paramname">coordinate</td><td>Validated components from <a class="el" href="class_adafruit___g_n_s_s.html#a960c36f30377ffe7cdd7bf5b4bf15c0f" title="Decode a latitude or longitude field and its hemisphere. ">parseCoordinate()</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Characters written, excluding NUL, or zero for invalid components or insufficient storage. On failure output[0] is cleared when possible; no other output bytes are changed.</dd></dl>
+<p>Writes exactly 11 fractional degree digits, truncated toward zero. This distinguishes every retained fractional-minute increment and introduces less than 0.00000000001 degree of formatting error (about 1.2 micrometers of latitude). Southern/western zero retains its minus sign. The components, not the lower-resolution degreesE7 member, supply the result.</p>
+<p>Integer long division uses at most 32-bit arithmetic, with no heap or floating-point conversion. AVR output retains the same precision as other targets, regardless of NMEA_FLOAT_T or the platform's double size. </p>
 
 </div>
 </div>

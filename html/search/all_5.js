@@ -4,6 +4,7 @@ var searchData=
   ['get',['get',['../class_adafruit___g_p_s.html#a5195ba0c15098e7ebdeed7b58163fa39',1,'Adafruit_GPS']]],
   ['getsmoothed',['getSmoothed',['../class_adafruit___g_p_s.html#a272df8380267fd53ff611f552409e86d',1,'Adafruit_GPS']]],
   ['gnss_5fcoordinate_5ft',['gnss_coordinate_t',['../structgnss__coordinate__t.html',1,'']]],
+  ['gnss_5fcoordinate_5ftext_5fsize',['GNSS_COORDINATE_TEXT_SIZE',['../_adafruit___g_n_s_s_8h.html#a85f7f63b620cbc944b1a298257a255b1',1,'Adafruit_GNSS.h']]],
   ['gnss_5fdate_5ft',['gnss_date_t',['../structgnss__date__t.html',1,'']]],
   ['gnss_5fsentence_5finvalid_5ffield',['GNSS_SENTENCE_INVALID_FIELD',['../_adafruit___g_n_s_s_8h.html#a7cb07516e8891d0d2dc3f3d4f7efc248af25eaf44af46fb6c4f8b860649b85699',1,'Adafruit_GNSS.h']]],
   ['gnss_5fsentence_5fmissing_5ffields',['GNSS_SENTENCE_MISSING_FIELDS',['../_adafruit___g_n_s_s_8h.html#a7cb07516e8891d0d2dc3f3d4f7efc248ad1e86eda7bc10b04a2e6e152c9659e5b',1,'Adafruit_GNSS.h']]],
