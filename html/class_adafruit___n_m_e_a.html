@@ -71,9 +71,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3e604f44d8bed9ac7297f1ce34d49b0f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a3e604f44d8bed9ac7297f1ce34d49b0f">Adafruit_NMEA</a> (char *firstBuffer, char *secondBuffer, size_t capacity)</td></tr>
-<tr class="memdesc:a3e604f44d8bed9ac7297f1ce34d49b0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a receiver using two caller-owned buffers.  <a href="#a3e604f44d8bed9ac7297f1ce34d49b0f">More...</a><br /></td></tr>
-<tr class="separator:a3e604f44d8bed9ac7297f1ce34d49b0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68731e20b2fc1c46c6c55e3be771a17e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a68731e20b2fc1c46c6c55e3be771a17e">Adafruit_NMEA</a> (volatile char *firstBuffer, volatile char *secondBuffer, size_t capacity)</td></tr>
+<tr class="memdesc:a68731e20b2fc1c46c6c55e3be771a17e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a receiver using two caller-owned buffers.  <a href="#a68731e20b2fc1c46c6c55e3be771a17e">More...</a><br /></td></tr>
+<tr class="separator:a68731e20b2fc1c46c6c55e3be771a17e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a8a9e0339de1ed249d262e7fbcc1252"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a1a8a9e0339de1ed249d262e7fbcc1252">Adafruit_NMEA</a> (const <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;other)=delete</td></tr>
 <tr class="memdesc:a1a8a9e0339de1ed249d262e7fbcc1252"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copying is disabled to prevent sharing writable receive buffers.  <a href="#a1a8a9e0339de1ed249d262e7fbcc1252">More...</a><br /></td></tr>
 <tr class="separator:a1a8a9e0339de1ed249d262e7fbcc1252"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -86,6 +86,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac5b0a29a311cba10eb4fc906c4ecb7d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_adafruit___n_m_e_a_8h.html#ace3ac8bd1353ce499e20842e81b3c5aa">nmea_frame_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7">feed</a> (uint8_t byte, uint32_t receivedAtMs)</td></tr>
 <tr class="memdesc:ac5b0a29a311cba10eb4fc906c4ecb7d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Feed one byte into this receiver's bounded sentence buffer.  <a href="#ac5b0a29a311cba10eb4fc906c4ecb7d7">More...</a><br /></td></tr>
 <tr class="separator:ac5b0a29a311cba10eb4fc906c4ecb7d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a818739ffc3a6a2b9f93f0f72ef82e75e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a818739ffc3a6a2b9f93f0f72ef82e75e">lastText</a> () const</td></tr>
+<tr class="memdesc:a818739ffc3a6a2b9f93f0f72ef82e75e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the latest complete raw line without validating it again.  <a href="#a818739ffc3a6a2b9f93f0f72ef82e75e">More...</a><br /></td></tr>
+<tr class="separator:a818739ffc3a6a2b9f93f0f72ef82e75e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a144bf137d190ef58c95ed1f170d2f6eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb">lastSentence</a> () const</td></tr>
 <tr class="memdesc:a144bf137d190ef58c95ed1f170d2f6eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get views of the latest complete line, including invalid raw text.  <a href="#a144bf137d190ef58c95ed1f170d2f6eb">More...</a><br /></td></tr>
 <tr class="separator:a144bf137d190ef58c95ed1f170d2f6eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -114,8 +117,8 @@ Static Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Hardware-independent NMEA framing and utilities shared by receiver classes. Receive storage is borrowed, with no heap allocation. Each instance has its own receive state and timestamps; callers must synchronize concurrent use. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a3e604f44d8bed9ac7297f1ce34d49b0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3e604f44d8bed9ac7297f1ce34d49b0f">&#9670;&nbsp;</a></span>Adafruit_NMEA() <span class="overload">[1/2]</span></h2>
+<a id="a68731e20b2fc1c46c6c55e3be771a17e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68731e20b2fc1c46c6c55e3be771a17e">&#9670;&nbsp;</a></span>Adafruit_NMEA() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -123,13 +126,13 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">Adafruit_NMEA::Adafruit_NMEA </td>
           <td>(</td>
-          <td class="paramtype">char *&#160;</td>
+          <td class="paramtype">volatile char *&#160;</td>
           <td class="paramname"><em>firstBuffer</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">char *&#160;</td>
+          <td class="paramtype">volatile char *&#160;</td>
           <td class="paramname"><em>secondBuffer</em>, </td>
         </tr>
         <tr>
@@ -286,6 +289,27 @@ Static Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>INCOMPLETE until LF completes a line, then its validation status. OVERFLOW discards a line that cannot fit including LF and NUL. BAD_FORMAT also indicates invalid storage supplied to the constructor.</dd></dl>
 <p>Ignore bytes before '$' or '!'. Either start marker restarts assembly, including after overflow. Overflow is reported once; subsequent bytes are ignored until another start marker. Partial and overflowing lines preserve the previous complete line and its timestamps.</p>
 <p>Every complete, non-overflowed line replaces <a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb" title="Get views of the latest complete line, including invalid raw text. ">lastSentence()</a>, even if its format or checksum is invalid. Its raw text includes LF and is followed by a NUL terminator. The caller must consume each line promptly; there is no queue. No transport access, allocation, or sentence copying occurs. </p>
+
+</div>
+</div>
+<a id="a818739ffc3a6a2b9f93f0f72ef82e75e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a818739ffc3a6a2b9f93f0f72ef82e75e">&#9670;&nbsp;</a></span>lastText()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structnmea__span__t.html">nmea_span_t</a> Adafruit_NMEA::lastText </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the latest complete raw line without validating it again. </p>
+<dl class="section return"><dt>Returns</dt><dd>Borrowed text and its length, or an absent span before completion.</dd></dl>
+<p>Includes invalid lines and their LF, with a NUL after the stored length. The view expires on the next completed line or <a class="el" href="class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98" title="Discard partial and completed lines and clear all timestamps. ">reset()</a>. As with <a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb" title="Get views of the latest complete line, including invalid raw text. ">lastSentence()</a>, callers must synchronize access with <a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7" title="Feed one byte into this receiver&#39;s bounded sentence buffer. ">feed()</a>. </p>
 
 </div>
 </div>
