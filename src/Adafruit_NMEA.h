@@ -88,6 +88,8 @@ public:
   static nmea_sentence_t validate(const char *data, size_t length);
   static nmea_span_t nextField(nmea_span_t &remaining);
   static nmea_decimal_t parseDecimal(nmea_span_t field);
+  static nmea_number_status_t validateDecimal(nmea_span_t field,
+                                              bool allowNegative = true);
   static size_t buildCommand(char *output, size_t capacity, const char *body,
                              size_t bodyLength);
 

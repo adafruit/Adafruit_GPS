@@ -313,6 +313,57 @@ nmea_span_t Adafruit_NMEA::nextField(nmea_span_t &remaining) {
   return field;
 }
 
+static nmea_number_status_t scanDecimal(nmea_span_t field, uint8_t &places,
+                                        bool &negative) {
+  if (!field.data)
+    return NMEA_NUMBER_MISSING;
+  if (!field.length)
+    return NMEA_NUMBER_EMPTY;
+  size_t start = 0;
+  negative = field.data[0] == '-';
+  if (negative || field.data[0] == '+')
+    start = 1;
+  bool decimalPoint = false, hasDigit = false, overflow = false;
+  uint8_t significant = 0;
+  int8_t comparison = 0;
+  places = 0;
+  // Compare significant digits with INT64_MAX's magnitude. This also accepts
+  // INT64_MIN's extra final digit without requiring any 64-bit arithmetic.
+  const char *limit = "9223372036854775807";
+  for (size_t i = start; i < field.length; i++) {
+    char c = field.data[i];
+    if (c == '.' && !decimalPoint) {
+      decimalPoint = true;
+      continue;
+    }
+    if (c < '0' || c > '9')
+      return NMEA_NUMBER_BAD_FORMAT;
+    hasDigit = true;
+    if (decimalPoint) {
+      if (places == UINT8_MAX)
+        overflow = true;
+      else
+        places++;
+    }
+    if (significant || c != '0') {
+      if (significant < 20)
+        significant++;
+      if (significant <= 19 && !comparison) {
+        char bound =
+            significant == 19 && negative ? '8' : limit[significant - 1];
+        if (c != bound)
+          comparison = c < bound ? -1 : 1;
+      }
+    }
+  }
+  if (!hasDigit)
+    return NMEA_NUMBER_BAD_FORMAT;
+  if (overflow || significant > 19 || (significant == 19 && comparison > 0))
+    return NMEA_NUMBER_OUT_OF_RANGE;
+  negative = negative && significant; // Negative zero remains nonnegative.
+  return NMEA_NUMBER_VALID;
+}
+
 /**************************************************************************/
 /*!
     @brief Convert a complete field to an exact signed decimal value.
@@ -330,70 +381,45 @@ nmea_span_t Adafruit_NMEA::nextField(nmea_span_t &remaining) {
 /**************************************************************************/
 nmea_decimal_t Adafruit_NMEA::parseDecimal(nmea_span_t field) {
   nmea_decimal_t result = {NMEA_NUMBER_BAD_FORMAT, 0, 0};
-  if (!field.data) {
-    result.status = NMEA_NUMBER_MISSING;
-    return result;
-  }
-  if (!field.length) {
-    result.status = NMEA_NUMBER_EMPTY;
-    return result;
-  }
-
-  size_t start = 0;
+  uint8_t places = 0;
   bool negative = false;
-  if (field.data[0] == '-' || field.data[0] == '+') {
-    negative = field.data[0] == '-';
-    start = 1;
-  }
-
-  // Accumulate negatively: INT64_MIN has no positive int64_t counterpart.
-  int64_t limit = -INT64_MAX;
-  if (negative)
-    limit = INT64_MIN;
-  int64_t cutoff = limit / 10;
-  uint8_t lastDigitLimit = (uint8_t)(-(limit % 10));
+  result.status = scanDecimal(field, places, negative);
+  if (result.status != NMEA_NUMBER_VALID)
+    return result;
+  // The complete field is already checked, so accumulation cannot overflow.
+  // Accumulate negatively because INT64_MIN has no positive counterpart.
   int64_t coefficient = 0;
-  uint8_t decimalPlaces = 0;
-  bool decimalPoint = false;
-  bool hasDigit = false;
-  bool overflow = false;
-  for (size_t i = start; i < field.length; i++) {
+  for (size_t i = 0; i < field.length; i++) {
     char c = field.data[i];
-    if (c == '.' && !decimalPoint) {
-      decimalPoint = true;
-      continue;
-    }
-    if (c < '0' || c > '9')
-      return result;
-    hasDigit = true;
-    uint8_t digit = c - '0';
-    if (decimalPoint) {
-      if (decimalPlaces == UINT8_MAX)
-        overflow = true;
-      else
-        decimalPlaces++;
-    }
-    if (!overflow) {
-      if (coefficient < cutoff ||
-          (coefficient == cutoff && digit > lastDigitLimit))
-        overflow = true;
-      else
-        coefficient = coefficient * 10 - digit;
-    }
+    if (c >= '0' && c <= '9')
+      coefficient = coefficient * 10 - (c - '0');
   }
-  if (!hasDigit)
-    return result;
-  if (overflow) {
-    result.status = NMEA_NUMBER_OUT_OF_RANGE;
-    return result;
-  }
-
-  result.status = NMEA_NUMBER_VALID;
-  result.coefficient = coefficient;
-  if (!negative)
-    result.coefficient = -coefficient;
-  result.decimalPlaces = decimalPlaces;
+  result.coefficient = negative ? coefficient : -coefficient;
+  result.decimalPlaces = places;
   return result;
+}
+
+/**************************************************************************/
+/*!
+    @brief Check an exact decimal without constructing its numeric value.
+    @param field Borrowed readable text, with no NUL terminator required.
+    @param allowNegative Whether to accept negative nonzero values.
+    @return The same syntax and range status as parseDecimal(). Negative
+    nonzero values give OUT_OF_RANGE when allowNegative is false.
+
+    Retains parseDecimal's signed 64-bit coefficient and fractional digit
+    limits, including malformed-syntax precedence. Uses no 64-bit arithmetic
+    or allocation. Negative zero is accepted in either mode.
+*/
+/**************************************************************************/
+nmea_number_status_t Adafruit_NMEA::validateDecimal(nmea_span_t field,
+                                                    bool allowNegative) {
+  uint8_t places = 0;
+  bool negative = false;
+  nmea_number_status_t status = scanDecimal(field, places, negative);
+  if (status == NMEA_NUMBER_VALID && negative && !allowNegative)
+    return NMEA_NUMBER_OUT_OF_RANGE;
+  return status;
 }
 
 /**************************************************************************/
