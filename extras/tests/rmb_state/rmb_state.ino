@@ -13,6 +13,13 @@ void setup() {
   Serial.println("Adafruit GPS RMB state regression");
 
   char good[] = "$GPRMB,A,0.10,R,DEST,START,4807.038,N,01131.000,E,1.0,84.4,2.5,A*44";
+#ifndef NMEA_EXTENSIONS
+  if (GPS.parse(good)) {
+    Serial.println("FAIL: basic GPS build accepted an unsupported RMB sentence");
+    return;
+  }
+  Serial.println("PASS: basic GPS build rejects unsupported RMB sentences");
+#else
   if (!GPS.parse(good)) {
     Serial.println("FAIL: valid RMB sentence was rejected");
     return;
@@ -36,6 +43,7 @@ void setup() {
     return;
   }
   Serial.println("PASS: previous waypoint data was preserved");
+#endif
   testsPassed = true;
 }
 
