@@ -46,6 +46,13 @@ fix and GGA-quality status, empty/missing fields, exact coordinates through text
 output, and rejection of malformed sentences without partial measurements.
 Returned values remain independent of the input buffer and other receivers.
 
+The GNSS receiver regression feeds interleaved bytes into two receiver subclasses,
+checks independent timestamps and exact results, and exercises partial lines,
+overflow recovery, invalid checksums, reset, and mixed proprietary replies.
+`Adafruit_GNSS(firstBuffer, secondBuffer, capacity)` inherits `feed()` and
+`lastSentence()` from the NMEA core; call `lastPosition()` after a completed line.
+It returns that line's position, without caching or merging a previous fix.
+
 Physical reception tests live separately in `extras/hw_tests/gnss_receive`.
 Build and run them explicitly on the documented Nano or HILBERT fixture; the
 host test runner does not operate attached boards.

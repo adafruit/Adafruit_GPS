@@ -14,6 +14,76 @@ static bool validUnsignedByte(nmea_span_t field);
 
 /**************************************************************************/
 /*!
+    @brief Create a GNSS receiver using the shared bounded NMEA framer.
+    @param firstBuffer First caller-owned writable receive buffer.
+    @param secondBuffer Second buffer, disjoint from the first.
+    @param capacity Bytes per buffer, including NUL space.
+
+    Storage must outlive the receiver. The default or invalid storage disables
+    feed() as described by Adafruit_NMEA; static decoding remains available.
+    Supply incoming bytes and their timestamps with the inherited feed().
+    No position cache, transport, command handling, or allocation is added.
+*/
+/**************************************************************************/
+Adafruit_GNSS::Adafruit_GNSS(volatile char *firstBuffer,
+                             volatile char *secondBuffer, size_t capacity)
+    : Adafruit_NMEA(firstBuffer, secondBuffer, capacity) {}
+
+/**************************************************************************/
+/*!
+    @brief Decode the latest complete line into an independent position result.
+    @return Exact GGA/RMC/GLL measurements, or validation diagnostics.
+
+    Call after feed() reports a complete line, and synchronize with feed() if
+    using interrupts. Each call validates and decodes the current line; it does
+    not consume it. Before a line or after reset(), the result is INVALID_FRAME.
+    Invalid completed lines replace earlier positions; proprietary replies and
+    other sentences return UNSUPPORTED and remain accessible via lastSentence().
+    Partial/overflowing input preserves the previous complete line, just as the
+    framer does. Use sentenceStartedAt() and sentenceReceivedAt() for this line.
+    Returned values own their data and survive later input or reset().
+*/
+/**************************************************************************/
+gnss_position_t Adafruit_GNSS::lastPosition() const {
+  return parsePosition(lastSentence());
+}
+
+/**************************************************************************/
+/*!
+    @brief Route a validated standard NMEA sentence to the position decoder.
+    @param sentence Unmodified view returned by validate() or lastSentence().
+    @return Independent values; INVALID_FRAME for non-VALID input, UNSUPPORTED
+    for a valid frame outside the supported standard position sentences.
+
+    Keep the borrowed storage readable and unchanged throughout the call.
+    Trust the supplied frame status; use validate() first for arbitrary text.
+    A standard position address has two uppercase talker letters followed by
+    GGA, RMC, or GLL. Any such talker is accepted except the proprietary 'P'
+    prefix. Encapsulated '!' messages and proprietary addresses are not routed.
+    No receiver-specific address whitelist or command handling is imposed on
+    the underlying framer. Invalid/unsupported input returns no measurements.
+*/
+/**************************************************************************/
+gnss_position_t Adafruit_GNSS::parsePosition(const nmea_sentence_t &sentence) {
+  nmea_span_t type = {NULL, 0}, fields = {NULL, 0};
+  if (sentence.status == NMEA_FRAME_VALID && sentence.text.data &&
+      sentence.text.length && sentence.text.data[0] == '$' &&
+      sentence.address.data && sentence.address.length == 5) {
+    const char *address = sentence.address.data;
+    if (address[0] >= 'A' && address[0] <= 'Z' && address[0] != 'P' &&
+        address[1] >= 'A' && address[1] <= 'Z') {
+      type = {address + 2, 3};
+      fields = sentence.fields;
+    }
+  }
+  gnss_position_t result = parsePosition(type, fields);
+  if (sentence.status != NMEA_FRAME_VALID)
+    result.validation.status = GNSS_SENTENCE_INVALID_FRAME;
+  return result;
+}
+
+/**************************************************************************/
+/*!
     @brief Decode a latitude or longitude field and its hemisphere.
     @param coordinate DDMM[.fraction] latitude or DDDMM[.fraction] longitude.
     @param hemisphere Exactly one N/S for latitude or E/W for longitude.

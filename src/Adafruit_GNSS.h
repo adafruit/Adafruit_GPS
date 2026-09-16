@@ -50,13 +50,14 @@ typedef enum : uint8_t {
   GNSS_SENTENCE_VALID,          ///< Supported fields are valid or empty.
   GNSS_SENTENCE_UNSUPPORTED,    ///< This validator does not handle the type.
   GNSS_SENTENCE_MISSING_FIELDS, ///< A required field position is absent.
-  GNSS_SENTENCE_INVALID_FIELD   ///< A populated field has invalid content.
+  GNSS_SENTENCE_INVALID_FIELD,  ///< A populated field has invalid content.
+  GNSS_SENTENCE_INVALID_FRAME   ///< No complete frame with valid checksum.
 } gnss_sentence_status_t;
 
 /// Validation result; coordinate-pair errors identify the coordinate field.
 typedef struct {
   gnss_sentence_status_t status; ///< Result of navigation field validation.
-  uint8_t field; ///< One-based error field, or zero for valid/unsupported.
+  uint8_t field; ///< One-based error field, or zero without a field error.
 } gnss_validation_t;
 
 /** One sentence's position data, independent of earlier receiver state.
@@ -75,17 +76,22 @@ typedef struct {
   uint8_t fixQuality; ///< GGA quality, including RTK values; check its status.
 } gnss_position_t;
 
-/** Stateless standard GNSS decoding shared by receiver implementations.
- *  Inputs are borrowed spans. Decoding neither allocates memory nor performs
- *  transport I/O, and does not alter the supplied text or receiver state.
+/** Standard GNSS receiver and decoding shared by receiver implementations.
+ *  Inherits bounded framing with caller-owned buffers and per-instance times.
+ *  Position decoding is stateless: no fix is cached or merged across lines.
+ *  Static decoding does not require receive storage. No heap or transport I/O.
  */
-class Adafruit_GNSS {
+class Adafruit_GNSS : public Adafruit_NMEA {
 public:
+  Adafruit_GNSS(volatile char *firstBuffer = NULL,
+                volatile char *secondBuffer = NULL, size_t capacity = 0);
+  gnss_position_t lastPosition() const;
   static gnss_coordinate_t parseCoordinate(nmea_span_t coordinate,
                                            nmea_span_t hemisphere);
   static size_t formatCoordinate(char *output, size_t capacity,
                                  const gnss_coordinate_t &coordinate);
   static gnss_position_t parsePosition(nmea_span_t type, nmea_span_t fields);
+  static gnss_position_t parsePosition(const nmea_sentence_t &sentence);
   static gnss_time_t parseTime(nmea_span_t field);
   static gnss_date_t parseDate(nmea_span_t field);
   static gnss_validation_t validateNavigation(nmea_span_t type,
