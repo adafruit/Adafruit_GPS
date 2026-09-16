@@ -16,11 +16,15 @@ All tests use AddressSanitizer and UndefinedBehaviorSanitizer. Compiler
 warnings, failed checks, sanitizer findings, and a 30-second execution timeout
 fail the job. Other tests still run after an individual failure.
 
-The Arduino sketches use the real library sources with NMEA extensions enabled,
-including the marine and RMB checks. Each runs with both `NMEA_FLOAT_T=float`
-and `NMEA_FLOAT_T=double`, applied consistently to the sketch and library.
-`extras/test_support` provides serial
-output and a real monotonic clock; the wakeup timeout test takes ten seconds.
+The Arduino sketches use the real library sources in four configurations:
+`NMEA_EXTRAS=0` for the basic GPS API and `NMEA_EXTRAS=1` for marine extensions,
+each with `NMEA_FLOAT_T=float` and `NMEA_FLOAT_T=double`. Definitions apply
+consistently to the sketch and library. The RMB test checks that basic builds
+reject the unsupported sentence and extended builds decode it without partial
+updates on error. Standalone C++ core tests run once.
+
+`extras/test_support` provides serial output and a real monotonic clock; the
+wakeup timeout test takes ten seconds per configuration.
 I2C, SPI, GPIO, and hardware serial input abort if used. This runs the parser
 and mock-stream regressions, not physical GPS/SD hardware or MCU emulation.
 The sketches remain usable on Arduino boards with the normal Arduino core.
@@ -32,3 +36,7 @@ Those positions deliberately share the same legacy E7 coordinate. The default
 float fields and E7 fields are not full-precision RTK outputs. Future receiver
 APIs and logging examples must preserve the core precision through storage,
 public results, and formatting without requiring a global float-type override.
+
+Physical reception tests live separately in `extras/hw_tests/gnss_receive`.
+Build and run them explicitly on the documented Nano or HILBERT fixture; the
+host test runner does not operate attached boards.

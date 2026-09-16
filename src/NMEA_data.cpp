@@ -91,6 +91,9 @@ void Adafruit_GPS::newDataValue(nmea_index_t idx, nmea_float_t v) {
       val[idx].hist->lastHistory = millis();
     }
   }
+#else
+  (void)idx;
+  (void)v;
 #endif // NMEA_EXTENSIONS
 }
 

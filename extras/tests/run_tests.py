@@ -23,25 +23,29 @@ def main():
         "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
         "-fno-omit-frame-pointer", "-I" + str(root / "src"),
     ]
-    # Apply the same type to the sketch and every library translation unit.
-    # The default float API and optional double API must both remain usable.
+    # Host builds otherwise enable extensions automatically. Cover the basic
+    # GPS API and marine extensions, each with consistent float/double types
+    # across the sketch and every library translation unit.
     cases = []
     for test in tests:
-        modes = ("float", "double") if test.suffix == ".ino" else (None,)
-        cases.extend((test, mode) for mode in modes)
+        if test.suffix == ".ino":
+            for extras in (0, 1):
+                for float_type in ("float", "double"):
+                    cases.append((test, extras, float_type))
+        else:
+            cases.append((test, None, None))
     failures = []
-    for index, (test, mode) in enumerate(cases, 1):
+    for index, (test, extras, float_type) in enumerate(cases, 1):
         name = str(test.relative_to(tests_dir))
-        if mode is not None:
-            name += f" (NMEA_FLOAT_T={mode})"
+        if extras is not None:
+            name += f" (NMEA_EXTRAS={extras}, NMEA_FLOAT_T={float_type})"
         print(f"\n[{index}/{len(cases)}] {name}", flush=True)
         binary = build / str(index)
         if test.suffix == ".ino":
-            # Enable marine extensions so RMB and conditional marine checks run.
             sources = [*sorted((root / "src").glob("*.cpp")),
                        support / "Arduino.cpp", support / "sketch_main.cpp"]
-            extra_flags = ["-I" + str(support), "-DNMEA_EXTRAS=1",
-                           f"-DNMEA_FLOAT_T={mode}"]
+            extra_flags = ["-I" + str(support), f"-DNMEA_EXTRAS={extras}",
+                           f"-DNMEA_FLOAT_T={float_type}"]
         else:
             sources = [root / "src/Adafruit_NMEA.cpp",
                        root / "src/Adafruit_GNSS.cpp"]
