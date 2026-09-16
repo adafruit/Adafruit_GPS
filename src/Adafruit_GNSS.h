@@ -12,6 +12,9 @@
 
 #include "Adafruit_NMEA.h"
 
+/// Maximum coordinate text size: sign, three degrees, dot, 11 decimals, NUL.
+#define GNSS_COORDINATE_TEXT_SIZE 17
+
 /** Validated coordinate components, with no floating-point conversion.
  *  Every value except status is zero on failure. Southern and western
  *  coordinates have negative degreesE7; the other components are unsigned.
@@ -64,6 +67,8 @@ class Adafruit_GNSS {
 public:
   static gnss_coordinate_t parseCoordinate(nmea_span_t coordinate,
                                            nmea_span_t hemisphere);
+  static size_t formatCoordinate(char *output, size_t capacity,
+                                 const gnss_coordinate_t &coordinate);
   static gnss_time_t parseTime(nmea_span_t field);
   static gnss_date_t parseDate(nmea_span_t field);
   static gnss_validation_t validateNavigation(nmea_span_t type,

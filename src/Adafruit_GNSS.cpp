@@ -102,6 +102,81 @@ gnss_coordinate_t Adafruit_GNSS::parseCoordinate(nmea_span_t coordinate,
 
 /**************************************************************************/
 /*!
+    @brief Format exact coordinate components as signed decimal degrees.
+    @param output Writable text buffer; must not overlap coordinate.
+    @param capacity Buffer size including the NUL terminator. Use
+    GNSS_COORDINATE_TEXT_SIZE to fit every valid coordinate.
+    @param coordinate Validated components from parseCoordinate().
+    @return Characters written, excluding NUL, or zero for invalid components
+    or insufficient storage. On failure output[0] is cleared when possible;
+    no other output bytes are changed.
+
+    Writes exactly 11 fractional degree digits, truncated toward zero. This
+    distinguishes every retained fractional-minute increment and introduces
+    less than 0.00000000001 degree of formatting error (about 1.2 micrometers
+    of latitude). Southern/western zero retains its minus sign. The components,
+    not the lower-resolution degreesE7 member, supply the result.
+
+    Integer long division uses at most 32-bit arithmetic, with no heap or
+    floating-point conversion. AVR output retains the same precision as other
+    targets, regardless of NMEA_FLOAT_T or the platform's double size.
+*/
+/**************************************************************************/
+size_t Adafruit_GNSS::formatCoordinate(char *output, size_t capacity,
+                                       const gnss_coordinate_t &coordinate) {
+  if (!output || !capacity)
+    return 0;
+  output[0] = '\0';
+  char direction = coordinate.hemisphere;
+  bool latitude = direction == 'N' || direction == 'S';
+  uint16_t limit = latitude ? 90 : 180;
+  uint16_t degrees = coordinate.degrees;
+  uint16_t remainder = coordinate.minutes;
+  uint32_t fraction = coordinate.fractionalMinutes;
+  if (coordinate.status != NMEA_NUMBER_VALID ||
+      (!latitude && direction != 'E' && direction != 'W') || degrees > limit ||
+      remainder >= 60 || fraction >= 1000000000UL ||
+      (degrees == limit && (remainder || fraction)))
+    return 0;
+  bool negative = direction == 'S' || direction == 'W';
+  uint8_t digits = 1;
+  uint16_t divisor = 1;
+  if (degrees >= 100) {
+    digits = 3;
+    divisor = 100;
+  } else if (degrees >= 10) {
+    digits = 2;
+    divisor = 10;
+  }
+  // Account for the sign, decimal point, eleven fractional digits, and NUL.
+  if (capacity < (size_t)(negative + digits + 13))
+    return 0;
+  size_t written = 0;
+  if (negative)
+    output[written++] = '-';
+  while (divisor) {
+    output[written++] = '0' + degrees / divisor;
+    degrees %= divisor;
+    divisor /= 10;
+  }
+  output[written++] = '.';
+  uint32_t place = 100000000UL;
+  for (uint8_t i = 0; i < 11; i++) {
+    remainder *= 10;
+    if (place) {
+      remainder += fraction / place;
+      fraction %= place;
+      place /= 10;
+    }
+    output[written++] = '0' + remainder / 60;
+    remainder %= 60;
+  }
+  output[written] = '\0';
+  return written;
+}
+
+/**************************************************************************/
+/*!
     @brief Decode a complete UTC hhmmss[.fraction] field.
     @param field Borrowed time field, with no terminator required.
     @return Status and validated components, zeroed on failure.
