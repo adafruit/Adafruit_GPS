@@ -32,10 +32,14 @@ The sketches remain usable on Arduino boards with the normal Arduino core.
 Coordinate precision tests preserve all nine retained fractional-minute digits
 in the GNSS core and distinguish positions about 0.185 mm apart through the GPS
 double output, including southern latitude and longitude near 180 degrees west.
-Those positions deliberately share the same legacy E7 coordinate. The default
-float fields and E7 fields are not full-precision RTK outputs. Future receiver
-APIs and logging examples must preserve the core precision through storage,
-public results, and formatting without requiring a global float-type override.
+The coordinate-text regression also checks integer-only decimal-degree output
+with 11 fractional digits, including adjacent retained fractional-minute values
+and every output capacity. This output preserves detail on AVR without a global
+float-type override. The submillimeter positions deliberately share the same
+legacy E7 coordinate. The default float fields and E7 fields are not
+full-precision RTK outputs. Future receiver APIs and logging examples must
+preserve the core precision through storage, public results, and formatting
+without requiring a global float-type override.
 
 Physical reception tests live separately in `extras/hw_tests/gnss_receive`.
 Build and run them explicitly on the documented Nano or HILBERT fixture; the
