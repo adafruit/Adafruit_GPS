@@ -6,5 +6,6 @@ var searchData=
   ['maxwaitsentence',['MAXWAITSENTENCE',['../_adafruit___p_m_t_k_8h.html#aeebf6a58258596ef38bd7ea07e056a94',1,'Adafruit_PMTK.h']]],
   ['milliseconds',['milliseconds',['../class_adafruit___g_p_s.html#a19903b7505072a54a8dcdccf12e490d9',1,'Adafruit_GPS']]],
   ['minute',['minute',['../class_adafruit___g_p_s.html#afe5b0d9d8cdd4351e9ef1be98192249f',1,'Adafruit_GPS']]],
+  ['minutes',['minutes',['../structgnss__coordinate__t.html#a38283d9689c186ff28f3dda98cb801f6',1,'gnss_coordinate_t']]],
   ['month',['month',['../class_adafruit___g_p_s.html#a613f1926fbff9829256d85f7aeec7e1f',1,'Adafruit_GPS']]]
 ];

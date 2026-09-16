@@ -4,5 +4,6 @@ var searchData=
   ['magvariation',['magvariation',['../class_adafruit___g_p_s.html#a2c53f008694ebee3871583cb44842033',1,'Adafruit_GPS']]],
   ['milliseconds',['milliseconds',['../class_adafruit___g_p_s.html#a19903b7505072a54a8dcdccf12e490d9',1,'Adafruit_GPS']]],
   ['minute',['minute',['../class_adafruit___g_p_s.html#afe5b0d9d8cdd4351e9ef1be98192249f',1,'Adafruit_GPS']]],
+  ['minutes',['minutes',['../structgnss__coordinate__t.html#a38283d9689c186ff28f3dda98cb801f6',1,'gnss_coordinate_t']]],
   ['month',['month',['../class_adafruit___g_p_s.html#a613f1926fbff9829256d85f7aeec7e1f',1,'Adafruit_GPS']]]
 ];
