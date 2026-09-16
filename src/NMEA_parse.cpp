@@ -629,9 +629,8 @@ bool Adafruit_GPS::parse(char *nmea) {
 
 /**************************************************************************/
 /*!
-    @brief Check an NMEA string for basic format, valid source ID and valid
-    and valid sentence ID. Update the values of thisCheck, thisSource and
-    thisSentence.
+    @brief Validate NMEA framing and checksum, then recognize its source and
+    complete sentence ID. Update thisCheck, thisSource and thisSentence.
     @param nmea Pointer to the NMEA string
     @return True if well formed, false if it has problems
 */
@@ -639,39 +638,16 @@ bool Adafruit_GPS::parse(char *nmea) {
 bool Adafruit_GPS::check(char *nmea) {
   thisCheck = 0; // new check
   *thisSentence = *thisSource = 0;
-  if (*nmea != '$' && *nmea != '!')
+  if (!nmea || (*nmea != '$' && *nmea != '!'))
     return false; // doesn't start with $ or !
   else
     thisCheck += NMEA_HAS_DOLLAR;
-  // do checksum check -- first look if we even have one -- ignore all but last
-  // *
-  char *ast = nmea; // not strchr(nmea,'*'); for first *
-  while (*ast)
-    ast++; // go to the end
-  while (*ast != '*' && ast > nmea)
-    ast--; // then back to * if it's there
-  if (*ast != '*')
-    return false; // there is no asterisk
-  else {
-    if (!isxdigit((unsigned char)ast[1]) || !isxdigit((unsigned char)ast[2]))
-      return false; // checksum must contain two hexadecimal digits
-    char *end = ast + 3;
-    if (*end == '\r')
-      end++;
-    if (*end == '\n')
-      end++;
-    if (*end != '\0')
-      return false; // only a line ending may follow the checksum
-    uint16_t sum = parseHex(toupper((unsigned char)ast[1])) * 16;
-    sum += parseHex(toupper((unsigned char)ast[2]));
-    char *p = nmea; // check checksum
-    for (char *p1 = p + 1; p1 < ast; p1++)
-      sum ^= *p1;
-    if (sum != 0)
-      return false; // bad checksum :(
-    else
-      thisCheck += NMEA_HAS_CHECKSUM;
-  }
+  // Share framing and checksum rules with the byte receiver. Recognition
+  // remains here so unknown proprietary replies are still valid NMEA frames.
+  nmea_sentence_t sentence = Adafruit_NMEA::validate(nmea, strlen(nmea));
+  if (sentence.status != NMEA_FRAME_VALID)
+    return false;
+  thisCheck += NMEA_HAS_CHECKSUM;
   // extract source of variable length
   char *p = nmea + 1;
   const char *src = tokenOnList(p, sources);
@@ -681,14 +657,15 @@ bool Adafruit_GPS::check(char *nmea) {
   } else
     return false;
   p += strlen_P(src);
+  size_t sentenceLength = sentence.address.length - strlen_P(src);
   // extract sentence id and check if parsed
   const char *snc = tokenOnList(p, sentences_parsed);
-  if (snc) {
+  if (snc && strlen_P(snc) == sentenceLength) {
     strcpy_P(thisSentence, snc);
     thisCheck += NMEA_HAS_SENTENCE_P + NMEA_HAS_SENTENCE;
   } else { // check if known
     snc = tokenOnList(p, sentences_known);
-    if (snc) {
+    if (snc && strlen_P(snc) == sentenceLength) {
       strcpy_P(thisSentence, snc);
       thisCheck += NMEA_HAS_SENTENCE;
       return false; // known but not parsed
