@@ -34,7 +34,8 @@ def main():
                        support / "Arduino.cpp", support / "sketch_main.cpp"]
             extra_flags = ["-I" + str(support), "-DNMEA_EXTRAS=1"]
         else:
-            sources = [root / "src/Adafruit_NMEA.cpp"]
+            sources = [root / "src/Adafruit_NMEA.cpp",
+                       root / "src/Adafruit_GNSS.cpp"]
             extra_flags = []
         try:
             subprocess.run([compiler, *flags, *extra_flags,
