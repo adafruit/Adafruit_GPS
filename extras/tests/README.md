@@ -24,7 +24,9 @@ reject the unsupported sentence and extended builds decode it without partial
 updates on error. Standalone C++ core tests run once.
 
 `extras/test_support` provides serial output and a real monotonic clock; the
-wakeup timeout test takes ten seconds per configuration.
+wakeup timeout test takes ten seconds per configuration. Command-wait tests
+also reject matching replies with invalid framing/checksums, keep invalid lines
+in the sentence budget, and accept proprietary replies mixed with navigation.
 I2C, SPI, GPIO, and hardware serial input abort if used. This runs the parser
 and mock-stream regressions, not physical GPS/SD hardware or MCU emulation.
 The sketches remain usable on Arduino boards with the normal Arduino core.
