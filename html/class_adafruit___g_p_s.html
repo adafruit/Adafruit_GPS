@@ -132,6 +132,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a6938dadca5d72ec6e89e86a5b01b9b67"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#a6938dadca5d72ec6e89e86a5b01b9b67">lastNMEA</a> (void)</td></tr>
 <tr class="memdesc:a6938dadca5d72ec6e89e86a5b01b9b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the last NMEA line received and unsets the received flag.  <a href="#a6938dadca5d72ec6e89e86a5b01b9b67">More...</a><br /></td></tr>
 <tr class="separator:a6938dadca5d72ec6e89e86a5b01b9b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add173e9cb6547f3b265dd15491f893aa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgnss__position__t.html">gnss_position_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#add173e9cb6547f3b265dd15491f893aa">lastPosition</a> () const</td></tr>
+<tr class="memdesc:add173e9cb6547f3b265dd15491f893aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode the latest received sentence with exact coordinate precision.  <a href="#add173e9cb6547f3b265dd15491f893aa">More...</a><br /></td></tr>
+<tr class="separator:add173e9cb6547f3b265dd15491f893aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf6165cc30152b90e7acb082ca73c5a2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#abf6165cc30152b90e7acb082ca73c5a2">waitForSentence</a> (const char *wait, uint8_t max=<a class="el" href="_adafruit___p_m_t_k_8h.html#aeebf6a58258596ef38bd7ea07e056a94">MAXWAITSENTENCE</a>, bool usingInterrupts=false, uint32_t timeout=10000)</td></tr>
 <tr class="memdesc:abf6165cc30152b90e7acb082ca73c5a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for a specified sentence from the device.  <a href="#abf6165cc30152b90e7acb082ca73c5a2">More...</a><br /></td></tr>
 <tr class="separator:abf6165cc30152b90e7acb082ca73c5a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -767,6 +770,29 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 
 <p>Returns the last NMEA line received and unsets the received flag. </p>
 <dl class="section return"><dt>Returns</dt><dd>Pointer to the last line string </dd></dl>
+
+</div>
+</div>
+<a id="add173e9cb6547f3b265dd15491f893aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add173e9cb6547f3b265dd15491f893aa">&#9670;&nbsp;</a></span>lastPosition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgnss__position__t.html">gnss_position_t</a> Adafruit_GPS::lastPosition </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decode the latest received sentence with exact coordinate precision. </p>
+<dl class="section return"><dt>Returns</dt><dd>Independent GGA/RMC/GLL position data and per-field status.</dd></dl>
+<p>Call after <a class="el" href="class_adafruit___g_p_s.html#a776378bc3e4e8a098dce88d6a4ffb0b8" title="Read one character from the GPS device. ">read()</a> completes a line. This does not acknowledge the receive flag, update legacy GPS fields, or merge data from earlier sentences. Use <a class="el" href="class_adafruit___g_p_s.html#a6938dadca5d72ec6e89e86a5b01b9b67" title="Returns the last NMEA line received and unsets the received flag. ">lastNMEA()</a> to acknowledge the line and <a class="el" href="class_adafruit___g_p_s.html#a0780becacadd5c8f1566eb598dac6f02" title="Parse a standard NMEA string and update the relevant variables. Sentences start with a $...">parse()</a> to update legacy fields. Parsing a caller-supplied string does not replace the received sentence.</p>
+<p>Check validation and each field's status; a valid fix flag does not imply populated coordinates. Exact components can be passed to <a class="el" href="class_adafruit___g_n_s_s.html#a1f2b2627a1f2500bbd2dc3b8ae63db7e" title="Format exact coordinate components as signed decimal degrees. ">Adafruit_GNSS::formatCoordinate()</a> even when nmea_float_t is float. No stored fix or extra receive buffer is added. The result owns its values and survives subsequent input. Calls must be synchronized with <a class="el" href="class_adafruit___g_p_s.html#a776378bc3e4e8a098dce88d6a4ffb0b8" title="Read one character from the GPS device. ">read()</a>, including when <a class="el" href="class_adafruit___g_p_s.html#a776378bc3e4e8a098dce88d6a4ffb0b8" title="Read one character from the GPS device. ">read()</a> runs in an interrupt.</p>
+<p>Before reception or after <a class="el" href="class_adafruit___g_p_s.html#ab8a2fe20ce1874b10a6e9f007c236b30" title="Initialization code used by all constructor types. ">common_init()</a>, returns INVALID_FRAME. Invalid complete lines return INVALID_FRAME; valid non-position sentences return UNSUPPORTED. Partial or oversized input preserves the last complete line. </p>
 
 </div>
 </div>
