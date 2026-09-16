@@ -87,6 +87,16 @@ bool Adafruit_GPS::parse(char *nmea) {
                   // non-destructive
   p = strchr(p, ',') + 1; // Skip to char after the next comma, then check.
 
+  // Validate every field consumed by a standard navigation decoder before
+  // changing any fix data. The enclosing frame has already passed check().
+  nmea_span_t type = {thisSentence, strlen(thisSentence)};
+  nmea_span_t dataFields = {p, (size_t)(strchr(p, '*') - p)};
+  gnss_validation_t validation =
+      Adafruit_GNSS::validateNavigation(type, dataFields);
+  if (validation.status != GNSS_SENTENCE_VALID &&
+      validation.status != GNSS_SENTENCE_UNSUPPORTED)
+    return false;
+
   // This may look inefficient, but an M0 will get down the list in about 1 us /
   // strcmp()! Put the GPS sentences from Adafruit_GPS at the top to make
   // pruning excess code easier. Otherwise, keep them alphabetical for ease of
@@ -156,10 +166,11 @@ bool Adafruit_GPS::parse(char *nmea) {
       newDataValue(NMEA_COG, angle = atof(p));
     p = strchr(p, ',') + 1;
     if (!isEmpty(p)) {
-      uint32_t fulldate = atof(p);
-      day = fulldate / 10000;
-      month = (fulldate % 10000) / 100;
-      year = (fulldate % 100);
+      // RMC dates have already passed full-field validation above.
+      gnss_date_t date = Adafruit_GNSS::parseDate({p, 6});
+      day = date.day;
+      month = date.month;
+      year = date.year;
       lastDate = sentTime;
     } // skip the rest
 
@@ -816,21 +827,20 @@ char *Adafruit_GPS::parseStr(char *buff, char *p, int n) {
 */
 /**************************************************************************/
 bool Adafruit_GPS::parseTime(char *p) {
-  if (!isEmpty(p)) { // get time
-    uint32_t time = atol(p);
-    hour = time / 10000;
-    minute = (time % 10000) / 100;
-    seconds = (time % 100);
-    char *dec = strchr(p, '.');
-    char *comstar = min(strchr(p, ','), strchr(p, '*'));
-    if (dec != NULL && comstar != NULL && dec < comstar)
-      milliseconds = atof(dec) * 1000;
-    else
-      milliseconds = 0;
-    lastTime = sentTime;
-    return true;
-  }
-  return false;
+  if (!p)
+    return false;
+  char *end = p;
+  while (*end && *end != ',' && *end != '*')
+    end++;
+  gnss_time_t time = Adafruit_GNSS::parseTime({p, (size_t)(end - p)});
+  if (time.status != NMEA_NUMBER_VALID)
+    return false;
+  hour = time.hour;
+  minute = time.minute;
+  seconds = time.second;
+  milliseconds = time.millisecond;
+  lastTime = sentTime;
+  return true;
 }
 
 /**************************************************************************/
