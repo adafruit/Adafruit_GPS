@@ -59,6 +59,37 @@ void setup() {
     return;
   }
   Serial.println(F("PASS: hemispheres, boundary values, and optional outputs"));
+
+  if (sizeof(nmea_float_t) > 4) {
+    char first[] =
+        "$GPRMC,123519,A,8959.123456789,S,17959.123456789,W,1.2,3.4,150926,,,A";
+    char second[] =
+        "$GPRMC,123519,A,8959.123456889,S,17959.123456889,W,1.2,3.4,150926,,,A";
+    // Leave room for addChecksum() to append *HH and the terminator.
+    char precise[120];
+    strcpy(precise, first);
+    GPS.addChecksum(precise);
+    if (!GPS.parse(precise)) {
+      Serial.println(F("FAIL: first high-precision position"));
+      return;
+    }
+    nmea_float_t latitude = GPS.latitudeDegrees;
+    nmea_float_t longitude = GPS.longitudeDegrees;
+    int32_t latitudeE7 = GPS.latitude_fixed, longitudeE7 = GPS.longitude_fixed;
+    strcpy(precise, second);
+    GPS.addChecksum(precise);
+    // A 0.0000001-minute change is about 0.185 mm in latitude. Both
+    // positions occupy the same E7 cell, so E7 cannot reconstruct the change.
+    double change = -0.0000001 / 60;
+    if (!GPS.parse(precise) || GPS.latitude_fixed != latitudeE7 ||
+        GPS.longitude_fixed != longitudeE7 ||
+        abs((GPS.latitudeDegrees - latitude) - change) > 1e-12 ||
+        abs((GPS.longitudeDegrees - longitude) - change) > 1e-12) {
+      Serial.println(F("FAIL: submillimeter detail lost in double coordinates"));
+      return;
+    }
+    Serial.println(F("PASS: double coordinates retain changes smaller than E7"));
+  }
   testsPassed = true;
 }
 
