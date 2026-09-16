@@ -3,6 +3,7 @@ var searchData=
   ['label',['label',['../structnmea__datavalue__t.html#ad69698d60e94d53ad38c9b2b6f74547f',1,'nmea_datavalue_t']]],
   ['lasthistory',['lastHistory',['../structnmea__history__t.html#a44a9259e5426c52c809e44ae22d67fa6',1,'nmea_history_t']]],
   ['lastnmea',['lastNMEA',['../class_adafruit___g_p_s.html#a6938dadca5d72ec6e89e86a5b01b9b67',1,'Adafruit_GPS']]],
+  ['lastposition',['lastPosition',['../class_adafruit___g_n_s_s.html#aaf32a92103e32ef61379414c1b152c2a',1,'Adafruit_GNSS']]],
   ['lastsentence',['lastSentence',['../class_adafruit___g_p_s.html#a35d9d4c069a8ac93cbcbc98cf1c86ba0',1,'Adafruit_GPS::lastSentence()'],['../class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb',1,'Adafruit_NMEA::lastSentence()']]],
   ['lastsource',['lastSource',['../class_adafruit___g_p_s.html#a8c44f113dda3b54b41a7d05f516c9ec0',1,'Adafruit_GPS']]],
   ['lasttext',['lastText',['../class_adafruit___n_m_e_a.html#a818739ffc3a6a2b9f93f0f72ef82e75e',1,'Adafruit_NMEA']]],

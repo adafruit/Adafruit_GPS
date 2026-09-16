@@ -59,6 +59,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="class_adafruit___g_n_s_s-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -67,7 +68,53 @@ $(function() {
 <div class="contents">
 
 <p><code>#include &lt;<a class="el" href="_adafruit___g_n_s_s_8h_source.html">Adafruit_GNSS.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for Adafruit_GNSS:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="class_adafruit___g_n_s_s.png" usemap="#Adafruit_5FGNSS_map" alt=""/>
+  <map id="Adafruit_5FGNSS_map" name="Adafruit_5FGNSS_map">
+<area href="class_adafruit___n_m_e_a.html" alt="Adafruit_NMEA" shape="rect" coords="0,0,101,24"/>
+</map>
+ </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a7f3e64a93f5fb01e1c8700a70bc5556d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#a7f3e64a93f5fb01e1c8700a70bc5556d">Adafruit_GNSS</a> (volatile char *firstBuffer=NULL, volatile char *secondBuffer=NULL, size_t capacity=0)</td></tr>
+<tr class="memdesc:a7f3e64a93f5fb01e1c8700a70bc5556d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a GNSS receiver using the shared bounded NMEA framer.  <a href="#a7f3e64a93f5fb01e1c8700a70bc5556d">More...</a><br /></td></tr>
+<tr class="separator:a7f3e64a93f5fb01e1c8700a70bc5556d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf32a92103e32ef61379414c1b152c2a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgnss__position__t.html">gnss_position_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#aaf32a92103e32ef61379414c1b152c2a">lastPosition</a> () const</td></tr>
+<tr class="memdesc:aaf32a92103e32ef61379414c1b152c2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode the latest complete line into an independent position result.  <a href="#aaf32a92103e32ef61379414c1b152c2a">More...</a><br /></td></tr>
+<tr class="separator:aaf32a92103e32ef61379414c1b152c2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_class_adafruit___n_m_e_a"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_adafruit___n_m_e_a')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a></td></tr>
+<tr class="memitem:a68731e20b2fc1c46c6c55e3be771a17e inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a68731e20b2fc1c46c6c55e3be771a17e">Adafruit_NMEA</a> (volatile char *firstBuffer, volatile char *secondBuffer, size_t capacity)</td></tr>
+<tr class="memdesc:a68731e20b2fc1c46c6c55e3be771a17e inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a receiver using two caller-owned buffers.  <a href="class_adafruit___n_m_e_a.html#a68731e20b2fc1c46c6c55e3be771a17e">More...</a><br /></td></tr>
+<tr class="separator:a68731e20b2fc1c46c6c55e3be771a17e inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a8a9e0339de1ed249d262e7fbcc1252 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a1a8a9e0339de1ed249d262e7fbcc1252">Adafruit_NMEA</a> (const <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;other)=delete</td></tr>
+<tr class="memdesc:a1a8a9e0339de1ed249d262e7fbcc1252 inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copying is disabled to prevent sharing writable receive buffers.  <a href="class_adafruit___n_m_e_a.html#a1a8a9e0339de1ed249d262e7fbcc1252">More...</a><br /></td></tr>
+<tr class="separator:a1a8a9e0339de1ed249d262e7fbcc1252 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48f4a2229b4cee7cb134e0b594c66e11 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a48f4a2229b4cee7cb134e0b594c66e11">operator=</a> (const <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a> &amp;other)=delete</td></tr>
+<tr class="memdesc:a48f4a2229b4cee7cb134e0b594c66e11 inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment is disabled to prevent sharing writable receive buffers.  <a href="class_adafruit___n_m_e_a.html#a48f4a2229b4cee7cb134e0b594c66e11">More...</a><br /></td></tr>
+<tr class="separator:a48f4a2229b4cee7cb134e0b594c66e11 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9878c7a74f09a83bce8095f118622a98 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98">reset</a> ()</td></tr>
+<tr class="memdesc:a9878c7a74f09a83bce8095f118622a98 inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discard partial and completed lines and clear all timestamps.  <a href="class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98">More...</a><br /></td></tr>
+<tr class="separator:a9878c7a74f09a83bce8095f118622a98 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5b0a29a311cba10eb4fc906c4ecb7d7 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="_adafruit___n_m_e_a_8h.html#ace3ac8bd1353ce499e20842e81b3c5aa">nmea_frame_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7">feed</a> (uint8_t byte, uint32_t receivedAtMs)</td></tr>
+<tr class="memdesc:ac5b0a29a311cba10eb4fc906c4ecb7d7 inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Feed one byte into this receiver's bounded sentence buffer.  <a href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7">More...</a><br /></td></tr>
+<tr class="separator:ac5b0a29a311cba10eb4fc906c4ecb7d7 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a818739ffc3a6a2b9f93f0f72ef82e75e inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a818739ffc3a6a2b9f93f0f72ef82e75e">lastText</a> () const</td></tr>
+<tr class="memdesc:a818739ffc3a6a2b9f93f0f72ef82e75e inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the latest complete raw line without validating it again.  <a href="class_adafruit___n_m_e_a.html#a818739ffc3a6a2b9f93f0f72ef82e75e">More...</a><br /></td></tr>
+<tr class="separator:a818739ffc3a6a2b9f93f0f72ef82e75e inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a144bf137d190ef58c95ed1f170d2f6eb inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb">lastSentence</a> () const</td></tr>
+<tr class="memdesc:a144bf137d190ef58c95ed1f170d2f6eb inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get views of the latest complete line, including invalid raw text.  <a href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb">More...</a><br /></td></tr>
+<tr class="separator:a144bf137d190ef58c95ed1f170d2f6eb inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe708e26a1e6942510d30d2896905703 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#afe708e26a1e6942510d30d2896905703">sentenceStartedAt</a> () const</td></tr>
+<tr class="memdesc:afe708e26a1e6942510d30d2896905703 inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the start-marker timestamp of the latest complete line.  <a href="class_adafruit___n_m_e_a.html#afe708e26a1e6942510d30d2896905703">More...</a><br /></td></tr>
+<tr class="separator:afe708e26a1e6942510d30d2896905703 inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ea632c28c155294c3fbb126ba5d958c inherit pub_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a8ea632c28c155294c3fbb126ba5d958c">sentenceReceivedAt</a> () const</td></tr>
+<tr class="memdesc:a8ea632c28c155294c3fbb126ba5d958c inherit pub_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the LF timestamp of the latest complete line.  <a href="class_adafruit___n_m_e_a.html#a8ea632c28c155294c3fbb126ba5d958c">More...</a><br /></td></tr>
+<tr class="separator:a8ea632c28c155294c3fbb126ba5d958c inherit pub_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a960c36f30377ffe7cdd7bf5b4bf15c0f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__coordinate__t.html">gnss_coordinate_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#a960c36f30377ffe7cdd7bf5b4bf15c0f">parseCoordinate</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> coordinate, <a class="el" href="structnmea__span__t.html">nmea_span_t</a> hemisphere)</td></tr>
@@ -79,6 +126,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ad075c860b9da3e2a50bcef0d57d37b2c"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__position__t.html">gnss_position_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#ad075c860b9da3e2a50bcef0d57d37b2c">parsePosition</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> type, <a class="el" href="structnmea__span__t.html">nmea_span_t</a> fields)</td></tr>
 <tr class="memdesc:ad075c860b9da3e2a50bcef0d57d37b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a GGA, RMC, or GLL position without retaining receiver state.  <a href="#ad075c860b9da3e2a50bcef0d57d37b2c">More...</a><br /></td></tr>
 <tr class="separator:ad075c860b9da3e2a50bcef0d57d37b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af988ae742afc1b20b251cf2357a2e2ba"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__position__t.html">gnss_position_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#af988ae742afc1b20b251cf2357a2e2ba">parsePosition</a> (const <a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a> &amp;sentence)</td></tr>
+<tr class="memdesc:af988ae742afc1b20b251cf2357a2e2ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Route a validated standard NMEA sentence to the position decoder.  <a href="#af988ae742afc1b20b251cf2357a2e2ba">More...</a><br /></td></tr>
+<tr class="separator:af988ae742afc1b20b251cf2357a2e2ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__time__t.html">gnss_time_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#ab47ea0afd9aad5105ec7224912bd4fd4">parseTime</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field)</td></tr>
 <tr class="memdesc:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a complete UTC hhmmss[.fraction] field.  <a href="#ab47ea0afd9aad5105ec7224912bd4fd4">More...</a><br /></td></tr>
 <tr class="separator:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -88,10 +138,93 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ad7d7946263aa19d1c9236826810e50d3"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__validation__t.html">gnss_validation_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#ad7d7946263aa19d1c9236826810e50d3">validateNavigation</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> type, <a class="el" href="structnmea__span__t.html">nmea_span_t</a> fields)</td></tr>
 <tr class="memdesc:ad7d7946263aa19d1c9236826810e50d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate standard fields before updating navigation data.  <a href="#ad7d7946263aa19d1c9236826810e50d3">More...</a><br /></td></tr>
 <tr class="separator:ad7d7946263aa19d1c9236826810e50d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_methods_class_adafruit___n_m_e_a"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_class_adafruit___n_m_e_a')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a></td></tr>
+<tr class="memitem:a7c1d5ab8a0dc484b1d3bc285a417f7c8 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a7c1d5ab8a0dc484b1d3bc285a417f7c8">validate</a> (const char *data, size_t length)</td></tr>
+<tr class="memdesc:a7c1d5ab8a0dc484b1d3bc285a417f7c8 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate a complete, length-bounded NMEA sentence without copying it.  <a href="class_adafruit___n_m_e_a.html#a7c1d5ab8a0dc484b1d3bc285a417f7c8">More...</a><br /></td></tr>
+<tr class="separator:a7c1d5ab8a0dc484b1d3bc285a417f7c8 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d8d7da57a71eea1a9cff9c3de1fe80f inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a9d8d7da57a71eea1a9cff9c3de1fe80f">nextField</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> &amp;remaining)</td></tr>
+<tr class="memdesc:a9d8d7da57a71eea1a9cff9c3de1fe80f inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the next field and advance a bounded field cursor.  <a href="class_adafruit___n_m_e_a.html#a9d8d7da57a71eea1a9cff9c3de1fe80f">More...</a><br /></td></tr>
+<tr class="separator:a9d8d7da57a71eea1a9cff9c3de1fe80f inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7657fa7645973d4f11939b2a31f6bd1 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structnmea__decimal__t.html">nmea_decimal_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#aa7657fa7645973d4f11939b2a31f6bd1">parseDecimal</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field)</td></tr>
+<tr class="memdesc:aa7657fa7645973d4f11939b2a31f6bd1 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a complete field to an exact signed decimal value.  <a href="class_adafruit___n_m_e_a.html#aa7657fa7645973d4f11939b2a31f6bd1">More...</a><br /></td></tr>
+<tr class="separator:aa7657fa7645973d4f11939b2a31f6bd1 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefee3d7489f7c25ed098bb1dfd7a8644 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53e">nmea_number_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#aefee3d7489f7c25ed098bb1dfd7a8644">validateDecimal</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field, bool allowNegative=true)</td></tr>
+<tr class="memdesc:aefee3d7489f7c25ed098bb1dfd7a8644 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check an exact decimal without constructing its numeric value.  <a href="class_adafruit___n_m_e_a.html#aefee3d7489f7c25ed098bb1dfd7a8644">More...</a><br /></td></tr>
+<tr class="separator:aefee3d7489f7c25ed098bb1dfd7a8644 inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a194090c458270f464ff1ad4bd9ac8a6b inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a194090c458270f464ff1ad4bd9ac8a6b">buildCommand</a> (char *output, size_t capacity, const char *body, size_t bodyLength)</td></tr>
+<tr class="memdesc:a194090c458270f464ff1ad4bd9ac8a6b inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a checksummed command in caller-provided storage.  <a href="class_adafruit___n_m_e_a.html#a194090c458270f464ff1ad4bd9ac8a6b">More...</a><br /></td></tr>
+<tr class="separator:a194090c458270f464ff1ad4bd9ac8a6b inherit pub_static_methods_class_adafruit___n_m_e_a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Stateless standard GNSS decoding shared by receiver implementations. Inputs are borrowed spans. Decoding neither allocates memory nor performs transport I/O, and does not alter the supplied text or receiver state. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<div class="textblock"><p>Standard GNSS receiver and decoding shared by receiver implementations. Inherits bounded framing with caller-owned buffers and per-instance times. Position decoding is stateless: no fix is cached or merged across lines. Static decoding does not require receive storage. No heap or transport I/O. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a7f3e64a93f5fb01e1c8700a70bc5556d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f3e64a93f5fb01e1c8700a70bc5556d">&#9670;&nbsp;</a></span>Adafruit_GNSS()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Adafruit_GNSS::Adafruit_GNSS </td>
+          <td>(</td>
+          <td class="paramtype">volatile char *&#160;</td>
+          <td class="paramname"><em>firstBuffer</em> = <code>NULL</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">volatile char *&#160;</td>
+          <td class="paramname"><em>secondBuffer</em> = <code>NULL</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create a GNSS receiver using the shared bounded NMEA framer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">firstBuffer</td><td>First caller-owned writable receive buffer. </td></tr>
+    <tr><td class="paramname">secondBuffer</td><td>Second buffer, disjoint from the first. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Bytes per buffer, including NUL space.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Storage must outlive the receiver. The default or invalid storage disables <a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7" title="Feed one byte into this receiver&#39;s bounded sentence buffer. ">feed()</a> as described by <a class="el" href="class_adafruit___n_m_e_a.html">Adafruit_NMEA</a>; static decoding remains available. Supply incoming bytes and their timestamps with the inherited <a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7" title="Feed one byte into this receiver&#39;s bounded sentence buffer. ">feed()</a>. No position cache, transport, command handling, or allocation is added. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="aaf32a92103e32ef61379414c1b152c2a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf32a92103e32ef61379414c1b152c2a">&#9670;&nbsp;</a></span>lastPosition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgnss__position__t.html">gnss_position_t</a> Adafruit_GNSS::lastPosition </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decode the latest complete line into an independent position result. </p>
+<dl class="section return"><dt>Returns</dt><dd>Exact GGA/RMC/GLL measurements, or validation diagnostics.</dd></dl>
+<p>Call after <a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7" title="Feed one byte into this receiver&#39;s bounded sentence buffer. ">feed()</a> reports a complete line, and synchronize with <a class="el" href="class_adafruit___n_m_e_a.html#ac5b0a29a311cba10eb4fc906c4ecb7d7" title="Feed one byte into this receiver&#39;s bounded sentence buffer. ">feed()</a> if using interrupts. Each call validates and decodes the current line; it does not consume it. Before a line or after <a class="el" href="class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98" title="Discard partial and completed lines and clear all timestamps. ">reset()</a>, the result is INVALID_FRAME. Invalid completed lines replace earlier positions; proprietary replies and other sentences return UNSUPPORTED and remain accessible via <a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb" title="Get views of the latest complete line, including invalid raw text. ">lastSentence()</a>. Partial/overflowing input preserves the previous complete line, just as the framer does. Use <a class="el" href="class_adafruit___n_m_e_a.html#afe708e26a1e6942510d30d2896905703" title="Get the start-marker timestamp of the latest complete line. ">sentenceStartedAt()</a> and <a class="el" href="class_adafruit___n_m_e_a.html#a8ea632c28c155294c3fbb126ba5d958c" title="Get the LF timestamp of the latest complete line. ">sentenceReceivedAt()</a> for this line. Returned values own their data and survive later input or <a class="el" href="class_adafruit___n_m_e_a.html#a9878c7a74f09a83bce8095f118622a98" title="Discard partial and completed lines and clear all timestamps. ">reset()</a>. </p>
+
+</div>
+</div>
 <a id="a960c36f30377ffe7cdd7bf5b4bf15c0f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a960c36f30377ffe7cdd7bf5b4bf15c0f">&#9670;&nbsp;</a></span>parseCoordinate()</h2>
 
@@ -195,7 +328,7 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ad075c860b9da3e2a50bcef0d57d37b2c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad075c860b9da3e2a50bcef0d57d37b2c">&#9670;&nbsp;</a></span>parsePosition()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ad075c860b9da3e2a50bcef0d57d37b2c">&#9670;&nbsp;</a></span>parsePosition() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -240,6 +373,42 @@ Static Public Member Functions</h2></td></tr>
 <p>Call after validating the enclosing frame with <a class="el" href="class_adafruit___n_m_e_a.html#a7c1d5ab8a0dc484b1d3bc285a417f7c8" title="Validate a complete, length-bounded NMEA sentence without copying it. ">Adafruit_NMEA::validate()</a>. Input storage must remain readable and unchanged throughout the call. Validate all consumed navigation fields before returning measurements, including fields this result does not expose (such as altitude). Optional tails retain <a class="el" href="class_adafruit___g_n_s_s.html#ad7d7946263aa19d1c9236826810e50d3" title="Validate standard fields before updating navigation data. ">validateNavigation()</a>'s existing behavior.</p>
 <p>Populated coordinates retain all nine fractional-minute digits and can be passed directly to <a class="el" href="class_adafruit___g_n_s_s.html#a1f2b2627a1f2500bbd2dc3b8ae63db7e" title="Format exact coordinate components as signed decimal degrees. ">formatCoordinate()</a>. Empty fields have EMPTY status; fields absent from this sentence type have MISSING status. The fix boolean is meaningful only with VALID fixStatus and does not imply populated coordinates. GGA quality is independent of RMC/GLL fix validity.</p>
 <p>Time/date and exact position components belong only to this sentence. No timestamps, previous-fix merging, allocation, or floating-point conversion occur here. GSA and other sentence types are UNSUPPORTED by this decoder. </p>
+
+</div>
+</div>
+<a id="af988ae742afc1b20b251cf2357a2e2ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af988ae742afc1b20b251cf2357a2e2ba">&#9670;&nbsp;</a></span>parsePosition() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgnss__position__t.html">gnss_position_t</a> Adafruit_GNSS::parsePosition </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structnmea__sentence__t.html">nmea_sentence_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>sentence</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Route a validated standard NMEA sentence to the position decoder. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sentence</td><td>Unmodified view returned by <a class="el" href="class_adafruit___n_m_e_a.html#a7c1d5ab8a0dc484b1d3bc285a417f7c8" title="Validate a complete, length-bounded NMEA sentence without copying it. ">validate()</a> or <a class="el" href="class_adafruit___n_m_e_a.html#a144bf137d190ef58c95ed1f170d2f6eb" title="Get views of the latest complete line, including invalid raw text. ">lastSentence()</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Independent values; INVALID_FRAME for non-VALID input, UNSUPPORTED for a valid frame outside the supported standard position sentences.</dd></dl>
+<p>Keep the borrowed storage readable and unchanged throughout the call. Trust the supplied frame status; use <a class="el" href="class_adafruit___n_m_e_a.html#a7c1d5ab8a0dc484b1d3bc285a417f7c8" title="Validate a complete, length-bounded NMEA sentence without copying it. ">validate()</a> first for arbitrary text. A standard position address has two uppercase talker letters followed by GGA, RMC, or GLL. Any such talker is accepted except the proprietary 'P' prefix. Encapsulated '!' messages and proprietary addresses are not routed. No receiver-specific address whitelist or command handling is imposed on the underlying framer. Invalid/unsupported input returns no measurements. </p>
 
 </div>
 </div>
