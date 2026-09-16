@@ -126,9 +126,12 @@ void reportGPS(Adafruit_GPS &gps, ReceiveCounts &counts,
   Serial.print(counts.formatErrors);
   Serial.print(F(" parsed="));
   Serial.print(counts.parsed);
+  bool freshFix = gps.fix && gps.secondsSinceFix() < 5;
   Serial.print(F(" fix="));
+  Serial.print(freshFix);
+  Serial.print(F(" ggaQuality="));
   Serial.print(gps.fixquality);
-  if (gps.fix && gps.fixquality && gps.secondsSinceFix() < 5) {
+  if (freshFix) {
     Serial.print(F(" latitudeE7="));
     Serial.print(gps.latitude_fixed);
     Serial.print(F(" longitudeE7="));

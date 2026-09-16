@@ -6,8 +6,11 @@ format-error, and parsed-sentence counts every two seconds. Unsupported sentence
 types count as valid frames but do not increase the parsed count.
 
 No receiver commands are sent. A position fix is reported when available and
-is not required to establish communication. Coordinates are printed only with
-a recent fix. Keep raw captures private if they contain location information.
+is not required to establish communication. `fix` is true only when the latest
+fix status is valid and less than five seconds old; coordinates use that same
+check, including for RMC/GLL-only output. `ggaQuality` reports the last GGA fix
+quality separately and may be stale when GGA sentences stop arriving. Keep raw
+captures private if they contain location information.
 
 | Fixture | Build selection | Receive wiring |
 | --- | --- | --- |
