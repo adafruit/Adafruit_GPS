@@ -78,6 +78,17 @@ int main() {
   assert(decode("8959.999999999999", "N").degreesE7 == 899999999);
   puts("PASS: bounded spans, retained precision, and truncation boundaries");
 
+  // These positions differ by less than a millimeter but share an E7 value.
+  gnss_coordinate_t first = decode("8959.123456789", "S");
+  gnss_coordinate_t second = decode("8959.123456889", "S");
+  assert(first.status == NMEA_NUMBER_VALID &&
+         second.status == NMEA_NUMBER_VALID);
+  assert(first.degreesE7 == second.degreesE7);
+  assert(first.fractionalMinutes == 123456789 &&
+         second.fractionalMinutes == 123456889);
+  assert(first.degrees == 89 && first.minutes == 59 && first.hemisphere == 'S');
+  puts("PASS: exact components retain position changes below E7 resolution");
+
   const uint32_t fractions[] = {0, 1, 599, 600, 123456789, 999999999};
   for (unsigned degrees = 0; degrees < 180; degrees += 7) {
     for (unsigned minutes = 0; minutes < 60; minutes++) {

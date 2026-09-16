@@ -23,16 +23,25 @@ def main():
         "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
         "-fno-omit-frame-pointer", "-I" + str(root / "src"),
     ]
+    # Apply the same type to the sketch and every library translation unit.
+    # The default float API and optional double API must both remain usable.
+    cases = []
+    for test in tests:
+        modes = ("float", "double") if test.suffix == ".ino" else (None,)
+        cases.extend((test, mode) for mode in modes)
     failures = []
-    for index, test in enumerate(tests, 1):
+    for index, (test, mode) in enumerate(cases, 1):
         name = str(test.relative_to(tests_dir))
-        print(f"\n[{index}/{len(tests)}] {name}", flush=True)
+        if mode is not None:
+            name += f" (NMEA_FLOAT_T={mode})"
+        print(f"\n[{index}/{len(cases)}] {name}", flush=True)
         binary = build / str(index)
         if test.suffix == ".ino":
             # Enable marine extensions so RMB and conditional marine checks run.
             sources = [*sorted((root / "src").glob("*.cpp")),
                        support / "Arduino.cpp", support / "sketch_main.cpp"]
-            extra_flags = ["-I" + str(support), "-DNMEA_EXTRAS=1"]
+            extra_flags = ["-I" + str(support), "-DNMEA_EXTRAS=1",
+                           f"-DNMEA_FLOAT_T={mode}"]
         else:
             sources = [root / "src/Adafruit_NMEA.cpp",
                        root / "src/Adafruit_GNSS.cpp"]
@@ -46,7 +55,8 @@ def main():
             print(f"FAIL: {name}: {error}", flush=True)
             failures.append(name)
 
-    print(f"\n{len(tests) - len(failures)}/{len(tests)} regressions passed.", flush=True)
+    print(f"\n{len(cases) - len(failures)}/{len(cases)} test configurations "
+          f"passed ({len(tests)} test sources).", flush=True)
     if failures:
         raise SystemExit(1)
 
