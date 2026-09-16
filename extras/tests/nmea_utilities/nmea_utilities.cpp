@@ -28,6 +28,9 @@ int main() {
                  {"-.5", -5, 1},
                  {"1.", 1, 0},
                  {"00012.0300", 120300, 4},
+                 {"0009223372036854775807", INT64_MAX, 0},
+                 {"-0009223372036854775808", INT64_MIN, 0},
+                 {"1000000000000000000", INT64_C(1000000000000000000), 0},
                  {"4807.038123456", INT64_C(4807038123456), 9},
                  {"9223372036854775807", INT64_MAX, 0},
                  {"-9223372036854775808", INT64_MIN, 0},
@@ -44,7 +47,8 @@ int main() {
   for (const char *text : badNumbers)
     expectNumber({text, strlen(text)}, NMEA_NUMBER_BAD_FORMAT);
   const char *overflow[] = {"9223372036854775808", "-9223372036854775809",
-                            "99999999999999999999999999"};
+                            "99999999999999999999999999",
+                            "10000000000000000000", "0009223372036854775808"};
   for (const char *text : overflow)
     expectNumber({text, strlen(text)}, NMEA_NUMBER_OUT_OF_RANGE);
   expectNumber({NULL, 100}, NMEA_NUMBER_MISSING);
@@ -121,6 +125,11 @@ static void expectNumber(nmea_span_t field, nmea_number_status_t status,
                          int64_t coefficient, uint8_t decimalPlaces) {
   nmea_decimal_t result = Adafruit_NMEA::parseDecimal(field);
   assert(result.status == status);
+  assert(Adafruit_NMEA::validateDecimal(field) == status);
+  nmea_number_status_t nonnegative = status;
+  if (status == NMEA_NUMBER_VALID && coefficient < 0)
+    nonnegative = NMEA_NUMBER_OUT_OF_RANGE;
+  assert(Adafruit_NMEA::validateDecimal(field, false) == nonnegative);
   assert(result.coefficient == coefficient);
   assert(result.decimalPlaces == decimalPlaces);
 }

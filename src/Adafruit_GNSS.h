@@ -68,6 +68,16 @@ public:
   static gnss_date_t parseDate(nmea_span_t field);
   static gnss_validation_t validateNavigation(nmea_span_t type,
                                               nmea_span_t fields);
+
+private:
+  /// Sentence kinds handled by the navigation validator.
+  enum {
+    UNSUPPORTED, ///< Sentence has no standard navigation validation.
+    GGA,         ///< Fix time, position, and altitude.
+    RMC,         ///< Recommended minimum navigation data.
+    GLL,         ///< Geographic position and time.
+    GSA          ///< Fix type and dilution of precision.
+  };
 };
 
 #endif // ADAFRUIT_GNSS_H

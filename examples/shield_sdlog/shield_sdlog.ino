@@ -37,7 +37,9 @@ bool usingInterrupt = false;
 #define ledPin 13
 
 SdFat SD;
-File logfile;
+// Raw NMEA logging only needs the base file API. Avoid the Arduino Stream
+// wrapper, whose virtual methods also pull unused read/seek code into flash.
+SdBaseFile logfile;
 
 // read a Hex value and return the decimal equivalent
 uint8_t parseHex(char c) {
@@ -98,15 +100,19 @@ void setup() {
   }
   char filename[15];
   strcpy(filename, "GPSLOG0000.TXT");
-  for (uint16_t i = 0; i < 10000; i++) {
-    filename[6] = '0' + i/1000;
-    filename[7] = '0' + (i/100)%10;
-    filename[8] = '0' + (i/10)%10;
-    filename[9] = '0' + i%10;
-    // Find an unused long filename, then create it without opening an old log.
-    if (! SD.exists(filename)) {
+  // Find an unused long filename, then create it without opening an old log.
+  while (SD.exists(filename)) {
+    // Carry through the four digits, keeping the filename as the counter.
+    int8_t digit = 9;
+    while (digit >= 6 && filename[digit] == '9') {
+      filename[digit] = '0';
+      digit--;
+    }
+    if (digit < 6) {
+      // All 10000 names exist. Exclusive creation below will fail safely.
       break;
     }
+    filename[digit]++;
   }
 
   if (!logfile.open(filename, O_WRONLY | O_CREAT | O_EXCL)) {
@@ -219,7 +225,7 @@ void loop() {
     uint8_t stringsize = strlen(stringptr);
     if (stringsize != logfile.write((uint8_t *)stringptr, stringsize))    //write the string to the SD file
         error(4);
-    if (strstr(stringptr, "RMC") || strstr(stringptr, "GGA"))   logfile.flush();
+    if (strstr(stringptr, "RMC") || strstr(stringptr, "GGA"))   logfile.sync();
     Serial.println();
   }
 }

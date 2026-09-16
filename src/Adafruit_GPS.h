@@ -250,6 +250,7 @@ private:
                   nmea_float_t *angle = NULL, int32_t *angle_fixed = NULL,
                   char *dir = NULL);
   char *parseStr(char *buff, char *p, int n);
+  char *parseCoordinates(char *p);
   bool parseTime(char *);
   bool parseFix(char *);
   bool parseAntenna(char *);

@@ -195,14 +195,12 @@ static nmea_number_status_t parseSixDigits(nmea_span_t field, uint8_t *pairs) {
     return NMEA_NUMBER_EMPTY;
   if (field.length != 6)
     return NMEA_NUMBER_BAD_FORMAT;
-  for (uint8_t i = 0; i < 6; i++) {
-    char c = field.data[i];
-    if (c < '0' || c > '9')
+  for (uint8_t i = 0; i < 3; i++) {
+    uint8_t tens = field.data[2 * i] - '0';
+    uint8_t ones = field.data[2 * i + 1] - '0';
+    if (tens > 9 || ones > 9)
       return NMEA_NUMBER_BAD_FORMAT;
-    if (i % 2 == 0)
-      pairs[i / 2] = (c - '0') * 10;
-    else
-      pairs[i / 2] += c - '0';
+    pairs[i] = tens * 10 + ones;
   }
   return NMEA_NUMBER_VALID;
 }
@@ -231,22 +229,27 @@ gnss_validation_t Adafruit_GNSS::validateNavigation(nmea_span_t type,
   gnss_validation_t result = {GNSS_SENTENCE_UNSUPPORTED, 0};
   if (!type.data || type.length != 3)
     return result;
-  bool gga = type.data[0] == 'G' && type.data[1] == 'G' && type.data[2] == 'A';
-  bool rmc = type.data[0] == 'R' && type.data[1] == 'M' && type.data[2] == 'C';
-  bool gll = type.data[0] == 'G' && type.data[1] == 'L' && type.data[2] == 'L';
-  bool gsa = type.data[0] == 'G' && type.data[1] == 'S' && type.data[2] == 'A';
-  if (!gga && !rmc && !gll && !gsa)
+  uint8_t sentence = UNSUPPORTED;
+  if (type.data[0] == 'G' && type.data[1] == 'G' && type.data[2] == 'A')
+    sentence = GGA;
+  else if (type.data[0] == 'R' && type.data[1] == 'M' && type.data[2] == 'C')
+    sentence = RMC;
+  else if (type.data[0] == 'G' && type.data[1] == 'L' && type.data[2] == 'L')
+    sentence = GLL;
+  else if (type.data[0] == 'G' && type.data[1] == 'S' && type.data[2] == 'A')
+    sentence = GSA;
+  if (sentence == UNSUPPORTED)
     return result;
   uint8_t required = 6, latitudeField = 1, timeField = 5;
-  if (gga) {
+  if (sentence == GGA) {
     required = 11;
     latitudeField = 2;
     timeField = 1;
-  } else if (rmc) {
+  } else if (sentence == RMC) {
     required = 9;
     latitudeField = 3;
     timeField = 1;
-  } else if (gsa) {
+  } else if (sentence == GSA) {
     required = 17;
     timeField = 0;
   }
@@ -256,7 +259,7 @@ gnss_validation_t Adafruit_GNSS::validateNavigation(nmea_span_t type,
     result.status = GNSS_SENTENCE_MISSING_FIELDS;
     if (!field.data)
       return result;
-    if (!gsa && (i == latitudeField || i == latitudeField + 2)) {
+    if (sentence != GSA && (i == latitudeField || i == latitudeField + 2)) {
       nmea_span_t hemisphere = Adafruit_NMEA::nextField(fields);
       if (!hemisphere.data) {
         result.field = i + 1;
@@ -279,28 +282,28 @@ gnss_validation_t Adafruit_GNSS::validateNavigation(nmea_span_t type,
     if (!field.length)
       continue;
     result.status = GNSS_SENTENCE_INVALID_FIELD;
-    if (gsa && (i == 1 || (i >= 3 && i <= 14))) {
+    if (sentence == GSA && (i == 1 || (i >= 3 && i <= 14))) {
       continue; // Selection mode and satellite IDs are not decoded by GPS.
     } else if (i == timeField) {
       if (parseTime(field).status != NMEA_NUMBER_VALID)
         return result;
-    } else if (rmc && i == 9) {
+    } else if (sentence == RMC && i == 9) {
       if (parseDate(field).status != NMEA_NUMBER_VALID)
         return result;
-    } else if ((rmc && i == 2) || (gll && i == 6)) {
+    } else if ((sentence == RMC && i == 2) || (sentence == GLL && i == 6)) {
       if (field.length != 1 || (field.data[0] != 'A' && field.data[0] != 'V'))
         return result;
-    } else if ((gga && (i == 6 || i == 7)) || (gsa && i == 2)) {
+    } else if ((sentence == GGA && (i == 6 || i == 7)) ||
+               (sentence == GSA && i == 2)) {
       if (!validUnsignedByte(field))
         return result;
-    } else if (gga && i == 10) {
+    } else if (sentence == GGA && i == 10) {
       if (field.length != 1 || field.data[0] != 'M')
         return result;
     } else {
-      nmea_decimal_t number = Adafruit_NMEA::parseDecimal(field);
-      bool signedValue = gga && (i == 9 || i == 11);
-      if (number.status != NMEA_NUMBER_VALID ||
-          (!signedValue && number.coefficient < 0))
+      bool signedValue = sentence == GGA && (i == 9 || i == 11);
+      if (Adafruit_NMEA::validateDecimal(field, signedValue) !=
+          NMEA_NUMBER_VALID)
         return result;
     }
   }

@@ -102,21 +102,10 @@ bool Adafruit_GPS::parse(char *nmea) {
   // pruning excess code easier. Otherwise, keep them alphabetical for ease of
   // reading.
   if (!strcmp(thisSentence, "GGA")) { //************************************GGA
-    if (fields < 11)
-      return false;
     // Adafruit from Actisense NGW-1 from SH CP150C
     parseTime(p);
     p = strchr(p, ',') + 1; // parse time with specialized function
-    // parse out both latitude and direction, then go to next field, or fail
-    if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
-      newDataValue(NMEA_LAT, latitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    // parse out both longitude and direction, then go to next field, or fail
-    if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon))
-      newDataValue(NMEA_LON, longitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
+    p = parseCoordinates(p);
     if (!isEmpty(p)) { // if it's a , (or a * at end of sentence) the value is
                        // not included
       fixquality = atoi(p); // needs additional processing
@@ -142,23 +131,12 @@ bool Adafruit_GPS::parse(char *nmea) {
       geoidheight = atof(p); // skip the rest
 
   } else if (!strcmp(thisSentence, "RMC")) { //*****************************RMC
-    if (fields < 9)
-      return false;
     // in Adafruit from Actisense NGW-1 from SH CP150C
     parseTime(p);
     p = strchr(p, ',') + 1;
     parseFix(p);
     p = strchr(p, ',') + 1;
-    // parse out both latitude and direction, then go to next field, or fail
-    if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
-      newDataValue(NMEA_LAT, latitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    // parse out both longitude and direction, then go to next field, or fail
-    if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon))
-      newDataValue(NMEA_LON, longitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
+    p = parseCoordinates(p);
     if (!isEmpty(p))
       newDataValue(NMEA_SOG, speed = atof(p));
     p = strchr(p, ',') + 1;
@@ -175,26 +153,13 @@ bool Adafruit_GPS::parse(char *nmea) {
     } // skip the rest
 
   } else if (!strcmp(thisSentence, "GLL")) { //*****************************GLL
-    if (fields < 6)
-      return false;
     // in Adafruit from Actisense NGW-1 from SH CP150C
-    // parse out both latitude and direction, then go to next field, or fail
-    if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
-      newDataValue(NMEA_LAT, latitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
-    // parse out both longitude and direction, then go to next field, or fail
-    if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon))
-      newDataValue(NMEA_LON, longitudeDegrees);
-    p = strchr(p, ',') + 1;
-    p = strchr(p, ',') + 1;
+    p = parseCoordinates(p);
     parseTime(p);
     p = strchr(p, ',') + 1;
     parseFix(p); // skip the rest
 
   } else if (!strcmp(thisSentence, "GSA")) { //*****************************GSA
-    if (fields < 17)
-      return false;
     // in Adafruit from Actisense NGW-1
     p = strchr(p, ',') + 1; // skip selection mode
     if (!isEmpty(p))
@@ -790,6 +755,28 @@ bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
   if (dir)
     *dir = coordinate.hemisphere;
   return true;
+}
+
+/**************************************************************************/
+/*!
+    @brief Update the adjacent latitude and longitude fields of a sentence.
+    @param p First coordinate field in an already validated GGA, RMC, or GLL.
+    @return Field following longitude and its hemisphere.
+
+    The caller must validate all four fields before calling. Empty coordinate
+    pairs leave their previous values unchanged. Use the same exact conversion
+    and data update path for each navigation sentence.
+*/
+/**************************************************************************/
+char *Adafruit_GPS::parseCoordinates(char *p) {
+  if (parseCoord(p, &latitudeDegrees, &latitude, &latitude_fixed, &lat))
+    newDataValue(NMEA_LAT, latitudeDegrees);
+  p = strchr(p, ',') + 1;
+  p = strchr(p, ',') + 1;
+  if (parseCoord(p, &longitudeDegrees, &longitude, &longitude_fixed, &lon))
+    newDataValue(NMEA_LON, longitudeDegrees);
+  p = strchr(p, ',') + 1;
+  return strchr(p, ',') + 1;
 }
 
 /**************************************************************************/
