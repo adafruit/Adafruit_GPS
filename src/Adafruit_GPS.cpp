@@ -407,6 +407,32 @@ char *Adafruit_GPS::lastNMEA(void) {
 
 /**************************************************************************/
 /*!
+    @brief Decode the latest received sentence with exact coordinate precision.
+    @return Independent GGA/RMC/GLL position data and per-field status.
+
+    Call after read() completes a line. This does not acknowledge the receive
+    flag, update legacy GPS fields, or merge data from earlier sentences. Use
+    lastNMEA() to acknowledge the line and parse() to update legacy fields.
+    Parsing a caller-supplied string does not replace the received sentence.
+
+    Check validation and each field's status; a valid fix flag does not imply
+    populated coordinates. Exact components can be passed to
+    Adafruit_GNSS::formatCoordinate() even when nmea_float_t is float.
+    No stored fix or extra receive buffer is added. The result owns its values
+    and survives subsequent input. Calls must be synchronized with read(),
+    including when read() runs in an interrupt.
+
+    Before reception or after common_init(), returns INVALID_FRAME. Invalid
+    complete lines return INVALID_FRAME; valid non-position sentences return
+    UNSUPPORTED. Partial or oversized input preserves the last complete line.
+*/
+/**************************************************************************/
+gnss_position_t Adafruit_GPS::lastPosition() const {
+  return receiver.lastPosition();
+}
+
+/**************************************************************************/
+/*!
  * @brief Wait for a specified sentence from the device
  * @param wait4me
  * Pointer to a string holding the desired response

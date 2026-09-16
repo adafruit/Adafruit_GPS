@@ -42,6 +42,48 @@ may not yet include the latest merged fixes.
 | I2C | Your GPS exposes SDA and SCL, as the PA1010D does. | Connect SDA, SCL, power, and ground. Examples use address `0x10`; on an Uno or Metro Mini, SDA is A4 and SCL is A5. |
 | SPI | Your GPS specifically supports SPI. | Follow its wiring requirements; the echo example uses CS on D10 and reset on D9. |
 
+## Exact received positions
+
+`GPS.lastPosition()` returns the latest received GGA, RMC, or GLL sentence as
+an independent `gnss_position_t`. Its coordinate components retain all nine
+fractional-minute digits without a global float-type override. Use
+`Adafruit_GNSS::formatCoordinate()` to print them as decimal degrees on any board,
+including AVR. Preserving digits does not increase the receiver's accuracy.
+
+For a sketch that polls `GPS.read()` in `loop()`, after initializing `GPS`:
+
+```cpp
+GPS.read();
+if (GPS.newNMEAreceived()) {
+  gnss_position_t position = GPS.lastPosition();
+  GPS.lastNMEA(); // Acknowledge this line; lastPosition() leaves the flag alone.
+  if (position.validation.status == GNSS_SENTENCE_VALID &&
+      position.fixStatus == NMEA_NUMBER_VALID && position.fix &&
+      position.latitude.status == NMEA_NUMBER_VALID &&
+      position.longitude.status == NMEA_NUMBER_VALID) {
+    char coordinate[GNSS_COORDINATE_TEXT_SIZE];
+    Adafruit_GNSS::formatCoordinate(coordinate, sizeof(coordinate), position.latitude);
+    Serial.print(coordinate);
+    Serial.print(F(", "));
+    Adafruit_GNSS::formatCoordinate(coordinate, sizeof(coordinate), position.longitude);
+    Serial.println(coordinate);
+  }
+}
+```
+
+The result describes one sentence, without merging previous fixes. Empty fields
+stay empty, and replies or other sentence types return `GNSS_SENTENCE_UNSUPPORTED`.
+Before any complete line, or for a line with an invalid frame/checksum, the result
+is `GNSS_SENTENCE_INVALID_FRAME`. Partial or oversized input leaves the previous
+complete line available. If an interrupt calls `GPS.read()`, synchronize it with
+`lastPosition()` so the receive buffer cannot change during decoding.
+
+This getter does not update `GPS.fix`, `GPS.latitudeDegrees`, or other legacy
+fields; continue using `GPS.parse(GPS.lastNMEA())` when those fields are needed.
+Likewise, parsing a separate caller-supplied string does not change this getter's
+received sentence. Decode such a string with `Adafruit_NMEA::validate()` followed
+by `Adafruit_GNSS::parsePosition()` instead.
+
 ## Example guide
 
 Every example is linked below. An **echo** sketch shows the GPS's raw text;
