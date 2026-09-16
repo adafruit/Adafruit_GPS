@@ -167,7 +167,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:a0780becacadd5c8f1566eb598dac6f02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a standard NMEA string and update the relevant variables. Sentences start with a $, then a two character source identifier, then a three character sentence identifier that defines the format, then a comma and more comma separated fields defined by the sentence name. There are many sentences listed that are not yet supported, including proprietary sentences that start with P, like the $PMTK commands to the GPS modules. See the <a class="el" href="class_adafruit___g_p_s.html#aa98fd519cac1b6f0dd93b7b74e619616" title="Build an NMEA sentence string based on the relevant variables. Sentences start with a $...">build()</a> function and <a href="http://fort21.ru/download/NMEAdescription.pdf">http://fort21.ru/download/NMEAdescription.pdf</a> for sentence descriptions.  <a href="#a0780becacadd5c8f1566eb598dac6f02">More...</a><br /></td></tr>
 <tr class="separator:a0780becacadd5c8f1566eb598dac6f02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4abe9822d8ca59866bbb44de7910881"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#ae4abe9822d8ca59866bbb44de7910881">check</a> (char *nmea)</td></tr>
-<tr class="memdesc:ae4abe9822d8ca59866bbb44de7910881"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check an NMEA string for basic format, valid source ID and valid and valid sentence ID. Update the values of thisCheck, thisSource and thisSentence.  <a href="#ae4abe9822d8ca59866bbb44de7910881">More...</a><br /></td></tr>
+<tr class="memdesc:ae4abe9822d8ca59866bbb44de7910881"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate NMEA framing and checksum, then recognize its source and complete sentence ID. Update thisCheck, thisSource and thisSentence.  <a href="#ae4abe9822d8ca59866bbb44de7910881">More...</a><br /></td></tr>
 <tr class="separator:ae4abe9822d8ca59866bbb44de7910881"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8ccb298fe5b1d096dbdb39be46554e0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_p_s.html#ac8ccb298fe5b1d096dbdb39be46554e0">onList</a> (char *nmea, const char **list)</td></tr>
 <tr class="memdesc:ac8ccb298fe5b1d096dbdb39be46554e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if an NMEA string is valid and is on a list, perhaps to decide if it should be passed to a particular NMEA device.  <a href="#ac8ccb298fe5b1d096dbdb39be46554e0">More...</a><br /></td></tr>
@@ -1034,7 +1034,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
       </table>
 </div><div class="memdoc">
 
-<p>Check an NMEA string for basic format, valid source ID and valid and valid sentence ID. Update the values of thisCheck, thisSource and thisSentence. </p>
+<p>Validate NMEA framing and checksum, then recognize its source and complete sentence ID. Update thisCheck, thisSource and thisSentence. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">nmea</td><td>Pointer to the NMEA string </td></tr>
