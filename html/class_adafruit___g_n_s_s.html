@@ -76,6 +76,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a1f2b2627a1f2500bbd2dc3b8ae63db7e"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#a1f2b2627a1f2500bbd2dc3b8ae63db7e">formatCoordinate</a> (char *output, size_t capacity, const <a class="el" href="structgnss__coordinate__t.html">gnss_coordinate_t</a> &amp;coordinate)</td></tr>
 <tr class="memdesc:a1f2b2627a1f2500bbd2dc3b8ae63db7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format exact coordinate components as signed decimal degrees.  <a href="#a1f2b2627a1f2500bbd2dc3b8ae63db7e">More...</a><br /></td></tr>
 <tr class="separator:a1f2b2627a1f2500bbd2dc3b8ae63db7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad075c860b9da3e2a50bcef0d57d37b2c"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__position__t.html">gnss_position_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#ad075c860b9da3e2a50bcef0d57d37b2c">parsePosition</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> type, <a class="el" href="structnmea__span__t.html">nmea_span_t</a> fields)</td></tr>
+<tr class="memdesc:ad075c860b9da3e2a50bcef0d57d37b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a GGA, RMC, or GLL position without retaining receiver state.  <a href="#ad075c860b9da3e2a50bcef0d57d37b2c">More...</a><br /></td></tr>
+<tr class="separator:ad075c860b9da3e2a50bcef0d57d37b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__time__t.html">gnss_time_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#ab47ea0afd9aad5105ec7224912bd4fd4">parseTime</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field)</td></tr>
 <tr class="memdesc:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a complete UTC hhmmss[.fraction] field.  <a href="#ab47ea0afd9aad5105ec7224912bd4fd4">More...</a><br /></td></tr>
 <tr class="separator:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -188,6 +191,55 @@ Static Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>Characters written, excluding NUL, or zero for invalid components or insufficient storage. On failure output[0] is cleared when possible; no other output bytes are changed.</dd></dl>
 <p>Writes exactly 11 fractional degree digits, truncated toward zero. This distinguishes every retained fractional-minute increment and introduces less than 0.00000000001 degree of formatting error (about 1.2 micrometers of latitude). Southern/western zero retains its minus sign. The components, not the lower-resolution degreesE7 member, supply the result.</p>
 <p>Integer long division uses at most 32-bit arithmetic, with no heap or floating-point conversion. AVR output retains the same precision as other targets, regardless of NMEA_FLOAT_T or the platform's double size. </p>
+
+</div>
+</div>
+<a id="ad075c860b9da3e2a50bcef0d57d37b2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad075c860b9da3e2a50bcef0d57d37b2c">&#9670;&nbsp;</a></span>parsePosition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgnss__position__t.html">gnss_position_t</a> Adafruit_GNSS::parsePosition </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td>
+          <td class="paramname"><em>fields</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode a GGA, RMC, or GLL position without retaining receiver state. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>Three-character sentence type without its talker prefix. </td></tr>
+    <tr><td class="paramname">fields</td><td>Borrowed fields after the address comma and before '*'. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Independent values and validation diagnostics. Invalid or unsupported input returns no partially decoded measurements.</dd></dl>
+<p>Call after validating the enclosing frame with <a class="el" href="class_adafruit___n_m_e_a.html#a7c1d5ab8a0dc484b1d3bc285a417f7c8" title="Validate a complete, length-bounded NMEA sentence without copying it. ">Adafruit_NMEA::validate()</a>. Input storage must remain readable and unchanged throughout the call. All navigation fields consumed by the GPS decoder are validated first, including fields this position result does not expose (such as altitude). Optional tails retain <a class="el" href="class_adafruit___g_n_s_s.html#ad7d7946263aa19d1c9236826810e50d3" title="Validate standard fields before updating navigation data. ">validateNavigation()</a>'s existing behavior.</p>
+<p>Populated coordinates retain all nine fractional-minute digits and can be passed directly to <a class="el" href="class_adafruit___g_n_s_s.html#a1f2b2627a1f2500bbd2dc3b8ae63db7e" title="Format exact coordinate components as signed decimal degrees. ">formatCoordinate()</a>. Empty fields have EMPTY status; fields absent from this sentence type have MISSING status. The fix boolean is meaningful only with VALID fixStatus and does not imply populated coordinates. GGA quality is independent of RMC/GLL fix validity.</p>
+<p>Time/date and exact position components belong only to this sentence. No timestamps, previous-fix merging, allocation, or floating-point conversion occur here. GSA and other sentence types are UNSUPPORTED by this decoder. </p>
 
 </div>
 </div>

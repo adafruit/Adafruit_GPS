@@ -7,7 +7,7 @@ var searchData=
   ['lastupdate',['lastUpdate',['../structnmea__datavalue__t.html#ad19f5539f1b0524e3e8b2df9e3a07ae8',1,'nmea_datavalue_t']]],
   ['lat',['lat',['../class_adafruit___g_p_s.html#a2b04c8136e976cd8cd87aaa3526753d6',1,'Adafruit_GPS']]],
   ['latest',['latest',['../structnmea__datavalue__t.html#aa6e709073decb4b329756e910110e602',1,'nmea_datavalue_t']]],
-  ['latitude',['latitude',['../class_adafruit___g_p_s.html#a9570c4fbe5145a50cfd2e8ae1759a510',1,'Adafruit_GPS']]],
+  ['latitude',['latitude',['../structgnss__position__t.html#ad6fb487b4d042ee9eae582aab24887f8',1,'gnss_position_t::latitude()'],['../class_adafruit___g_p_s.html#a9570c4fbe5145a50cfd2e8ae1759a510',1,'Adafruit_GPS::latitude()']]],
   ['latitude_5ffixed',['latitude_fixed',['../class_adafruit___g_p_s.html#a2d3b65036628a65d1e119d3d9a69678c',1,'Adafruit_GPS']]],
   ['latitudedegrees',['latitudeDegrees',['../class_adafruit___g_p_s.html#ae39fbc538a1ee3ba1c8108bf49065c3f',1,'Adafruit_GPS']]],
   ['length',['length',['../structnmea__span__t.html#aacbef7fe3171c6c1fc648799f9037980',1,'nmea_span_t']]],
@@ -22,7 +22,7 @@ var searchData=
   ['locus_5fstatus',['LOCUS_status',['../class_adafruit___g_p_s.html#ae8cfb553f10224487d0a45354984776c',1,'Adafruit_GPS']]],
   ['locus_5ftype',['LOCUS_type',['../class_adafruit___g_p_s.html#ae3eddbc004d2945018eb1f71abecd0b8',1,'Adafruit_GPS']]],
   ['lon',['lon',['../class_adafruit___g_p_s.html#a704ab5d76824ade6f954e11029c1c916',1,'Adafruit_GPS']]],
-  ['longitude',['longitude',['../class_adafruit___g_p_s.html#a0ed3549d1600cf3bbb7492d376e61ca8',1,'Adafruit_GPS']]],
+  ['longitude',['longitude',['../structgnss__position__t.html#a3e12be7c16a388e1c0125ea5e24b4001',1,'gnss_position_t::longitude()'],['../class_adafruit___g_p_s.html#a0ed3549d1600cf3bbb7492d376e61ca8',1,'Adafruit_GPS::longitude()']]],
   ['longitude_5ffixed',['longitude_fixed',['../class_adafruit___g_p_s.html#a8010f253b2708e05547c452cb5368837',1,'Adafruit_GPS']]],
   ['longitudedegrees',['longitudeDegrees',['../class_adafruit___g_p_s.html#a2a1d1e5e89b46270d8d3ff82bb68666a',1,'Adafruit_GPS']]]
 ];
