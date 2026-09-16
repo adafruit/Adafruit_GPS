@@ -110,6 +110,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aa7657fa7645973d4f11939b2a31f6bd1"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structnmea__decimal__t.html">nmea_decimal_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#aa7657fa7645973d4f11939b2a31f6bd1">parseDecimal</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field)</td></tr>
 <tr class="memdesc:aa7657fa7645973d4f11939b2a31f6bd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a complete field to an exact signed decimal value.  <a href="#aa7657fa7645973d4f11939b2a31f6bd1">More...</a><br /></td></tr>
 <tr class="separator:aa7657fa7645973d4f11939b2a31f6bd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefee3d7489f7c25ed098bb1dfd7a8644"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53e">nmea_number_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#aefee3d7489f7c25ed098bb1dfd7a8644">validateDecimal</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field, bool allowNegative=true)</td></tr>
+<tr class="memdesc:aefee3d7489f7c25ed098bb1dfd7a8644"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check an exact decimal without constructing its numeric value.  <a href="#aefee3d7489f7c25ed098bb1dfd7a8644">More...</a><br /></td></tr>
+<tr class="separator:aefee3d7489f7c25ed098bb1dfd7a8644"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a194090c458270f464ff1ad4bd9ac8a6b"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___n_m_e_a.html#a194090c458270f464ff1ad4bd9ac8a6b">buildCommand</a> (char *output, size_t capacity, const char *body, size_t bodyLength)</td></tr>
 <tr class="memdesc:a194090c458270f464ff1ad4bd9ac8a6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a checksummed command in caller-provided storage.  <a href="#a194090c458270f464ff1ad4bd9ac8a6b">More...</a><br /></td></tr>
 <tr class="separator:a194090c458270f464ff1ad4bd9ac8a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -492,6 +495,53 @@ Static Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Status, integer coefficient, and decimal-place count. Both numeric members are zero on failure. NULL data is MISSING; zero length is EMPTY.</dd></dl>
 <p>Accepts an optional sign, digits, and at most one decimal point. At least one digit is required. Whitespace, exponents, and non-digit suffixes are rejected. The supplied fractional digit count is retained, including zeros. Coefficients must fit int64_t and decimal-place counts must fit uint8_t. Malformed syntax takes precedence over overflow. No rounding, floating-point conversion, allocation, or input modification occurs. </p>
+
+</div>
+</div>
+<a id="aefee3d7489f7c25ed098bb1dfd7a8644"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aefee3d7489f7c25ed098bb1dfd7a8644">&#9670;&nbsp;</a></span>validateDecimal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="_adafruit___n_m_e_a_8h.html#a7d9505c929721a57a83c857411f2c53e">nmea_number_status_t</a> Adafruit_NMEA::validateDecimal </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td>
+          <td class="paramname"><em>field</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>allowNegative</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check an exact decimal without constructing its numeric value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">field</td><td>Borrowed readable text, with no NUL terminator required. </td></tr>
+    <tr><td class="paramname">allowNegative</td><td>Whether to accept negative nonzero values. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The same syntax and range status as <a class="el" href="class_adafruit___n_m_e_a.html#aa7657fa7645973d4f11939b2a31f6bd1" title="Convert a complete field to an exact signed decimal value. ">parseDecimal()</a>. Negative nonzero values give OUT_OF_RANGE when allowNegative is false.</dd></dl>
+<p>Retains parseDecimal's signed 64-bit coefficient and fractional digit limits, including malformed-syntax precedence. Uses no 64-bit arithmetic or allocation. Negative zero is accepted in either mode. </p>
 
 </div>
 </div>

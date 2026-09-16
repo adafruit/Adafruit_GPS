@@ -2,6 +2,7 @@ var searchData=
 [
   ['satellites',['satellites',['../class_adafruit___g_p_s.html#a31e4d48939f3b9e5f62933afc117d04d',1,'Adafruit_GPS']]],
   ['scale',['scale',['../structnmea__history__t.html#a4c98f18694ee688d7c4ff2d4d6941739',1,'nmea_history_t']]],
+  ['second',['second',['../structgnss__time__t.html#aa4e9dc9144edc83338f811ea7da483c9',1,'gnss_time_t']]],
   ['seconds',['seconds',['../class_adafruit___g_p_s.html#a839da762454da25e2076a453706d5553',1,'Adafruit_GPS']]],
   ['secondssincedate',['secondsSinceDate',['../class_adafruit___g_p_s.html#a4b49f40ba946d1646d7937b25e8dda37',1,'Adafruit_GPS']]],
   ['secondssincefix',['secondsSinceFix',['../class_adafruit___g_p_s.html#aed7db1b8b55742a78f291687f1ebc9ca',1,'Adafruit_GPS']]],
@@ -13,5 +14,5 @@ var searchData=
   ['smoothed',['smoothed',['../structnmea__datavalue__t.html#a067a769e6b0ef402b3bf01b0c333e269',1,'nmea_datavalue_t']]],
   ['speed',['speed',['../class_adafruit___g_p_s.html#a449f4a33ecbe0fdf656f6663c74e6cce',1,'Adafruit_GPS']]],
   ['standby',['standby',['../class_adafruit___g_p_s.html#a32ddd41152a08354d2ee2b4311bbf013',1,'Adafruit_GPS']]],
-  ['status',['status',['../structgnss__coordinate__t.html#afb5f485e53f3359c2c45bc510a5c1757',1,'gnss_coordinate_t::status()'],['../structnmea__sentence__t.html#a0698ea96b5223e47a5505ec2c2b08c1d',1,'nmea_sentence_t::status()'],['../structnmea__decimal__t.html#a39aeca4bcd47d3e89f4a3cc4d0a436fc',1,'nmea_decimal_t::status()']]]
+  ['status',['status',['../structgnss__coordinate__t.html#afb5f485e53f3359c2c45bc510a5c1757',1,'gnss_coordinate_t::status()'],['../structgnss__time__t.html#a2fac6ba2996b8d3d4505d2f204acf10a',1,'gnss_time_t::status()'],['../structgnss__date__t.html#a9beee583f198dc6ac0fdcab4b68b2710',1,'gnss_date_t::status()'],['../structgnss__validation__t.html#a5d86fb2f61b9521fed0c0c15a2e6bb4a',1,'gnss_validation_t::status()'],['../structnmea__sentence__t.html#a0698ea96b5223e47a5505ec2c2b08c1d',1,'nmea_sentence_t::status()'],['../structnmea__decimal__t.html#a39aeca4bcd47d3e89f4a3cc4d0a436fc',1,'nmea_decimal_t::status()']]]
 ];

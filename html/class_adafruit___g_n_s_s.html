@@ -73,6 +73,15 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a960c36f30377ffe7cdd7bf5b4bf15c0f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__coordinate__t.html">gnss_coordinate_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#a960c36f30377ffe7cdd7bf5b4bf15c0f">parseCoordinate</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> coordinate, <a class="el" href="structnmea__span__t.html">nmea_span_t</a> hemisphere)</td></tr>
 <tr class="memdesc:a960c36f30377ffe7cdd7bf5b4bf15c0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a latitude or longitude field and its hemisphere.  <a href="#a960c36f30377ffe7cdd7bf5b4bf15c0f">More...</a><br /></td></tr>
 <tr class="separator:a960c36f30377ffe7cdd7bf5b4bf15c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__time__t.html">gnss_time_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#ab47ea0afd9aad5105ec7224912bd4fd4">parseTime</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field)</td></tr>
+<tr class="memdesc:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a complete UTC hhmmss[.fraction] field.  <a href="#ab47ea0afd9aad5105ec7224912bd4fd4">More...</a><br /></td></tr>
+<tr class="separator:ab47ea0afd9aad5105ec7224912bd4fd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accaf44bfd804d44165dbc4af3da8a38e"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__date__t.html">gnss_date_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#accaf44bfd804d44165dbc4af3da8a38e">parseDate</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> field)</td></tr>
+<tr class="memdesc:accaf44bfd804d44165dbc4af3da8a38e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a complete ddmmyy date field.  <a href="#accaf44bfd804d44165dbc4af3da8a38e">More...</a><br /></td></tr>
+<tr class="separator:accaf44bfd804d44165dbc4af3da8a38e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7d7946263aa19d1c9236826810e50d3"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgnss__validation__t.html">gnss_validation_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___g_n_s_s.html#ad7d7946263aa19d1c9236826810e50d3">validateNavigation</a> (<a class="el" href="structnmea__span__t.html">nmea_span_t</a> type, <a class="el" href="structnmea__span__t.html">nmea_span_t</a> fields)</td></tr>
+<tr class="memdesc:ad7d7946263aa19d1c9236826810e50d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate standard fields before updating navigation data.  <a href="#ad7d7946263aa19d1c9236826810e50d3">More...</a><br /></td></tr>
+<tr class="separator:ad7d7946263aa19d1c9236826810e50d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Stateless standard GNSS decoding shared by receiver implementations. Inputs are borrowed spans. Decoding neither allocates memory nor performs transport I/O, and does not alter the supplied text or receiver state. </p>
@@ -121,6 +130,125 @@ Static Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Validated components and signed decimal degrees times 10000000.</dd></dl>
 <p>Missing spans take precedence over empty spans, then malformed syntax, then range errors. Signs, spaces, exponents, and a bare decimal point are invalid. Minutes must be below 60; latitude is limited to 90 degrees and longitude to 180, with zero minutes at either boundary. Fractional minutes retain the first nine digits, padded with zeros; further digits are validated and truncated. degreesE7 is exact at its stated resolution, without rounding or intermediate floating-point arithmetic. </p>
+
+</div>
+</div>
+<a id="ab47ea0afd9aad5105ec7224912bd4fd4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab47ea0afd9aad5105ec7224912bd4fd4">&#9670;&nbsp;</a></span>parseTime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgnss__time__t.html">gnss_time_t</a> Adafruit_GNSS::parseTime </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td>
+          <td class="paramname"><em>field</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode a complete UTC hhmmss[.fraction] field. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">field</td><td>Borrowed time field, with no terminator required. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Status and validated components, zeroed on failure.</dd></dl>
+<p>Exactly six whole digits are required. A decimal point requires at least one fractional digit; all digits are checked, with the first three retained as milliseconds. Seconds may be 60 to represent a leap second. This checks field ranges, not whether a leap second occurred on a particular date. </p>
+
+</div>
+</div>
+<a id="accaf44bfd804d44165dbc4af3da8a38e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#accaf44bfd804d44165dbc4af3da8a38e">&#9670;&nbsp;</a></span>parseDate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgnss__date__t.html">gnss_date_t</a> Adafruit_GNSS::parseDate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td>
+          <td class="paramname"><em>field</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Decode a complete ddmmyy date field. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">field</td><td>Borrowed six-digit date, with no terminator required. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Status and validated components, zeroed on failure.</dd></dl>
+<p>Validates month lengths and February 29 using year modulo four. The NMEA field has no century; year 00 is treated as a leap year, as in 2000. Applications requiring a full year must resolve the century separately. </p>
+
+</div>
+</div>
+<a id="ad7d7946263aa19d1c9236826810e50d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7d7946263aa19d1c9236826810e50d3">&#9670;&nbsp;</a></span>validateNavigation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgnss__validation__t.html">gnss_validation_t</a> Adafruit_GNSS::validateNavigation </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structnmea__span__t.html">nmea_span_t</a>&#160;</td>
+          <td class="paramname"><em>fields</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validate standard fields before updating navigation data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>Three-character sentence type, without its talker prefix. </td></tr>
+    <tr><td class="paramname">fields</td><td>Fields after the address comma and before the checksum. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Status and the first invalid or missing one-based field position.</dd></dl>
+<p>Call after validating the enclosing NMEA frame. Checks the fields consumed by the existing GPS decoders: GGA through geoid separation, RMC through date, GLL through status, and GSA fix type and dilution values. Optional tails and the satellite IDs skipped by the GPS parser are left to their decoders. Empty fields are permitted, but a coordinate and its hemisphere must either both be empty or both be valid for the appropriate axis. Numeric fields must be complete representable decimals; speed, course, and dilution values cannot be negative. Fix quality and satellite count must fit uint8_t. Valid does not imply a position fix or populated fields. No receiver state changes, field arrays, or heap allocation are involved. </p>
 
 </div>
 </div>
