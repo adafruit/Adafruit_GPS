@@ -93,6 +93,9 @@ public:
 
 private:
   static uint8_t sentenceType(nmea_span_t type);
+  static gnss_validation_t decodeNavigation(uint8_t sentence,
+                                            nmea_span_t fields,
+                                            gnss_position_t *position);
   /// Sentence kinds handled by the navigation validator.
   enum {
     UNSUPPORTED, ///< Sentence has no standard navigation validation.

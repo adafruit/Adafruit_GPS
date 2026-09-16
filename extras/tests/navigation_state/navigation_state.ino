@@ -73,6 +73,44 @@ void setup() {
     return;
   }
   Serial.println(F("PASS: valid no-fix messages preserve absent measurements"));
+
+  uint32_t dateTime = GPS.lastDate;
+  GPS.sentTime = 1000;
+  if (!parseBody("$GPGGA,123519,4807.038,N,01131.000,E,4,08,0.9,545.4,M,46.9") ||
+      !GPS.fix || GPS.fixquality != 4 || GPS.lastFix != 1000 ||
+      GPS.lastTime != 1000 || GPS.lastDate != dateTime) {
+    Serial.println(F("FAIL: GGA position update or independent date timestamp"));
+    return;
+  }
+  latitude = GPS.latitude_fixed;
+  longitude = GPS.longitude_fixed;
+  GPS.sentTime = 2000;
+  if (!parseBody("$GPRMC,,V,,,,,,,") || GPS.fix || GPS.fixquality != 4 ||
+      GPS.latitude_fixed != latitude || GPS.longitude_fixed != longitude ||
+      GPS.lastFix != 1000 || GPS.lastTime != 1000 || GPS.lastDate != dateTime) {
+    Serial.println(F("FAIL: RMC no-fix changed GGA quality or absent data"));
+    return;
+  }
+  GPS.sentTime = 3000;
+  if (!parseBody("$GPGLL,,,,,123520,A") || !GPS.fix || GPS.fixquality != 4 ||
+      GPS.seconds != 20 || GPS.lastFix != 3000 || GPS.lastTime != 3000 ||
+      GPS.lastDate != dateTime || GPS.latitude_fixed != latitude ||
+      GPS.longitude_fixed != longitude) {
+    Serial.println(F("FAIL: GLL fix/time update replaced absent position or date"));
+    return;
+  }
+  GPS.sentTime = 4000;
+  if (!parseBody("$GPGGA,,,,,,,,,,,") || !GPS.fix || GPS.fixquality != 4 ||
+      GPS.lastFix != 3000 || GPS.lastTime != 3000 || GPS.lastDate != dateTime) {
+    Serial.println(F("FAIL: empty GGA changed stored fix or timestamps"));
+    return;
+  }
+  if (!parseBody("$GPGGA,,,,,,0,00,99.99,,M,") || GPS.fix || GPS.fixquality ||
+      GPS.lastFix != 3000 || GPS.lastTime != 3000) {
+    Serial.println(F("FAIL: GGA no-fix refreshed last fix or time"));
+    return;
+  }
+  Serial.println(F("PASS: shared position results preserve legacy merging and timestamps"));
   testsPassed = true;
 }
 
