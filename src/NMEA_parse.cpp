@@ -20,6 +20,7 @@
 */
 /**************************************************************************/
 
+#include <Adafruit_GNSS.h>
 #include <Adafruit_GPS.h>
 
 const char PROGMEM Adafruit_GPS::sources[][4] = {"II", "WI", "GP", "PG", "GL",
@@ -723,8 +724,8 @@ bool Adafruit_GPS::onList(char *nmea, const char **list) {
     Works for either DDMM.mmmm,N (latitude) or DDDMM.mmmm,W (longitude) format.
     Insensitive to number of decimal places present. Only fills the variables
     if it succeeds and the variable pointer is not NULL. This allows calling
-    to fill only the variables of interest. Does rudimentary validation on
-    angle range.
+    to fill only the variables of interest. Validates the complete coordinate
+    and hemisphere fields, including minute and degree limits.
 
     Supersedes private functions parseLat(), parseLon(), parseLatDir(),
     parseLonDir(), all previously called from parse().
@@ -743,62 +744,40 @@ bool Adafruit_GPS::onList(char *nmea, const char **list) {
 bool Adafruit_GPS::parseCoord(char *pStart, nmea_float_t *angleDegrees,
                               nmea_float_t *angle, int32_t *angle_fixed,
                               char *dir) {
-  char *p = pStart;
-  if (!isEmpty(p)) {
-    // get the number in DDDMM.mmmm format and break into components
-    char degreebuff[10] = {0}; // Ensure string is terminated after copying
-    char *e = strchr(p, '.');
-    char *comma = strchr(p, ',');
-    if (e == NULL || comma == NULL || e > comma || e - p > 6)
-      return false;               // no decimal point in range
-    memcpy(degreebuff, p, e - p); // get DDDMM
-    long dddmm = atol(degreebuff);
-    long degrees = (dddmm / 100);         // truncate the minutes
-    long minutes = dddmm - degrees * 100; // remove the degrees
-    p = e;                                // start from the decimal point
-    nmea_float_t decminutes = atof(e); // the fraction after the decimal point
-    p = comma + 1;                     // go to the direction field
+  if (!pStart)
+    return false;
+  // Bound just the coordinate and hemisphere, stopping before the next field.
+  // Character comparisons avoid placing a delimiter string in AVR RAM.
+  char *end = pStart;
+  uint8_t commas = 0;
+  while (*end && *end != '*') {
+    if (*end == ',' && ++commas == 2)
+      break;
+    end++;
+  }
+  nmea_span_t remaining = {pStart, (size_t)(end - pStart)};
+  nmea_span_t value = Adafruit_NMEA::nextField(remaining);
+  nmea_span_t hemisphere = Adafruit_NMEA::nextField(remaining);
+  gnss_coordinate_t coordinate =
+      Adafruit_GNSS::parseCoordinate(value, hemisphere);
+  if (coordinate.status != NMEA_NUMBER_VALID)
+    return false;
 
-    // get the NSEW direction as a character
-    char nsew = 'X';
-    if (!isEmpty(p))
-      nsew = *p; // field is not empty
-    else
-      return false; // no direction provided
-
-    // set the various numerical formats to their values
-    long fixed = degrees * 10000000 + (minutes * 10000000) / 60 +
-                 (decminutes * 10000000) / 60;
-    nmea_float_t ang = degrees * 100 + minutes + decminutes;
-    nmea_float_t deg = fixed / (nmea_float_t)10000000.;
-    if (nsew == 'S' ||
-        nsew == 'W') { // fixed and deg are signed, but DDDMM.mmmm is not
-      fixed = -fixed;
-      deg = -deg;
-    }
-
-    // reject directions that are not NSEW
-    if (nsew != 'N' && nsew != 'S' && nsew != 'E' && nsew != 'W')
-      return false;
-
-    // reject angles that are out of range
-    if (nsew == 'N' || nsew == 'S')
-      if (abs(deg) > 90)
-        return false;
-    if (abs(deg) > 180)
-      return false;
-
-    // store in locations passed as args
-    if (angle != NULL)
-      *angle = ang;
-    if (angle_fixed != NULL)
-      *angle_fixed = fixed;
-    if (angleDegrees != NULL)
-      *angleDegrees = deg;
-    if (dir != NULL)
-      *dir = nsew;
-  } else
-    return false; // no number
+  // Derive convenience floats only after exact fixed-point conversion. Keep
+  // their available precision instead of rebuilding them from the E7 value.
+  nmea_float_t minutes = coordinate.minutes + coordinate.fractionalMinutes /
+                                                  (nmea_float_t)1000000000.0;
+  nmea_float_t degrees = coordinate.degrees + minutes / 60;
+  if (coordinate.hemisphere == 'S' || coordinate.hemisphere == 'W')
+    degrees = -degrees;
+  if (angle)
+    *angle = coordinate.degrees * 100 + minutes;
+  if (angle_fixed)
+    *angle_fixed = coordinate.degreesE7;
+  if (angleDegrees)
+    *angleDegrees = degrees;
+  if (dir)
+    *dir = coordinate.hemisphere;
   return true;
 }
 
