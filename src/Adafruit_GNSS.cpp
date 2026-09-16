@@ -301,10 +301,24 @@ static nmea_number_status_t parseSixDigits(nmea_span_t field, uint8_t *pairs) {
 /**************************************************************************/
 gnss_validation_t Adafruit_GNSS::validateNavigation(nmea_span_t type,
                                                     nmea_span_t fields) {
-  gnss_validation_t result = {GNSS_SENTENCE_UNSUPPORTED, 0};
   if (!type.data || type.length != 3)
-    return result;
-  uint8_t sentence = sentenceType(type);
+    return {GNSS_SENTENCE_UNSUPPORTED, 0};
+  return decodeNavigation(sentenceType(type), fields, NULL);
+}
+
+/**************************************************************************/
+/*!
+    @brief Validate navigation and optionally collect exact position fields.
+    @param sentence Private sentence kind.
+    @param fields Bounded sentence fields.
+    @param position Optional scratch result; discard it if validation fails.
+    @return Status and first failing field.
+*/
+/**************************************************************************/
+gnss_validation_t Adafruit_GNSS::decodeNavigation(uint8_t sentence,
+                                                  nmea_span_t fields,
+                                                  gnss_position_t *position) {
+  gnss_validation_t result = {GNSS_SENTENCE_UNSUPPORTED, 0};
   if (sentence == UNSUPPORTED)
     return result;
   uint8_t required = 6, latitudeField = 1, timeField = 5;
@@ -333,9 +347,9 @@ gnss_validation_t Adafruit_GNSS::validateNavigation(nmea_span_t type,
         return result;
       }
       result.status = GNSS_SENTENCE_INVALID_FIELD;
+      gnss_coordinate_t coordinate = parseCoordinate(field, hemisphere);
+      bool latitude = i == latitudeField;
       if (field.length || hemisphere.length) {
-        gnss_coordinate_t coordinate = parseCoordinate(field, hemisphere);
-        bool latitude = i == latitudeField;
         if (coordinate.status != NMEA_NUMBER_VALID ||
             (latitude && coordinate.hemisphere != 'N' &&
              coordinate.hemisphere != 'S') ||
@@ -343,27 +357,62 @@ gnss_validation_t Adafruit_GNSS::validateNavigation(nmea_span_t type,
              coordinate.hemisphere != 'W'))
           return result;
       }
+      if (position) {
+        if (latitude)
+          position->latitude = coordinate;
+        else
+          position->longitude = coordinate;
+      }
       i++;
       continue;
     }
-    if (!field.length)
+    if (!field.length) {
+      if (position) {
+        if (i == timeField)
+          position->time.status = NMEA_NUMBER_EMPTY;
+        else if (sentence == RMC && i == 9)
+          position->date.status = NMEA_NUMBER_EMPTY;
+        else if ((sentence == RMC && i == 2) || (sentence != RMC && i == 6)) {
+          position->fixStatus = NMEA_NUMBER_EMPTY;
+          if (sentence == GGA)
+            position->fixQualityStatus = NMEA_NUMBER_EMPTY;
+        }
+      }
       continue;
+    }
     result.status = GNSS_SENTENCE_INVALID_FIELD;
     if (sentence == GSA && (i == 1 || (i >= 3 && i <= 14))) {
       continue; // Selection mode and satellite IDs are not decoded by GPS.
     } else if (i == timeField) {
-      if (parseTime(field).status != NMEA_NUMBER_VALID)
+      gnss_time_t time = parseTime(field);
+      if (time.status != NMEA_NUMBER_VALID)
         return result;
+      if (position)
+        position->time = time;
     } else if (sentence == RMC && i == 9) {
-      if (parseDate(field).status != NMEA_NUMBER_VALID)
+      gnss_date_t date = parseDate(field);
+      if (date.status != NMEA_NUMBER_VALID)
         return result;
+      if (position)
+        position->date = date;
     } else if ((sentence == RMC && i == 2) || (sentence == GLL && i == 6)) {
       if (field.length != 1 || (field.data[0] != 'A' && field.data[0] != 'V'))
         return result;
+      if (position) {
+        position->fixStatus = NMEA_NUMBER_VALID;
+        position->fix = field.data[0] == 'A';
+      }
     } else if ((sentence == GGA && (i == 6 || i == 7)) ||
                (sentence == GSA && i == 2)) {
       if (!validUnsignedByte(field))
         return result;
+      if (position && sentence == GGA && i == 6) {
+        position->fixStatus = position->fixQualityStatus = NMEA_NUMBER_VALID;
+        for (size_t j = 0; j < field.length; j++)
+          position->fixQuality =
+              position->fixQuality * 10 + field.data[j] - '0';
+        position->fix = position->fixQuality > 0;
+      }
     } else if (sentence == GGA && i == 10) {
       if (field.length != 1 || field.data[0] != 'M')
         return result;
@@ -409,8 +458,8 @@ uint8_t Adafruit_GNSS::sentenceType(nmea_span_t type) {
 
     Call after validating the enclosing frame with Adafruit_NMEA::validate().
     Input storage must remain readable and unchanged throughout the call.
-    All navigation fields consumed by the GPS decoder are validated first,
-    including fields this position result does not expose (such as altitude).
+    Validate all consumed navigation fields before returning measurements,
+    including fields this result does not expose (such as altitude).
     Optional tails retain validateNavigation()'s existing behavior.
 
     Populated coordinates retain all nine fractional-minute digits and can be
@@ -436,46 +485,15 @@ gnss_position_t Adafruit_GNSS::parsePosition(nmea_span_t type,
   uint8_t sentence = sentenceType(type);
   if (sentence != GGA && sentence != RMC && sentence != GLL)
     return result;
-  result.validation = validateNavigation(type, fields);
-  if (result.validation.status != GNSS_SENTENCE_VALID)
-    return result;
-
-  uint8_t latitudeField = 1, timeField = 5, fixField = 6, lastField = 6;
-  if (sentence == GGA) {
-    latitudeField = 2;
-    timeField = 1;
-  } else if (sentence == RMC) {
-    latitudeField = 3;
-    timeField = 1;
-    fixField = 2;
-    lastField = 9;
+  gnss_validation_t validation = decodeNavigation(sentence, fields, &result);
+  if (validation.status != GNSS_SENTENCE_VALID) {
+    // Discard every tentative value, including fields before the error.
+    result = {};
+    result.latitude.status = result.longitude.status = NMEA_NUMBER_MISSING;
+    result.time.status = result.date.status = NMEA_NUMBER_MISSING;
+    result.fixStatus = result.fixQualityStatus = NMEA_NUMBER_MISSING;
   }
-  for (uint8_t i = 1; i <= lastField; i++) {
-    nmea_span_t field = Adafruit_NMEA::nextField(fields);
-    if (i == latitudeField || i == latitudeField + 2) {
-      nmea_span_t hemisphere = Adafruit_NMEA::nextField(fields);
-      if (i == latitudeField)
-        result.latitude = parseCoordinate(field, hemisphere);
-      else
-        result.longitude = parseCoordinate(field, hemisphere);
-      i++;
-    } else if (i == timeField) {
-      result.time = parseTime(field);
-    } else if (i == fixField) {
-      result.fixStatus = field.length ? NMEA_NUMBER_VALID : NMEA_NUMBER_EMPTY;
-      if (sentence == GGA) {
-        result.fixQualityStatus = result.fixStatus;
-        // Validation already proved that this integer fits uint8_t.
-        for (size_t j = 0; j < field.length; j++)
-          result.fixQuality = result.fixQuality * 10 + field.data[j] - '0';
-        result.fix = result.fixQuality > 0;
-      } else {
-        result.fix = field.length && field.data[0] == 'A';
-      }
-    } else if (sentence == RMC && i == 9) {
-      result.date = parseDate(field);
-    }
-  }
+  result.validation = validation;
   return result;
 }
 

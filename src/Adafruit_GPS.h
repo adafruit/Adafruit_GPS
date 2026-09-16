@@ -60,7 +60,7 @@
 #ifdef USE_SW_SERIAL
 #include <SoftwareSerial.h>
 #endif
-#include <Adafruit_NMEA.h>
+#include <Adafruit_GNSS.h>
 #include <Adafruit_PMTK.h>
 #include <NMEA_data.h>
 #include <SPI.h>
@@ -250,9 +250,10 @@ private:
                   nmea_float_t *angle = NULL, int32_t *angle_fixed = NULL,
                   char *dir = NULL);
   char *parseStr(char *buff, char *p, int n);
-  char *parseCoordinates(char *p);
-  bool parseTime(char *);
-  bool parseFix(char *);
+  void setCoordinate(const gnss_coordinate_t &coordinate,
+                     nmea_float_t *angleDegrees, nmea_float_t *angle,
+                     int32_t *angle_fixed, char *dir);
+  gnss_sentence_status_t updatePosition(nmea_span_t type, nmea_span_t fields);
   bool parseAntenna(char *);
   bool isEmpty(char *pStart);
 
