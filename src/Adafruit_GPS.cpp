@@ -442,11 +442,19 @@ gnss_position_t Adafruit_GPS::lastPosition() const {
  * the GPS (default false)
  * @param timeout Time limit in milliseconds (default
  * 10000)
- * @return True on a match, false when either limit is reached
+ * @return True on a valid matching frame, false on NULL prefix or either limit.
+ *
+ * Matching remains a text-prefix comparison, but the complete NMEA frame must
+ * have valid syntax and checksum. Unknown proprietary addresses are allowed;
+ * no GPS sentence whitelist or command-result interpretation is applied.
+ * Every completed line, including invalid and nonmatching lines, counts toward
+ * max. The accepted raw reply remains available through lastNMEA().
  */
 /**************************************************************************/
 bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
                                    bool usingInterrupts, uint32_t timeout) {
+  if (!wait4me)
+    return false;
   uint8_t i = 0;
   uint32_t start = millis();
   // A silent GPS, including an I2C device that NAKs, never advances i.
@@ -458,8 +466,16 @@ bool Adafruit_GPS::waitForSentence(const char *wait4me, uint8_t max,
       char *nmea = lastNMEA();
       i++;
 
-      if (strStartsWith(nmea, wait4me))
-        return true;
+      if (strStartsWith(nmea, wait4me)) {
+        // read() publishes a complete LF-terminated receive buffer. Bound the
+        // whole line, including any embedded NUL, so a valid-looking prefix
+        // cannot hide corrupt bytes from checksum/framing validation.
+        const char *end = (const char *)memchr(nmea, '\n', MAXLINELENGTH);
+        if (end &&
+            Adafruit_NMEA::validate(nmea, (size_t)(end - nmea) + 1).status ==
+                NMEA_FRAME_VALID)
+          return true;
+      }
     }
     yield();
   }
